@@ -13,6 +13,14 @@
   <section class="panel filters" [formGroup]="filterForm">
     <h3 class="filters-title">Filtros del tablero</h3>
     <div class="filters-grid">
+      <label>Periodo grafico
+        <select formControlName="period">
+          <option value="weekly">Semanal</option>
+          <option value="biweekly">Quincenal</option>
+          <option value="monthly">Mensual</option>
+          <option value="yearly">Anual</option>
+        </select>
+      </label>
       <label>Area
         <select formControlName="areaCode">
           <option value="">Todas</option>
@@ -45,17 +53,25 @@
           <option value="condition">Condicion insegura</option>
         </select>
       </label>
-      <label>Mes <input formControlName="reportMonth" placeholder="ABRIL" /></label>
-      <label>Ano <input type="number" formControlName="reportYear" /></label>
-      <label>Periodo grafico
-        <select formControlName="period">
-          <option value="weekly">Semanal</option>
-          <option value="biweekly">Quincenal</option>
-          <option value="monthly">Mensual</option>
-          <option value="yearly">Anual</option>
+      <label>Ano
+        <select formControlName="reportYear" [disabled]="!isMonthlyPeriod">
+          <option value="">{{ isYearlyPeriod ? 'Todos' : 'Seleccionar año' }}</option>
+          @for (year of yearOptions; track year) {
+            <option [value]="year">{{ year }}</option>
+          }
         </select>
       </label>
-      <label>Fecha de referencia <input type="date" formControlName="referenceDate" /></label>
+      <label>Mes
+        <select formControlName="reportMonth" [disabled]="!isMonthlyPeriod">
+          <option value="">{{ isYearlyPeriod ? 'Todos' : 'Seleccionar mes' }}</option>
+          @for (m of monthOptions; track m.value) {
+            <option [value]="m.value">{{ m.label }}</option>
+          }
+        </select>
+      </label>
+      <label>{{ referenceDateLabel }}
+        <input type="date" formControlName="referenceDate" [disabled]="!needsReferenceDate" />
+      </label>
       <button type="button" class="primary" (click)="load()" [disabled]="loading">Aplicar</button>
     </div>
     <p class="filters-hint">El antiguo panel de control queda integrado aqui: un solo tablero para gerencia, lideres y seguimiento operativo.</p>

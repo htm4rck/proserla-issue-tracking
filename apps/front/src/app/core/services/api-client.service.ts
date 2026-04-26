@@ -2,7 +2,18 @@
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ApiResponse, Area, AuditLogDetail, AuditLogPage, Incident, PaginatedIncidents, SessionUser, User } from '../models/api.models';
+import {
+  ApiResponse,
+  Area,
+  AuditLogDetail,
+  AuditLogPage,
+  Incident,
+  Leader,
+  PaginatedIncidents,
+  SessionUser,
+  User,
+  WorkSite,
+} from '../models/api.models';
 import { SeedRunPayload } from '../models/seed.models';
 
 @Injectable({ providedIn: 'root' })
@@ -97,6 +108,22 @@ export class ApiClientService {
 
   listAreas(): Observable<ApiResponse<Area[]>> {
     return this.http.get<ApiResponse<Area[]>>(`${this.base}/areas`);
+  }
+
+  listLeaders(): Observable<ApiResponse<Leader[]>> {
+    return this.http.get<ApiResponse<Leader[]>>(`${this.base}/leaders`);
+  }
+
+  listWorkSites(): Observable<ApiResponse<WorkSite[]>> {
+    return this.http.get<ApiResponse<WorkSite[]>>(`${this.base}/work-sites`);
+  }
+
+  listWorkSitesAdmin(): Observable<ApiResponse<WorkSite[]>> {
+    return this.http.get<ApiResponse<WorkSite[]>>(`${this.base}/work-sites/admin/all`);
+  }
+
+  createWorkSite(payload: Partial<WorkSite>): Observable<ApiResponse<WorkSite>> {
+    return this.http.post<ApiResponse<WorkSite>>(`${this.base}/work-sites`, payload);
   }
 
   listSimple(path: string): Observable<ApiResponse<any[]>> {

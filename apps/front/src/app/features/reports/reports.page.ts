@@ -1,9 +1,11 @@
 ﻿import { Component, inject, OnInit } from '@angular/core';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
 import { Area } from '../../core/models/api.models';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
+import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
 
 @Component({
   selector: 'app-reports-page',
@@ -15,6 +17,7 @@ export class ReportsPageComponent implements OnInit {
   private readonly api = inject(ApiClientService);
   private readonly session = inject(AuthSessionService);
   private readonly fb = inject(FormBuilder);
+  private readonly sanitizer = inject(DomSanitizer);
 
   readonly form = this.fb.nonNullable.group({
     areaCode: [this.session.scopedFilters().areaCode ?? ''],
@@ -36,10 +39,14 @@ export class ReportsPageComponent implements OnInit {
   csvUrl = '';
   pdfUrl = '';
   tableHtmlUrl = '';
+  previewHtmlUrl: SafeResourceUrl | null = null;
+  showHtmlPreview = false;
   xlsxBusy = false;
   xlsxError = '';
   private lastReportParams: Record<string, string | undefined> = {};
   areas: Area[] = [];
+  readonly monthOptions = MONTH_OPTIONS;
+  readonly yearOptions = yearOptions(2020);
 
   ngOnInit(): void {
     this.api.listAreas().subscribe(({ data }) => (this.areas = data ?? []));
@@ -60,6 +67,8 @@ export class ReportsPageComponent implements OnInit {
     this.csvUrl = this.api.reportsCsvUrl(q);
     this.pdfUrl = this.api.reportsPdfUrl(q);
     this.tableHtmlUrl = this.api.reportsTableHtmlUrl(q);
+    this.previewHtmlUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.tableHtmlUrl);
+    this.showHtmlPreview = true;
   }
 
   downloadXlsx(): void {
@@ -81,5 +90,9 @@ export class ReportsPageComponent implements OnInit {
         },
         error: () => (this.xlsxError = 'No se pudo descargar el Excel. Comprueba la conexión o vuelve a generar el reporte.'),
       });
+  }
+
+  togglePreview(): void {
+    this.showHtmlPreview = !this.showHtmlPreview;
   }
 }

@@ -1,4 +1,4 @@
-﻿.panel {
+.panel {
   background: var(--panel);
   border: 1px solid var(--border);
   border-radius: 16px;
@@ -106,15 +106,15 @@
 }
 
 .bar-fill.status.open {
-  background: #ef4444;
+  background: #fca5a5;
 }
 
 .bar-fill.status.in-progress {
-  background: #3b82f6;
+  background: #93c5fd;
 }
 
 .bar-fill.status.closed {
-  background: #22c55e;
+  background: #86efac;
 }
 
 .bar-fill.area {

@@ -30,15 +30,25 @@
       <option value="act">Acto inseguro</option>
       <option value="condition">Condición insegura</option>
     </select>
-    <input formControlName="reportMonth" placeholder="Mes (ABRIL)" />
-    <input type="number" formControlName="reportYear" placeholder="Año" />
+    <select formControlName="reportMonth">
+      <option value="">Todos los meses</option>
+      @for (m of monthOptions; track m.value) {
+        <option [value]="m.value">{{ m.label }}</option>
+      }
+    </select>
+    <select formControlName="reportYear">
+      <option value="">Todos los años</option>
+      @for (year of yearOptions; track year) {
+        <option [value]="year">{{ year }}</option>
+      }
+    </select>
     <button type="button" (click)="run()">Generar</button>
   </form>
   @if (summary) {
-    <ul>
-      <li>Abiertas: {{ summary.open }}</li>
-      <li>En proceso: {{ summary.inProgress }}</li>
-      <li>Cerradas: {{ summary.closed }}</li>
+    <ul class="status-summary">
+      <li><span class="status-pill status-open">Pendiente</span> {{ summary.open }}</li>
+      <li><span class="status-pill status-progress">En proceso</span> {{ summary.inProgress }}</li>
+      <li><span class="status-pill status-closed">Cerrado</span> {{ summary.closed }}</li>
       <li>Total de incidencias: {{ summary.total }}</li>
       <li>Cumplimiento: {{ summary.compliancePct }}%</li>
     </ul>
@@ -49,6 +59,9 @@
       <button type="button" class="linkish" (click)="downloadXlsx()" [disabled]="xlsxBusy">
         {{ xlsxBusy ? 'Generando Excel…' : 'Descargar Excel (.xlsx)' }}
       </button>
+      <button type="button" class="linkish" (click)="togglePreview()">
+        {{ showHtmlPreview ? 'Ocultar preview HTML' : 'Ver preview HTML' }}
+      </button>
       <a [href]="tableHtmlUrl" target="_blank" rel="noopener noreferrer">Abrir reporte en tablas</a>
       @if (csvUrl) {
         <a [href]="csvUrl" target="_blank" rel="noopener noreferrer">Descargar CSV</a>
@@ -56,6 +69,12 @@
     </p>
     @if (xlsxError) {
       <p class="err">{{ xlsxError }}</p>
+    }
+    @if (showHtmlPreview && previewHtmlUrl) {
+      <div class="preview">
+        <h4>Vista previa del reporte HTML</h4>
+        <iframe [src]="previewHtmlUrl" title="Vista previa del reporte de incidencias"></iframe>
+      </div>
     }
   }
 </section>

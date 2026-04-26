@@ -69,6 +69,9 @@ button {
   padding: 0.8rem;
   background: #f8fafc;
 }
+.kpis article.status-open { background: #fee2e2; }
+.kpis article.status-progress { background: #dbeafe; }
+.kpis article.status-closed { background: #dcfce7; }
 
 .kpis span {
   display: block;
@@ -101,4 +104,24 @@ tbody tr {
 
 tbody tr:hover {
   background: rgba(79, 70, 229, 0.06);
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 0.12rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.status-open {
+  color: #991b1b;
+}
+
+.status-progress {
+  color: #1d4ed8;
+}
+
+.status-closed {
+  color: #166534;
 }

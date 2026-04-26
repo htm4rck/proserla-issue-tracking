@@ -14,6 +14,7 @@ import { ReportsModule } from './module/reports.module';
 import { RoleModule } from './module/role.module';
 import { SeedModule } from './module/seed.module';
 import { UserModule } from './module/user.module';
+import { WorkSiteModule } from './module/work-site.module';
 
 const withDatabase = process.env.SKIP_DATABASE !== 'true';
 
@@ -78,6 +79,7 @@ function getTypeOrmConnectionOptions(config: ConfigService) {
           ReportsModule,
           SeedModule,
           AuditLogModule,
+          WorkSiteModule,
         ]
       : []),
     HealthModule,

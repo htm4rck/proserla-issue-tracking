@@ -23,6 +23,8 @@ export interface Incident {
   id: string;
   incidentCode: string;
   reportedBy: string;
+  /** UUID del usuario que registró (servidor). */
+  reportedByUserId?: string;
   reportYear?: number;
   reportMonth?: string;
   reportDay?: number;
@@ -73,6 +75,27 @@ export interface Area {
   id: string;
   code: string;
   name: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Leader {
+  id: string;
+  code: string;
+  fullName: string;
+  email?: string;
+  areaCode: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WorkSite {
+  id: string;
+  code: string;
+  name: string;
+  sortOrder: number;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;

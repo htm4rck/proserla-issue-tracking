@@ -63,15 +63,19 @@ export class IncidentEvidenceInput {
 }
 
 export class CreateIncidentRequest {
+  /** Si se omite o va vacío, el servidor asigna correlativo INC-AAAA-NNNNN. */
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' && value.trim() === '' ? undefined : value))
   @IsString()
-  @IsNotEmpty()
   @MaxLength(100)
-  incidentCode!: string;
+  incidentCode?: string;
 
+  /** Ignorado en creación: el servidor toma reportante desde x-user-email. */
+  @IsOptional()
+  @Transform(({ value }) => (typeof value === 'string' && value.trim() === '' ? undefined : value))
   @IsString()
-  @IsNotEmpty()
   @MaxLength(160)
-  reportedBy!: string;
+  reportedBy?: string;
 
   @IsOptional()
   @Type(() => Number)
@@ -351,6 +355,7 @@ export class IncidentResponse {
   id!: string;
   incidentCode!: string;
   reportedBy!: string;
+  reportedByUserId?: string;
   reportYear?: number;
   reportMonth?: string;
   reportDay?: number;
@@ -381,6 +386,7 @@ export class IncidentMapper {
       id: entity.id,
       incidentCode: entity.incidentCode,
       reportedBy: entity.reportedBy,
+      reportedByUserId: entity.reportedByUserId,
       reportYear: entity.reportYear,
       reportMonth: entity.reportMonth,
       reportDay: entity.reportDay,

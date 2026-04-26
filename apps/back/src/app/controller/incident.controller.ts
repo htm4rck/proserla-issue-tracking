@@ -21,7 +21,7 @@ export class IncidentController {
     @Body() payload: CreateIncidentRequest,
     @Headers('x-user-email') userEmail?: string,
   ): Promise<ApiResponse<IncidentResponse>> {
-    const incident = await this.incidentService.create(payload, userEmail);
+    const incident = await this.incidentService.create(payload, userEmail, userEmail);
     return new ApiResponse(true, 'Incidencia registrada correctamente', IncidentMapper.toResponse(incident));
   }
 

@@ -6,6 +6,7 @@ import { DashboardPageComponent } from './features/dashboard/dashboard.page';
 import { IncidentListPageComponent } from './features/incidents/incident-list.page';
 import { IncidentMaintainPageComponent } from './features/incidents/incident-maintain.page';
 import { OrganizationHubPageComponent } from './features/organization/organization-hub.page';
+import { MastersHubPageComponent } from './features/masters/masters-hub.page';
 import { ReportsPageComponent } from './features/reports/reports.page';
 import { authRequiredGuard, guestOnlyGuard, roleScopeGuard } from './core/guards/auth.guards';
 import { AppShellComponent } from './layout/app-shell.component';
@@ -24,6 +25,7 @@ export const routes: Routes = [
       { path: 'incidents/:incidentCode', component: IncidentMaintainPageComponent, canActivate: [roleScopeGuard] },
       { path: 'users', redirectTo: '/organizacion', pathMatch: 'full' },
       { path: 'organizacion', component: OrganizationHubPageComponent, canActivate: [roleScopeGuard] },
+      { path: 'maestros', component: MastersHubPageComponent, canActivate: [roleScopeGuard] },
       { path: 'security/roles', redirectTo: '/organizacion', pathMatch: 'full' },
       { path: 'organization/areas', redirectTo: '/organizacion', pathMatch: 'full' },
       { path: 'organization/leaders', redirectTo: '/organizacion', pathMatch: 'full' },

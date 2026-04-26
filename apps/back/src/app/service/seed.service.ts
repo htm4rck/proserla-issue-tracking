@@ -8,6 +8,7 @@ import { IncidentEntity } from '../entity/incident.entity';
 import { LeaderEntity } from '../entity/leader.entity';
 import { RoleEntity } from '../entity/role.entity';
 import { UserEntity } from '../entity/user.entity';
+import { WorkSiteEntity } from '../entity/work-site.entity';
 import { IncidentImageType } from '../enum/incident-image-type.enum';
 import { IncidentStatus } from '../enum/incident-status.enum';
 import {
@@ -32,6 +33,7 @@ export class SeedService {
     @InjectRepository(CatalogItemEntity) private readonly catalogs: Repository<CatalogItemEntity>,
     @InjectRepository(IncidentEntity) private readonly incidents: Repository<IncidentEntity>,
     @InjectRepository(IncidentImageEntity) private readonly images: Repository<IncidentImageEntity>,
+    @InjectRepository(WorkSiteEntity) private readonly workSites: Repository<WorkSiteEntity>,
   ) {}
 
   async run(): Promise<SeedRunPayload> {
@@ -40,7 +42,9 @@ export class SeedService {
     await this.seedLeaders();
     await this.seedUsers();
     await this.seedCatalogs();
+    await this.seedWorkSites();
     await this.seedIncidents();
+    await this.syncIncidentSerialFromExisting();
     this.logger.log('Semilla de datos completada');
 
     return this.buildPayload();
@@ -153,6 +157,47 @@ export class SeedService {
         current.passwordHash = hashPassword(process.env.DEMO_DEFAULT_PASSWORD || 'demo1234');
         await this.users.save(current);
       }
+    }
+  }
+
+  private async seedWorkSites(): Promise<void> {
+    const rows = [
+      { code: 'PLANTA', name: 'PLANTA', sortOrder: 10 },
+      { code: 'FUNDO_TARATA', name: 'FUNDO TARATA', sortOrder: 20 },
+      { code: 'FUNDO_MASARIS', name: 'FUNDO MASARIS', sortOrder: 30 },
+      { code: 'FUNDO_CARMELO', name: 'FUNDO CARMELO', sortOrder: 40 },
+      { code: 'FUNDO_LA_VINA', name: 'FUNDO LA VIÑA', sortOrder: 50 },
+      { code: 'FUNDO_SANTA_LUCIA', name: 'FUNDO SANTA LUCÍA', sortOrder: 60 },
+    ];
+    for (const row of rows) {
+      const current = await this.workSites.findOne({ where: { code: row.code } });
+      if (!current) {
+        await this.workSites.save(this.workSites.create({ ...row, isActive: true }));
+      }
+    }
+  }
+
+  /** Evita colisión de correlativos INC-* tras semilla con códigos fijos. */
+  private async syncIncidentSerialFromExisting(): Promise<void> {
+    const raw = await this.incidents
+      .createQueryBuilder('i')
+      .select('i.incidentCode', 'code')
+      .where("i.incidentCode ILIKE 'INC-%'")
+      .getRawMany<{ code: string }>();
+    const maxByYear = new Map<number, number>();
+    for (const row of raw) {
+      const m = String(row.code).match(/^INC-(\d{4})-(\d+)$/i);
+      if (!m) continue;
+      const y = Number(m[1]);
+      const n = Number(m[2]);
+      maxByYear.set(y, Math.max(maxByYear.get(y) ?? 0, n));
+    }
+    for (const [year, last] of maxByYear) {
+      await this.incidents.manager.query(
+        `INSERT INTO incident_serial (year, last_value) VALUES ($1, $2)
+         ON CONFLICT (year) DO UPDATE SET last_value = GREATEST(incident_serial.last_value, $2)`,
+        [year, last],
+      );
     }
   }
 

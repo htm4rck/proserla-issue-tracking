@@ -12,6 +12,10 @@ export class IncidentEntity {
   @Column({ length: 160 })
   reportedBy!: string;
 
+  /** Usuario que registró la incidencia (no editable manualmente desde UI). */
+  @Column({ type: 'uuid', nullable: true })
+  reportedByUserId?: string;
+
   @Column({ type: 'int', nullable: true })
   reportYear?: number;
 

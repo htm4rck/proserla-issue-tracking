@@ -1,9 +1,10 @@
 ﻿import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 import { AuditLogService } from './audit-log.service';
 import { IncidentResponseEntity } from '../entity/incident-response.entity';
 import { IncidentEntity } from '../entity/incident.entity';
+import { UserEntity } from '../entity/user.entity';
 import {
   CreateIncidentRequest,
   SearchIncidentsRequest,
@@ -21,6 +22,7 @@ function toSnapshot(entity: IncidentEntity): Record<string, unknown> {
   return {
     incidentCode: entity.incidentCode,
     reportedBy: entity.reportedBy,
+    reportedByUserId: entity.reportedByUserId,
     reportYear: entity.reportYear,
     reportMonth: entity.reportMonth,
     reportDay: entity.reportDay,
@@ -53,17 +55,36 @@ export class IncidentService {
     private readonly incidentRepository: Repository<IncidentEntity>,
     @InjectRepository(IncidentResponseEntity)
     private readonly responseRepository: Repository<IncidentResponseEntity>,
+    @InjectRepository(UserEntity)
+    private readonly userRepository: Repository<UserEntity>,
     private readonly auditLog: AuditLogService,
   ) {}
 
-  async create(payload: CreateIncidentRequest, changedBy?: string): Promise<IncidentEntity> {
-    const { evidence, ...incidentFields } = payload;
+  async create(payload: CreateIncidentRequest, reporterEmail?: string, changedBy?: string): Promise<IncidentEntity> {
+    const email = (reporterEmail ?? '').trim().toLowerCase();
+    if (!email) {
+      throw new BadRequestException('Se requiere cabecera x-user-email para registrar la incidencia.');
+    }
+    const reporter = await this.userRepository.findOne({ where: { email } });
+    if (!reporter) {
+      throw new BadRequestException('No existe un usuario activo con el correo de sesión.');
+    }
+
+    const { evidence, incidentCode: _codeIn, reportedBy: _byIn, ...incidentFields } = payload;
     const now = new Date();
+    const reportYear = incidentFields.reportYear ?? now.getFullYear();
+
     const saved = await this.incidentRepository.manager.transaction(async (manager) => {
+      const nextCode =
+        _codeIn?.trim() || (await this.allocateNextIncidentCode(manager, reportYear));
+
       const incident = manager.create(IncidentEntity, {
-        reportYear: now.getFullYear(),
-        reportDay: now.getDate(),
+        reportYear,
+        reportDay: incidentFields.reportDay ?? now.getDate(),
         ...incidentFields,
+        incidentCode: nextCode,
+        reportedBy: reporter.fullName?.trim() || reporter.email,
+        reportedByUserId: reporter.id,
         reportMonth: incidentFields.reportMonth?.trim().toUpperCase() || this.monthName(now),
       } as Partial<IncidentEntity>);
       const s = await manager.save(incident);
@@ -140,7 +161,7 @@ export class IncidentService {
       const { evidence, ...scalarUpdates } = dto;
 
       const assignable = [
-        'reportedBy', 'reportYear', 'reportMonth', 'reportDay', 'reportTime',
+        'reportYear', 'reportMonth', 'reportDay', 'reportTime',
         'site', 'reportedPerson', 'reportedPersonAge', 'employerType',
         'areaCode', 'leaderCode', 'assignedTo', 'location', 'workArea',
         'incidentType', 'riskLevel', 'description', 'comment', 'reportSource',
@@ -260,5 +281,21 @@ export class IncidentService {
     const names = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
     const index = names.indexOf(month);
     return index >= 0 ? index + 1 : Number(month) || 0;
+  }
+
+  /** Correlativo anual atómico: INC-AAAA-NNNNN (tabla incident_serial). */
+  private async allocateNextIncidentCode(manager: EntityManager, year: number): Promise<string> {
+    const rows = await manager.query(
+      `INSERT INTO incident_serial (year, last_value) VALUES ($1, 1)
+       ON CONFLICT (year) DO UPDATE SET last_value = incident_serial.last_value + 1
+       RETURNING last_value`,
+      [year],
+    );
+    const raw = rows[0] as { last_value?: number; lastValue?: number } | undefined;
+    const n = Number(raw?.last_value ?? raw?.lastValue);
+    if (!Number.isFinite(n) || n < 1) {
+      throw new BadRequestException('No se pudo generar el código correlativo de incidencia.');
+    }
+    return `INC-${year}-${String(n).padStart(5, '0')}`;
   }
 }

@@ -1,0 +1,65 @@
+<section class="hub">
+  <header class="hero panel">
+    <h2>Maestros</h2>
+    <p class="lead">
+      Catálogos reutilizables en incidencias y reportes. Aquí se mantiene el listado de <strong>fundo / planta</strong>; más pestañas se irán
+      sumando con el tiempo.
+    </p>
+  </header>
+
+  <nav class="tabs panel" aria-label="Maestros">
+    <button type="button" [class.active]="activeTab === 'sites'" (click)="setTab('sites')">Fundo / planta</button>
+  </nav>
+
+  @if (activeTab === 'sites') {
+    <section class="tab-panel panel">
+      <h3>Fundo / planta</h3>
+      <p class="hint">Valores usados en el combo de incidencias. El código es interno; el nombre es el que ve el operador.</p>
+
+      @if (isAdmin) {
+        <form [formGroup]="siteForm" class="grid-form" (ngSubmit)="saveSite()">
+          <label>
+            Código
+            <input formControlName="code" placeholder="FUNDO_TARATA" />
+          </label>
+          <label>
+            Nombre visible
+            <input formControlName="name" placeholder="FUNDO TARATA" />
+          </label>
+          <label>
+            Orden
+            <input type="number" formControlName="sortOrder" />
+          </label>
+          <label class="row-check">
+            <input type="checkbox" formControlName="isActive" />
+            Activo
+          </label>
+          <button type="submit">Agregar</button>
+        </form>
+      } @else {
+        <p class="hint">Solo administradores pueden crear registros en maestros.</p>
+      }
+
+      <table class="data">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Orden</th>
+            <th>Activo</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (s of sitesRows; track s.id) {
+            <tr>
+              <td>{{ s.code }}</td>
+              <td>{{ s.name }}</td>
+              <td>{{ s.sortOrder }}</td>
+              <td>{{ s.isActive ? 'Sí' : 'No' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+</section>

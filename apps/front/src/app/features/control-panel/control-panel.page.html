@@ -35,14 +35,30 @@
         <option value="condition">Condicion insegura</option>
       </select>
     </label>
-    <label>Mes <input formControlName="reportMonth" placeholder="ABRIL" /></label>
-    <label>Ano <input formControlName="reportYear" type="number" /></label>
+    <label>
+      Mes
+      <select formControlName="reportMonth">
+        <option value="">Todos los meses</option>
+        @for (m of monthOptions; track m.value) {
+          <option [value]="m.value">{{ m.label }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Ano
+      <select formControlName="reportYear">
+        <option value="">Todos los años</option>
+        @for (year of yearOptions; track year) {
+          <option [value]="year">{{ year }}</option>
+        }
+      </select>
+    </label>
   </form>
 
   <div class="kpis">
-    <article><span>Abiertas</span><strong>{{ summary.open }}</strong></article>
-    <article><span>En proceso</span><strong>{{ summary.inProgress }}</strong></article>
-    <article><span>Cerradas</span><strong>{{ summary.closed }}</strong></article>
+    <article class="status-open"><span>Pendiente</span><strong>{{ summary.open }}</strong></article>
+    <article class="status-progress"><span>En proceso</span><strong>{{ summary.inProgress }}</strong></article>
+    <article class="status-closed"><span>Cerrado</span><strong>{{ summary.closed }}</strong></article>
     <article><span>Total</span><strong>{{ summary.total }}</strong></article>
     <article><span>Cumplimiento</span><strong>{{ summary.compliancePct }}%</strong></article>
   </div>
@@ -67,7 +83,7 @@
           <td>{{ row.reportedBy }}</td>
           <td>{{ row.location }}</td>
           <td>{{ riesgo(row.riskLevel) }}</td>
-          <td>{{ estado(row.status) }}</td>
+          <td><span [class]="statusClass(row.status)">{{ estado(row.status) }}</span></td>
           <td>{{ row.assignedTo || '-' }}</td>
         </tr>
       } @empty {

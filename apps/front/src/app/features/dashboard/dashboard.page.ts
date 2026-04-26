@@ -6,6 +6,7 @@ import { finalize } from 'rxjs';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { Area } from '../../core/models/api.models';
+import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -53,7 +54,10 @@ export class DashboardPageComponent implements OnInit {
   maxStatusValue = 1;
   maxAreaTotal = 1;
   areas: Area[] = [];
+  readonly monthOptions = MONTH_OPTIONS;
+  readonly yearOptions = yearOptions(2020);
   private areaNames = new Map<string, string>();
+  private readonly today = new Date().toISOString().slice(0, 10);
 
   ngOnInit(): void {
     this.api.listAreas().subscribe(({ data }) => {
@@ -69,6 +73,8 @@ export class DashboardPageComponent implements OnInit {
       this.filterForm.controls.areaCode.disable();
       this.filterForm.controls.leaderCode.disable();
     }
+    this.filterForm.controls.period.valueChanges.subscribe((period) => this.applyEmbeddedTemporalFilters(period));
+    this.applyEmbeddedTemporalFilters(this.filterForm.controls.period.value);
     this.load();
   }
 
@@ -76,6 +82,7 @@ export class DashboardPageComponent implements OnInit {
     this.loading = true;
     this.error = false;
     const q = this.filterForm.getRawValue();
+    const temporal = this.normalizedTemporalFilters(q.period, q.reportYear, q.reportMonth, q.referenceDate);
     this.api
       .reportsAnalytics({
         areaCode: q.areaCode.trim() || undefined,
@@ -83,10 +90,10 @@ export class DashboardPageComponent implements OnInit {
         status: q.status || undefined,
         riskLevel: q.riskLevel || undefined,
         incidentType: q.incidentType || undefined,
-        reportMonth: q.reportMonth.trim() || undefined,
-        reportYear: q.reportYear.trim() || undefined,
+        reportMonth: temporal.reportMonth,
+        reportYear: temporal.reportYear,
         period: q.period,
-        referenceDate: q.referenceDate || undefined,
+        referenceDate: temporal.referenceDate,
       })
       .pipe(finalize(() => (this.loading = false)))
       .subscribe({
@@ -114,5 +121,62 @@ export class DashboardPageComponent implements OnInit {
 
   areaLabel(code: string, name?: string): string {
     return name || this.areaNames.get(code) || code;
+  }
+
+  onPeriodChange(period: 'weekly' | 'biweekly' | 'monthly' | 'yearly'): void {
+    this.applyEmbeddedTemporalFilters(period);
+  }
+
+  get isYearlyPeriod(): boolean {
+    return this.filterForm.controls.period.value === 'yearly';
+  }
+
+  get isMonthlyPeriod(): boolean {
+    return this.filterForm.controls.period.value === 'monthly';
+  }
+
+  get needsReferenceDate(): boolean {
+    const p = this.filterForm.controls.period.value;
+    return p === 'weekly' || p === 'biweekly';
+  }
+
+  get referenceDateLabel(): string {
+    const p = this.filterForm.controls.period.value;
+    if (p === 'weekly') return 'Inicio de semana';
+    if (p === 'biweekly') return 'Inicio de quincena';
+    return 'Fecha de referencia';
+  }
+
+  private applyEmbeddedTemporalFilters(period: 'weekly' | 'biweekly' | 'monthly' | 'yearly'): void {
+    if (period === 'yearly') {
+      this.filterForm.patchValue({ reportYear: '', reportMonth: '', referenceDate: '' }, { emitEvent: false });
+      return;
+    }
+    if (period === 'monthly') {
+      const year = this.filterForm.controls.reportYear.value?.trim() || String(new Date().getFullYear());
+      this.filterForm.patchValue({ reportYear: year, referenceDate: '' }, { emitEvent: false });
+      return;
+    }
+    // Semanal / quincenal: el punto de entrada es fecha de inicio.
+    const ref = this.filterForm.controls.referenceDate.value || this.today;
+    this.filterForm.patchValue({ reportYear: '', reportMonth: '', referenceDate: ref }, { emitEvent: false });
+  }
+
+  private normalizedTemporalFilters(
+    period: 'weekly' | 'biweekly' | 'monthly' | 'yearly',
+    reportYear: string,
+    reportMonth: string,
+    referenceDate: string,
+  ): { reportYear?: string; reportMonth?: string; referenceDate?: string } {
+    if (period === 'yearly') {
+      return {};
+    }
+    if (period === 'monthly') {
+      return {
+        reportYear: reportYear.trim() || undefined,
+        reportMonth: reportMonth.trim().toUpperCase() || undefined,
+      };
+    }
+    return { referenceDate: referenceDate || undefined };
   }
 }

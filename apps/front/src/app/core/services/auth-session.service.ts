@@ -49,6 +49,7 @@ export class AuthSessionService {
     if (!this.isAuthenticated) return false;
     const role = this.normalizedRole;
     if (path.startsWith('/organizacion')) return role === 'admin';
+    if (path.startsWith('/maestros')) return role === 'admin';
     if (path.startsWith('/auditoria')) return role === 'admin';
     if (path.startsWith('/incidents')) return role === 'admin' || role === 'aux_sst';
     if (path.startsWith('/reports')) return role === 'admin' || role === 'aux_sst' || role === 'leader';

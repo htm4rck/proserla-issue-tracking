@@ -8,6 +8,7 @@ import { IncidentImageEntity } from '../entity/incident-image.entity';
 import { LeaderEntity } from '../entity/leader.entity';
 import { RoleEntity } from '../entity/role.entity';
 import { UserEntity } from '../entity/user.entity';
+import { WorkSiteEntity } from '../entity/work-site.entity';
 import { SeedService } from '../service/seed.service';
 
 @Module({
@@ -20,6 +21,7 @@ import { SeedService } from '../service/seed.service';
       CatalogItemEntity,
       IncidentEntity,
       IncidentImageEntity,
+      WorkSiteEntity,
     ]),
   ],
   controllers: [SeedController],

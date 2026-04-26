@@ -5,25 +5,65 @@
   </div>
 
   <div [formGroup]="form" class="grid">
-    <label>Codigo <input formControlName="incidentCode" /></label>
-    <label>Reportante <input formControlName="reportedBy" /></label>
-    <label>Ano <input type="number" formControlName="reportYear" /></label>
-    <label>Mes <input formControlName="reportMonth" placeholder="ABRIL" /></label>
-    <label>Dia <input type="number" formControlName="reportDay" /></label>
-    <label>Hora <input formControlName="reportTime" placeholder="16:28" /></label>
-    <label>Fundo / planta <input formControlName="site" /></label>
-    <label>Datos del reportado <input formControlName="reportedPerson" /></label>
-    <label>Edad <input formControlName="reportedPersonAge" /></label>
-    <label>Proserla / tercero <input formControlName="employerType" /></label>
-    <label>Area
-      <select formControlName="areaCode">
-        <option value="">Seleccionar area</option>
-        @for (area of areas; track area.code) {
-          <option [value]="area.code">{{ area.name }}</option>
+    <label>
+      Codigo
+      <input formControlName="incidentCode" [attr.placeholder]="isCreate ? 'Se asigna al guardar' : ''" />
+      @if (isCreate) {
+        <small class="field-hint">Correlativo automatico INC-AAAA-NNNNN.</small>
+      }
+    </label>
+    <label>
+      Reportante
+      <input formControlName="reportedBy" />
+      <small class="field-hint">Se toma del usuario en sesion (no editable).</small>
+    </label>
+    <label>
+      Ano
+      <select formControlName="reportYear">
+        <option value="">Seleccionar año</option>
+        @for (year of yearOptions; track year) {
+          <option [value]="year">{{ year }}</option>
         }
       </select>
     </label>
-    <label>Codigo de lider <input formControlName="leaderCode" /></label>
+    <label>
+      Mes
+      <select formControlName="reportMonth">
+        <option value="">Seleccionar mes</option>
+        @for (m of monthOptions; track m.value) {
+          <option [value]="m.value">{{ m.label }}</option>
+        }
+      </select>
+    </label>
+    <label>Dia <input type="number" formControlName="reportDay" /></label>
+    <label>Hora <input formControlName="reportTime" placeholder="16:28" /></label>
+    <label>
+      Fundo / planta
+      <select formControlName="site">
+        <option value="">Seleccionar fundo o planta</option>
+        @for (ws of workSites; track ws.id) {
+          <option [value]="ws.name">{{ ws.name }}</option>
+        }
+      </select>
+    </label>
+    <label>Datos del reportado <input formControlName="reportedPerson" /></label>
+    <label>Edad <input formControlName="reportedPersonAge" /></label>
+    <label>Proserla / tercero <input formControlName="employerType" /></label>
+    <label>
+      Lider de area
+      <select formControlName="areaLeaderKey">
+        <option value="">Seleccionar lider de area</option>
+        @if (orphanAreaLeaderOption) {
+          <option [value]="orphanAreaLeaderOption.key">{{ orphanAreaLeaderOption.label }}</option>
+        }
+        @for (l of leadersForSelect; track l.id) {
+          <option [value]="areaLeaderOptionValue(l)">
+            Area: {{ areaName(l.areaCode) }} - Lider: {{ l.fullName }}
+          </option>
+        }
+      </select>
+      <small class="field-hint">Se guardan el codigo de area y el codigo del lider segun el maestro de lideres.</small>
+    </label>
     <label>Responsable <input formControlName="assignedTo" /></label>
     <label>Ubicacion <input formControlName="location" /></label>
     <label>Area de trabajo <input formControlName="workArea" /></label>
@@ -42,9 +82,9 @@
     </label>
     <div class="status-flow">
       <span>Flujo de estado</span>
-      <label><input type="checkbox" [checked]="form.value.status === 'open'" (change)="setStatus('open')" /> Pendiente</label>
-      <label><input type="checkbox" [checked]="form.value.status === 'in_progress'" (change)="setStatus('in_progress')" /> En proceso</label>
-      <label><input type="checkbox" [checked]="form.value.status === 'closed'" (change)="setStatus('closed')" /> Cerrada</label>
+      <label class="status-open"><input type="checkbox" [checked]="form.value.status === 'open'" (change)="setStatus('open')" /> Pendiente</label>
+      <label class="status-progress"><input type="checkbox" [checked]="form.value.status === 'in_progress'" (change)="setStatus('in_progress')" /> En proceso</label>
+      <label class="status-closed"><input type="checkbox" [checked]="form.value.status === 'closed'" (change)="setStatus('closed')" /> Cerrada</label>
       @if (form.value.status === 'closed' && !hasClosureEvidence) {
         <small class="err">Para cerrar, agrega evidencia tipo "Cierre".</small>
       }

@@ -1,10 +1,13 @@
 ﻿<section class="card">
-  <div class="head">
+  <div class="page-header">
     <h3>Incidencias</h3>
-    <a routerLink="/incidents/nuevo">+ Nueva incidencia</a>
+    <div class="actions">
+      <a routerLink="/incidents/nuevo" class="btn-primary">+ Nueva incidencia</a>
+    </div>
   </div>
-  <div class="subhead">
-    <span>Total: {{ total }}</span>
+
+  <div class="toolbar subhead">
+    <span class="count">Total: {{ total }}</span>
     <label>
       Estado
       <select [value]="status" (change)="status = $any($event.target).value; applyFilters()">
@@ -32,13 +35,38 @@
       </select>
     </label>
     <label>
-      Mes
-      <input [value]="reportMonth" (input)="reportMonth = $any($event.target).value" (change)="applyFilters()" placeholder="ABRIL" />
+      Periodo
+      <select [value]="period" (change)="onPeriodChange($any($event.target).value)">
+        <option value="weekly">Semanal</option>
+        <option value="biweekly">Quincenal</option>
+        <option value="monthly">Mensual</option>
+        <option value="yearly">Anual</option>
+      </select>
     </label>
     <label>
       Año
-      <input type="number" [value]="reportYear" (input)="reportYear = +$any($event.target).value" (change)="applyFilters()" />
+      <select [value]="reportYear || ''" [disabled]="!isMonthlyPeriod" (change)="reportYear = +$any($event.target).value; applyFilters()">
+        <option value="">{{ isYearlyPeriod ? 'Todos' : 'Seleccionar año' }}</option>
+        @for (year of yearOptions; track year) {
+          <option [value]="year">{{ year }}</option>
+        }
+      </select>
     </label>
+    <label>
+      Mes
+      <select [value]="reportMonth" [disabled]="!isMonthlyPeriod" (change)="reportMonth = $any($event.target).value; applyFilters()">
+        <option value="">{{ isYearlyPeriod ? 'Todos' : 'Seleccionar mes' }}</option>
+        @for (m of monthOptions; track m.value) {
+          <option [value]="m.value">{{ m.label }}</option>
+        }
+      </select>
+    </label>
+    @if (needsReferenceDate) {
+      <label>
+        {{ referenceDateLabel }}
+        <input type="date" [value]="referenceDate" (input)="referenceDate = $any($event.target).value" (change)="applyFilters()" />
+      </label>
+    }
     <label>
       Filas por página
       <select [value]="pageSize" (change)="setPageSize($any($event.target).value)">
@@ -49,20 +77,90 @@
       </select>
     </label>
   </div>
-  <table>
-    <thead><tr><th>Código</th><th>Área</th><th>Estado</th><th>Riesgo</th><th>Reportante</th></tr></thead>
-    <tbody>
-      @for (i of incidents; track i.id) {
-      <tr class="click-row" [routerLink]="['/incidents', i.incidentCode]">
-        <td>{{ i.incidentCode }}</td>
-        <td>{{ areaLabel(i.areaCode) }}</td>
-        <td>{{ estado(i.status) }}</td>
-        <td>{{ riesgo(i.riskLevel) }}</td>
-        <td>{{ i.reportedBy }}</td>
-      </tr>
-      }
-    </tbody>
-  </table>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Fundo / planta</th>
+          <th>Tipo</th>
+          <th>Estado</th>
+          <th>Riesgo</th>
+          <th class="expand-head"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (i of incidents; track i.id) {
+          <tr class="summary-row">
+            <td class="nowrap">
+              <a [routerLink]="['/incidents', i.incidentCode]" class="code-link">{{ i.incidentCode }}</a>
+            </td>
+            <td class="cell-clip">
+              <a [routerLink]="['/incidents', i.incidentCode]" class="desc-link" [title]="i.description">
+                {{ truncate(i.description, 56) }}
+              </a>
+            </td>
+            <td>{{ dash(i.site) }}</td>
+            <td class="nowrap">{{ tipoIncidencia(i.incidentType) }}</td>
+            <td><span [class]="statusBadgeClass(i.status)">{{ estado(i.status) }}</span></td>
+            <td class="nowrap">{{ riesgo(i.riskLevel) }}</td>
+            <td class="expand-cell" role="button" tabindex="0" (click)="toggleExpand($event, i.incidentCode)">
+              {{ expandGlyph(i.incidentCode) }}
+            </td>
+          </tr>
+          @if (isExpanded(i.incidentCode)) {
+            <tr class="detail-row">
+              <td [attr.colspan]="summaryColCount">
+                <div class="detail-panel">
+                  <a [routerLink]="['/incidents', i.incidentCode]" class="detail-open-link">Abrir ficha completa</a>
+                  <div class="detail-grid">
+                    <div><strong>Fecha / hora reporte:</strong> {{ reportWhen(i) }}</div>
+                    <div><strong>Persona reportada:</strong> {{ dash(i.reportedPerson) }}</div>
+                    <div><strong>Edad:</strong> {{ dash(i.reportedPersonAge) }}</div>
+                    <div><strong>Proserla / tercero:</strong> {{ dash(i.employerType) }}</div>
+                    <div><strong>Área:</strong> {{ areaLabel(i.areaCode) }}</div>
+                    <div><strong>Líder de área:</strong> {{ leaderLabel(i.areaCode, i.leaderCode) }}</div>
+                    <div><strong>Ubicación:</strong> {{ dash(i.location) }}</div>
+                    <div><strong>Área de trabajo:</strong> {{ dash(i.workArea) }}</div>
+                    <div class="detail-span-2"><strong>Descripción:</strong> {{ dash(i.description) }}</div>
+                    <div class="detail-span-2"><strong>Comentario:</strong> {{ dash(i.comment) }}</div>
+                    <div><strong>Origen del reporte:</strong> {{ dash(i.reportSource) }}</div>
+                    <div class="detail-span-2"><strong>Medidas correctivas:</strong> {{ dash(i.correctiveMeasures) }}</div>
+                    <div><strong>Responsable:</strong> {{ dash(i.assignedTo) }}</div>
+                    <div><strong>Reportante:</strong> {{ dash(i.reportedBy) }}</div>
+                    <div><strong>Registro:</strong> {{ formatDt(i.createdAt) }}</div>
+                    <div><strong>Última actualización:</strong> {{ formatDt(i.updatedAt) }}</div>
+                  </div>
+                  <div class="detail-photos">
+                    <strong>Evidencias (fotos)</strong>
+                    @if (isImagesLoading(i.incidentCode)) {
+                      <p class="muted">Cargando imágenes…</p>
+                    } @else if (getImages(i.incidentCode).length === 0) {
+                      <p class="muted">Sin archivos adjuntos.</p>
+                    } @else {
+                      <div class="photo-grid">
+                        @for (img of getImages(i.incidentCode); track img.id) {
+                          <figure class="photo-thumb">
+                            <a [href]="img.url" target="_blank" rel="noopener noreferrer">
+                              <img [src]="img.url" [alt]="evidenciaTipo(img.imageType)" loading="lazy" />
+                            </a>
+                            <figcaption>{{ evidenciaTipo(img.imageType) }}</figcaption>
+                          </figure>
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
   <div class="pagination">
     <button type="button" (click)="prevPage()" [disabled]="page <= 1">Anterior</button>
     <span>Página {{ page }} de {{ totalPages }}</span>

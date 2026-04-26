@@ -91,7 +91,18 @@ export const SEED_INCIDENTS: SeedIncidentBase[] = Array.from({ length: 32 }, (_,
     reportMonth: months[idx % months.length],
     reportDay: (idx % 24) + 1,
     reportTime: `${String(8 + (idx % 9)).padStart(2, '0')}:${idx % 2 === 0 ? '15' : '45'}`,
-    site: idx % 3 === 0 ? 'PLANTA' : idx % 3 === 1 ? 'CAMPO' : 'ALMACEN',
+    site:
+      idx % 6 === 0
+        ? 'PLANTA'
+        : idx % 6 === 1
+          ? 'FUNDO TARATA'
+          : idx % 6 === 2
+            ? 'FUNDO MASARIS'
+            : idx % 6 === 3
+              ? 'FUNDO CARMELO'
+              : idx % 6 === 4
+                ? 'FUNDO LA VIÑA'
+                : 'FUNDO SANTA LUCÍA',
     reportedPerson: idx % 4 === 0 ? 'NA' : 'Personal operativo',
     reportedPersonAge: idx % 4 === 0 ? 'NA' : String(24 + (idx % 18)),
     employerType: idx % 5 === 0 ? 'TERCERO' : 'PROSERLA',

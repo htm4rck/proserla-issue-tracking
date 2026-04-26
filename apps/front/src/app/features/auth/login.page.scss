@@ -6,7 +6,12 @@
 }
 
 .brand-panel {
-  background: linear-gradient(135deg, #0d47a1, #002171);
+  background:
+    linear-gradient(135deg, rgba(13, 71, 161, 0.72), rgba(0, 33, 113, 0.72)),
+    url('/assets/login/login-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   color: #fff;
   padding: 3rem 2rem;
   display: flex;
