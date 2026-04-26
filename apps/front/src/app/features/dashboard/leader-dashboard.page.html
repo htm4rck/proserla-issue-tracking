@@ -1,0 +1,71 @@
+﻿<div class="dash-wrap">
+  <header class="dash-toolbar panel">
+    <div>
+      <h2>Tablero por área / líder</h2>
+      <p>Mismos KPI que el tablero global, con filtros opcionales (p. ej. PACK o LUCIA). Pensado para vista tipo consola Aquila: datos consistentes, recarga explícita y manejo de error.</p>
+    </div>
+    <div class="dash-actions">
+      @if (updatedAt) {
+        <span class="timestamp">Actualizado {{ updatedAt | date: 'short' }}</span>
+      }
+      <button type="button" class="primary" (click)="load()" [disabled]="loading">Actualizar</button>
+    </div>
+  </header>
+
+  <section class="panel filters" [formGroup]="filterForm">
+    <h3 class="filters-title">Filtros</h3>
+    <div class="filters-grid">
+      <label>Código de área <input formControlName="areaCode" placeholder="ej. PACK" /></label>
+      <label>Código de líder <input formControlName="leaderCode" placeholder="ej. LUCIA" /></label>
+      <button type="button" class="primary" (click)="load()">Aplicar filtros</button>
+    </div>
+    <p class="filters-hint">Vacío = todas las incidencias. Tras semilla: PACK, FIELD, PLANT y líderes LUCIA, MARIO, ROSA.</p>
+  </section>
+
+  @if (loading) {
+    <div class="state-loading panel">Cargando indicadores…</div>
+  } @else if (error) {
+    <div class="state-error">No se pudieron cargar los datos. Comprueba la API y vuelve a intentar.</div>
+  } @else if (summary) {
+    <div class="kpi-grid">
+      <article class="kpi-card open">
+        <p class="kpi-label">Abiertas</p>
+        <p class="kpi-value">{{ summary.open }}</p>
+        <p class="kpi-hint">En el subconjunto filtrado.</p>
+      </article>
+      <article class="kpi-card progress">
+        <p class="kpi-label">En proceso</p>
+        <p class="kpi-value">{{ summary.inProgress }}</p>
+        <p class="kpi-hint">Acción correctiva en curso.</p>
+      </article>
+      <article class="kpi-card closed">
+        <p class="kpi-label">Cerradas</p>
+        <p class="kpi-value">{{ summary.closed }}</p>
+        <p class="kpi-hint">Cerradas dentro del filtro.</p>
+      </article>
+      <article class="kpi-card total">
+        <p class="kpi-label">Total filtrado</p>
+        <p class="kpi-value">{{ summary.total }}</p>
+        <p class="kpi-hint">Base para el porcentaje de cumplimiento.</p>
+      </article>
+      <article class="kpi-card compliance">
+        <p class="kpi-label">Cumplimiento</p>
+        <p class="kpi-value">{{ summary.compliancePct }}%</p>
+        <p class="kpi-hint">Cerradas / total en esta vista.</p>
+        <div class="compliance-block">
+          <div class="compliance-bar">
+            <div class="compliance-fill" [style.width.%]="summary.compliancePct"></div>
+          </div>
+        </div>
+      </article>
+    </div>
+
+    <nav class="links-row panel" style="padding: 1rem">
+      <a routerLink="/dashboard">Tablero global</a>
+      <a routerLink="/incidents">Incidencias</a>
+      <a routerLink="/reports">Reportes</a>
+    </nav>
+  } @else {
+    <div class="state-empty panel">Sin datos de resumen.</div>
+  }
+</div>

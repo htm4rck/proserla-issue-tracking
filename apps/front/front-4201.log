@@ -1,0 +1,1175 @@
+
+> front@0.0.0 start
+> ng serve --port 4201 --host 127.0.0.1 --proxy-config proxy.conf.json
+
+[1m[33mComponent HMR has been enabled, see https://angular.dev/hmr for more info.[39m[22m
+[33m>[39m Building...
+[32m√[39m Building...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m212.74 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m302.95 kB[22m
+
+Application bundle generation complete. [3.139 seconds]
+
+Watch mode enabled. Watching for file changes...
+NOTE: Raw file sizes do not reflect development server per-request transformations.
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://127.0.0.1:[1m4201[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m212.84 kB[39m[2m | [22m
+
+Application bundle generation complete. [1.560 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m202.79 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.955 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+
+No output file changes.
+
+Application bundle generation complete. [0.393 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m202.72 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.380 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m202.97 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.358 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m203.97 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.841 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+
+No output file changes.
+
+Application bundle generation complete. [0.424 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m210.77 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.449 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m212.65 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.829 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m213.14 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.921 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m213.14 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m303.36 kB[22m
+
+Application bundle generation complete. [0.240 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m213.79 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.234 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m214.09 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.199 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m214.12 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.243 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m214.21 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.592 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m215.18 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.467 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m215.41 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.488 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m216.89 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.326 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.08 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.584 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.39 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.712 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.44 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.588 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.31 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.565 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.71 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.475 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.72 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.234 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.78 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.165 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.78 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.479 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m219.04 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.682 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m219.31 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.687 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m219.46 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.658 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m220.80 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.552 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m221.46 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.562 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m222.01 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.428 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m223.95 kB[39m[2m | [22m
+
+Application bundle generation complete. [1.015 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m224.97 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.747 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m225.13 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.333 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m225.28 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.234 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+
+No output file changes.
+
+Application bundle generation complete. [0.004 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.395 seconds]
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'roleName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:58:25:
+[37m      58 │                 <td>{{ u.[32mroleName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'areaName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:59:25:
+[37m      59 │                 <td>{{ u.[32mareaName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'leaderName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:60:25:
+[37m      60 │                 <td>{{ u.[32mleaderName[37m }}</td>
+         ╵                          [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.715 seconds]
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'roleName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:58:25:
+[37m      58 │                 <td>{{ u.[32mroleName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'areaName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:59:25:
+[37m      59 │                 <td>{{ u.[32mareaName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'leaderName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:60:25:
+[37m      60 │                 <td>{{ u.[32mleaderName[37m }}</td>
+         ╵                          [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.671 seconds]
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'roleName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:58:25:
+[37m      58 │                 <td>{{ u.[32mroleName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'areaName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:59:25:
+[37m      59 │                 <td>{{ u.[32mareaName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'leaderName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:60:25:
+[37m      60 │                 <td>{{ u.[32mleaderName[37m }}</td>
+         ╵                          [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.206 seconds]
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'roleName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:58:25:
+[37m      58 │                 <td>{{ u.[32mroleName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'areaName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:59:25:
+[37m      59 │                 <td>{{ u.[32mareaName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'leaderName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:60:25:
+[37m      60 │                 <td>{{ u.[32mleaderName[37m }}</td>
+         ╵                          [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.107 seconds]
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'roleName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:58:25:
+[37m      58 │                 <td>{{ u.[32mroleName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'areaName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:59:25:
+[37m      59 │                 <td>{{ u.[32mareaName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'leaderName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:60:25:
+[37m      60 │                 <td>{{ u.[32mleaderName[37m }}</td>
+         ╵                          [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.695 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: RouterLink is not used within the template of OrganizationHubPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.ts:12:33:
+[37m      12 │   imports: [ReactiveFormsModule, [32mRouterLink[37m],
+         ╵                                  [32m~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'roleName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:58:25:
+[37m      58 │                 <td>{{ u.[32mroleName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'areaName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:59:25:
+[37m      59 │                 <td>{{ u.[32mareaName[37m }}</td>
+         ╵                          [32m~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'leaderName' does not exist on type '{ email: string; fullName: string; roleCode: string; areaCode: string; leaderCode: string; nota: string; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.html:60:25:
+[37m      60 │                 <td>{{ u.[32mleaderName[37m }}</td>
+         ╵                          [32m~~~~~~~~~~[0m
+
+  Error occurs in the template of component OrganizationHubPageComponent.
+
+    src/app/features/organization/organization-hub.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./organization-hub.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m218.87 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m309.09 kB[22m
+
+Application bundle generation complete. [0.514 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: RouterLink is not used within the template of OrganizationHubPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/organization/organization-hub.page.ts:12:33:
+[37m      12 │   imports: [ReactiveFormsModule, [32mRouterLink[37m],
+         ╵                                  [32m~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.81 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.518 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.91 kB[39m[2m | [22m
+
+Application bundle generation complete. [1.816 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m218.39 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.582 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.863 seconds]
+
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'rows' does not exist on type 'DashboardPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.page.html:110:25:
+[37m      110 │             @for (row of [32mrows[37m; track row.id) {
+          ╵                          [32m~~~~[0m
+
+  Error occurs in the template of component DashboardPageComponent.
+
+    src/app/features/dashboard/dashboard.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./dashboard.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'riesgo' does not exist on type 'DashboardPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.page.html:116:23:
+[37m      116 │                 <td>{{ [32mriesgo[37m(row.riskLevel) }}</td>
+          ╵                        [32m~~~~~~[0m
+
+  Error occurs in the template of component DashboardPageComponent.
+
+    src/app/features/dashboard/dashboard.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./dashboard.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'estado' does not exist on type 'DashboardPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/dashboard/dashboard.page.html:117:23:
+[37m      117 │                 <td>{{ [32mestado[37m(row.status) }}</td>
+          ╵                        [32m~~~~~~[0m
+
+  Error occurs in the template of component DashboardPageComponent.
+
+    src/app/features/dashboard/dashboard.page.ts:13:15:
+[37m      13 │   templateUrl: [32m'./dashboard.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m213.39 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m303.61 kB[22m
+
+Application bundle generation complete. [0.427 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m214.18 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.761 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m214.29 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.615 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m215.43 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.446 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m216.71 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.202 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.03 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.240 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.01 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.370 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.17 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.681 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m217.93 kB[39m[2m | [22m
+
+Application bundle generation complete. [1.125 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m221.75 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.580 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m222.84 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.757 seconds]
+
+Component update sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m222.84 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m313.06 kB[22m
+
+Application bundle generation complete. [0.517 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m222.84 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m313.06 kB[22m
+
+Application bundle generation complete. [0.405 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+
+No output file changes.
+
+Application bundle generation complete. [0.945 seconds]
+
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m223.96 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.442 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m224.04 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.126 seconds]
+
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m260.23 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.633 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m260.30 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.390 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m260.40 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.475 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.515 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2345: Argument of type '{ imageType: "report"; url: string; storagePath: string; uploadedBy: string; }' is not assignable to parameter of type '{ imageType: "report" | "closure"; url: string; storagePath: string; uploadedBy: string; comment: string; file?: File | undefined; }'.
+  Property 'comment' is missing in type '{ imageType: "report"; url: string; storagePath: string; uploadedBy: string; }' but required in type '{ imageType: "report" | "closure"; url: string; storagePath: string; uploadedBy: string; comment: string; file?: File | undefined; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/incidents/incident-maintain.page.ts:161:30:
+[37m      161 │ ...ence.push([32m{ imageType: 'report', url: '', storagePath: '', upl[37m...
+          ╵              [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+  'comment' is declared here.
+
+    src/app/features/incidents/incident-maintain.page.ts:31:4:
+[37m      31 │     [32mcomment[37m: string;
+         ╵     [32m~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m260.41 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m350.63 kB[22m
+
+Application bundle generation complete. [0.583 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m260.45 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.595 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m261.60 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.662 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m261.80 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.653 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m262.13 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.417 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m262.13 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.279 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.289 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'excelUrl' does not exist on type 'ReportsPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/reports/reports.page.html:49:17:
+[37m      49 │       <a [href]="[32mexcelUrl[37m" target="_blank" rel="noopener noreferre...
+         ╵                  [32m~~~~~~~~[0m
+
+  Error occurs in the template of component ReportsPageComponent.
+
+    src/app/features/reports/reports.page.ts:11:15:
+[37m      11 │   templateUrl: [32m'./reports.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mTS2339: Property 'excelUrl' does not exist on type 'ReportsPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/reports/reports.page.ts:59:9:
+[37m      59 │     this.[32mexcelUrl[37m = this.api.reportsExcelUrl(q);
+         ╵          [32m~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.261 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'excelUrl' does not exist on type 'ReportsPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/reports/reports.page.html:49:17:
+[37m      49 │       <a [href]="[32mexcelUrl[37m" target="_blank" rel="noopener noreferre...
+         ╵                  [32m~~~~~~~~[0m
+
+  Error occurs in the template of component ReportsPageComponent.
+
+    src/app/features/reports/reports.page.ts:11:15:
+[37m      11 │   templateUrl: [32m'./reports.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.300 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'excelUrl' does not exist on type 'ReportsPageComponent'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/reports/reports.page.html:49:17:
+[37m      49 │       <a [href]="[32mexcelUrl[37m" target="_blank" rel="noopener noreferre...
+         ╵                  [32m~~~~~~~~[0m
+
+  Error occurs in the template of component ReportsPageComponent.
+
+    src/app/features/reports/reports.page.ts:11:15:
+[37m      11 │   templateUrl: [32m'./reports.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m264.16 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m354.38 kB[22m
+
+Application bundle generation complete. [0.322 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.842 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'url' does not exist on type '{ imageType: "report" | "closure"; uploadedBy: string; comment: string; file?: File | undefined; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/incidents/incident-maintain.page.html:77:32:
+[37m      77 │         <input [(ngModel)]="row.[32murl[37m" placeholder="URL" [ngModelOpt...
+         ╵                                 [32m~~~[0m
+
+  Error occurs in the template of component IncidentMaintainPageComponent.
+
+    src/app/features/incidents/incident-maintain.page.ts:10:15:
+[37m      10 │   templateUrl: [32m'./incident-maintain.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'url' does not exist on type '{ imageType: "report" | "closure"; uploadedBy: string; comment: string; file?: File | undefined; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/incidents/incident-maintain.page.html:77:32:
+[37m      77 │         <input [(ngModel)]="row.[32murl[37m" placeholder="URL" [ngModelOpt...
+         ╵                                 [32m~~~[0m
+
+  Error occurs in the template of component IncidentMaintainPageComponent.
+
+    src/app/features/incidents/incident-maintain.page.ts:10:15:
+[37m      10 │   templateUrl: [32m'./incident-maintain.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.466 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'url' does not exist on type '{ imageType: "report" | "closure"; uploadedBy: string; comment: string; file?: File | undefined; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/incidents/incident-maintain.page.html:77:32:
+[37m      77 │         <input [(ngModel)]="row.[32murl[37m" placeholder="URL" [ngModelOpt...
+         ╵                                 [32m~~~[0m
+
+  Error occurs in the template of component IncidentMaintainPageComponent.
+
+    src/app/features/incidents/incident-maintain.page.ts:10:15:
+[37m      10 │   templateUrl: [32m'./incident-maintain.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+
+[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG9: Property 'url' does not exist on type '{ imageType: "report" | "closure"; uploadedBy: string; comment: string; file?: File | undefined; }'.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/incidents/incident-maintain.page.html:77:32:
+[37m      77 │         <input [(ngModel)]="row.[32murl[37m" placeholder="URL" [ngModelOpt...
+         ╵                                 [32m~~~[0m
+
+  Error occurs in the template of component IncidentMaintainPageComponent.
+
+    src/app/features/incidents/incident-maintain.page.ts:10:15:
+[37m      10 │   templateUrl: [32m'./incident-maintain.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m264.59 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m354.81 kB[22m
+
+Application bundle generation complete. [0.392 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m264.83 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.389 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).

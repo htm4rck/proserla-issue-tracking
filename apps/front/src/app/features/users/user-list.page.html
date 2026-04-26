@@ -1,0 +1,17 @@
+﻿<section class="card">
+  <h3>Usuarios</h3>
+  <table>
+    <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Área</th><th>Activo</th></tr></thead>
+    <tbody>
+      @for (u of users; track u.id) {
+      <tr>
+        <td>{{ u.fullName }}</td>
+        <td>{{ u.email }}</td>
+        <td>{{ rol(u.roleCode) }}</td>
+        <td>{{ u.areaName }}</td>
+        <td>{{ u.isActive ? 'Sí' : 'No' }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+</section>

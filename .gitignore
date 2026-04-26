@@ -1,0 +1,11 @@
+.env
+infra/.env
+godaddy-php/config.php
+
+**/node_modules/
+**/dist/
+**/.angular/
+
+apps/back/.env
+apps/back/.env.local
+apps/front/.env

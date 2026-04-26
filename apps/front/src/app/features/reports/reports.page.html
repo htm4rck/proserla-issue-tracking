@@ -1,0 +1,61 @@
+﻿<section class="card">
+  <h3>Centro de reportes</h3>
+  <p class="intro">
+    Puedes generar el <strong>resumen numerico</strong>, descargar <strong>Excel (.xlsx)</strong> y <strong>PDF</strong>, o abrir el
+    <strong>reporte en tablas</strong> (ABIERTO / EN PROCESO / CERRADO) con el mismo formato operativo que usas en campo:
+    reportante, fecha, ubicación, enlace a imagen, descripción y medidas (comentario de seguimiento).
+  </p>
+  <form [formGroup]="form" class="grid">
+    <select formControlName="areaCode">
+      <option value="">Todas las areas</option>
+      @for (area of areas; track area.code) {
+        <option [value]="area.code">{{ area.name }}</option>
+      }
+    </select>
+    <input formControlName="leaderCode" placeholder="Código de líder (opcional)" />
+    <select formControlName="status">
+      <option value="">Todos los estados</option>
+      <option value="open">Abierta</option>
+      <option value="in_progress">En proceso</option>
+      <option value="closed">Cerrada</option>
+    </select>
+    <select formControlName="riskLevel">
+      <option value="">Todos los riesgos</option>
+      <option value="low">Bajo</option>
+      <option value="medium">Medio</option>
+      <option value="high">Alto</option>
+    </select>
+    <select formControlName="incidentType">
+      <option value="">Todos los tipos</option>
+      <option value="act">Acto inseguro</option>
+      <option value="condition">Condición insegura</option>
+    </select>
+    <input formControlName="reportMonth" placeholder="Mes (ABRIL)" />
+    <input type="number" formControlName="reportYear" placeholder="Año" />
+    <button type="button" (click)="run()">Generar</button>
+  </form>
+  @if (summary) {
+    <ul>
+      <li>Abiertas: {{ summary.open }}</li>
+      <li>En proceso: {{ summary.inProgress }}</li>
+      <li>Cerradas: {{ summary.closed }}</li>
+      <li>Total de incidencias: {{ summary.total }}</li>
+      <li>Cumplimiento: {{ summary.compliancePct }}%</li>
+    </ul>
+  }
+  @if (tableHtmlUrl) {
+    <p class="actions">
+      <a [href]="pdfUrl" target="_blank" rel="noopener noreferrer">Descargar PDF</a>
+      <button type="button" class="linkish" (click)="downloadXlsx()" [disabled]="xlsxBusy">
+        {{ xlsxBusy ? 'Generando Excel…' : 'Descargar Excel (.xlsx)' }}
+      </button>
+      <a [href]="tableHtmlUrl" target="_blank" rel="noopener noreferrer">Abrir reporte en tablas</a>
+      @if (csvUrl) {
+        <a [href]="csvUrl" target="_blank" rel="noopener noreferrer">Descargar CSV</a>
+      }
+    </p>
+    @if (xlsxError) {
+      <p class="err">{{ xlsxError }}</p>
+    }
+  }
+</section>

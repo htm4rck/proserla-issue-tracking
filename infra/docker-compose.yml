@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DATABASE_USER:-issue}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-issue}
+      POSTGRES_DB: ${DATABASE_NAME:-issue_tracking}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${DATABASE_USER:-issue} -d ${DATABASE_NAME:-issue_tracking}",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ../apps/back
+      dockerfile: Dockerfile
+    ports:
+      - "${API_PORT:-3001}:3000"
+    environment:
+      PORT: 3000
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_USER: ${DATABASE_USER:-issue}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-issue}
+      DATABASE_NAME: ${DATABASE_NAME:-issue_tracking}
+      TYPEORM_SYNC: ${TYPEORM_SYNC:-false}
+      DATABASE_LOGGING: ${DATABASE_LOGGING:-false}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:4200,http://localhost:8080}
+      SEED_ON_BOOT: ${SEED_ON_BOOT:-false}
+      DEMO_DEFAULT_PASSWORD: ${DEMO_DEFAULT_PASSWORD:-demo1234}
+      GODADDY_PHP_UPLOAD_URL: ${GODADDY_PHP_UPLOAD_URL:-}
+      GODADDY_UPLOAD_SECRET: ${GODADDY_UPLOAD_SECRET:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  web:
+    build:
+      context: ../apps/front
+      dockerfile: Dockerfile
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:

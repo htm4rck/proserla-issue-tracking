@@ -1,0 +1,64 @@
+# Deploy godaddy-php/ to shared hosting via FTP when you push changes to that folder
+# or run workflow_dispatch from the Actions tab.
+#
+# Required repository secrets:
+#   GODADDY_FTP_HOST, GODADDY_FTP_USER, GODADDY_FTP_PASSWORD, GODADDY_FTP_REMOTE_PATH
+#   GODADDY_UPLOAD_SECRET, GODADDY_PHP_PUBLIC_BASE_URL
+#
+# Optional secret GODADDY_FTP_PROTOCOL: ftps (default) or ftp
+
+name: Deploy GoDaddy PHP bridge
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+    paths:
+      - 'godaddy-php/**'
+      - '.github/workflows/deploy-godaddy-php.yml'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate godaddy-php/config.php
+        env:
+          GODADDY_UPLOAD_SECRET: ${{ secrets.GODADDY_UPLOAD_SECRET }}
+          GODADDY_PHP_PUBLIC_BASE_URL: ${{ secrets.GODADDY_PHP_PUBLIC_BASE_URL }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GODADDY_UPLOAD_SECRET:-}" ] || [ -z "${GODADDY_PHP_PUBLIC_BASE_URL:-}" ]; then
+            echo "Set secrets GODADDY_UPLOAD_SECRET and GODADDY_PHP_PUBLIC_BASE_URL"
+            exit 1
+          fi
+          BASE_URL="${GODADDY_PHP_PUBLIC_BASE_URL}"
+          case "$BASE_URL" in
+            */) ;;
+            *) BASE_URL="${BASE_URL}/" ;;
+          esac
+          SEC_B64="$(printf '%s' "$GODADDY_UPLOAD_SECRET" | base64 -w0)"
+          URL_B64="$(printf '%s' "$BASE_URL" | base64 -w0)"
+          sed \
+            -e "s|%%UPLOAD_SECRET_B64%%|${SEC_B64}|g" \
+            -e "s|%%BASE_PUBLIC_URL_B64%%|${URL_B64}|g" \
+            godaddy-php/config.deploy.php.template > godaddy-php/config.php
+
+      - name: FTP deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.6
+        with:
+          server: ${{ secrets.GODADDY_FTP_HOST }}
+          username: ${{ secrets.GODADDY_FTP_USER }}
+          password: ${{ secrets.GODADDY_FTP_PASSWORD }}
+          server-dir: ${{ secrets.GODADDY_FTP_REMOTE_PATH }}
+          local-dir: ./godaddy-php/
+          protocol: ftps
+          dangerous-clean-slate: false
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/README.md
+            **/config.sample.php
+            **/config.deploy.php.template
+            **/uploads/.gitkeep

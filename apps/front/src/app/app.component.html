@@ -1,0 +1,17 @@
+<div class="shell">
+  <header>
+    <h1>{{ title }}</h1>
+    <p class="meta">
+      @if (apiHealth) {
+        API: <span class="ok">{{ apiHealth }}</span>
+      } @else if (apiError) {
+        API: <span class="err">{{ apiError }}</span>
+      } @else {
+        API: <span>…</span>
+      }
+    </p>
+  </header>
+  <main>
+    <router-outlet />
+  </main>
+</div>

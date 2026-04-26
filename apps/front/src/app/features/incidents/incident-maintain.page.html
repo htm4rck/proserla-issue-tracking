@@ -1,0 +1,99 @@
+﻿<section class="card">
+  <div class="head">
+    <h3>{{ isCreate ? 'Nueva incidencia' : 'Mantenimiento de incidencia' }}</h3>
+    <a routerLink="/incidents">Volver al listado</a>
+  </div>
+
+  <div [formGroup]="form" class="grid">
+    <label>Codigo <input formControlName="incidentCode" /></label>
+    <label>Reportante <input formControlName="reportedBy" /></label>
+    <label>Ano <input type="number" formControlName="reportYear" /></label>
+    <label>Mes <input formControlName="reportMonth" placeholder="ABRIL" /></label>
+    <label>Dia <input type="number" formControlName="reportDay" /></label>
+    <label>Hora <input formControlName="reportTime" placeholder="16:28" /></label>
+    <label>Fundo / planta <input formControlName="site" /></label>
+    <label>Datos del reportado <input formControlName="reportedPerson" /></label>
+    <label>Edad <input formControlName="reportedPersonAge" /></label>
+    <label>Proserla / tercero <input formControlName="employerType" /></label>
+    <label>Area
+      <select formControlName="areaCode">
+        <option value="">Seleccionar area</option>
+        @for (area of areas; track area.code) {
+          <option [value]="area.code">{{ area.name }}</option>
+        }
+      </select>
+    </label>
+    <label>Codigo de lider <input formControlName="leaderCode" /></label>
+    <label>Responsable <input formControlName="assignedTo" /></label>
+    <label>Ubicacion <input formControlName="location" /></label>
+    <label>Area de trabajo <input formControlName="workArea" /></label>
+    <label>Tipo
+      <select formControlName="incidentType">
+        <option value="act">Acto inseguro</option>
+        <option value="condition">Condicion insegura</option>
+      </select>
+    </label>
+    <label>Riesgo
+      <select formControlName="riskLevel">
+        <option value="low">Bajo</option>
+        <option value="medium">Medio</option>
+        <option value="high">Alto</option>
+      </select>
+    </label>
+    <div class="status-flow">
+      <span>Flujo de estado</span>
+      <label><input type="checkbox" [checked]="form.value.status === 'open'" (change)="setStatus('open')" /> Pendiente</label>
+      <label><input type="checkbox" [checked]="form.value.status === 'in_progress'" (change)="setStatus('in_progress')" /> En proceso</label>
+      <label><input type="checkbox" [checked]="form.value.status === 'closed'" (change)="setStatus('closed')" /> Cerrada</label>
+      @if (form.value.status === 'closed' && !hasClosureEvidence) {
+        <small class="err">Para cerrar, agrega evidencia tipo "Cierre".</small>
+      }
+    </div>
+    <label>Tipo de reporte <input formControlName="reportSource" placeholder="WHATSAPP / CHECK LIST" /></label>
+    <label class="full">Descripcion <textarea rows="4" formControlName="description"></textarea></label>
+    <label class="full">Comentario de seguimiento <textarea rows="3" formControlName="comment"></textarea></label>
+    <label class="full">Medidas correctivas <textarea rows="3" formControlName="correctiveMeasures"></textarea></label>
+  </div>
+
+  <div class="section panel">
+    <h4>Evidencias (archivo)</h4>
+    <p class="muted">Adjunta la imagen directamente. Al guardar se sube y se registra su URL automaticamente.</p>
+    @if (!isCreate && existingImages.length) {
+      <table class="sub">
+        <thead><tr><th>Tipo</th><th>Archivo</th><th>Subido por</th></tr></thead>
+        <tbody>
+          @for (img of existingImages; track img.id) {
+            <tr>
+              <td>{{ img.imageType }}</td>
+              <td class="clip"><a [href]="img.url" target="_blank" rel="noopener noreferrer">{{ img.url }}</a></td>
+              <td>{{ img.uploadedBy || '-' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+    @for (row of pendingEvidence; track $index; let i = $index) {
+      <div class="ev-row grid">
+        <select [(ngModel)]="row.imageType" [ngModelOptions]="{ standalone: true }">
+          <option value="report">Informe</option>
+          <option value="closure">Cierre</option>
+        </select>
+        <label class="file-picker">
+          <span>Archivo</span>
+          <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" (change)="onFileSelected(i, $event)" />
+          <small>{{ pendingFileName(row) }}</small>
+        </label>
+        <input [(ngModel)]="row.uploadedBy" placeholder="Subido por (opcional)" [ngModelOptions]="{ standalone: true }" />
+        <button type="button" class="btn-secondary" (click)="removePendingEvidence(i)">Quitar</button>
+      </div>
+    }
+    <button type="button" class="btn-secondary" (click)="addEvidenceRow()">+ Añadir evidencia</button>
+  </div>
+
+  <div class="actions">
+    <button type="button" (click)="submit()">Guardar todo</button>
+  </div>
+
+  @if (feedback) { <p class="ok">{{ feedback }}</p> }
+  @if (errorMsg) { <p class="err">{{ errorMsg }}</p> }
+</section>

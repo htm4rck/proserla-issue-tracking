@@ -1,0 +1,146 @@
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+}
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.head a {
+  font-size: 0.9rem;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+input,
+select,
+textarea {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.65rem;
+  font: inherit;
+}
+.full {
+  grid-column: 1 / -1;
+}
+.status-flow {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0.6rem 0.7rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  align-items: center;
+  font-size: 0.85rem;
+}
+.status-flow > span {
+  font-weight: 600;
+  color: var(--text);
+}
+.status-flow label {
+  flex-direction: row;
+  align-items: center;
+  margin: 0;
+}
+.status-flow input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+}
+.section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.panel h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+.muted {
+  color: var(--muted);
+  font-size: 0.85rem;
+  margin: 0 0 0.75rem;
+}
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+.actions {
+  margin-top: 1rem;
+}
+button {
+  width: fit-content;
+  border: none;
+  background: #4f46e5;
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+  cursor: pointer;
+}
+.btn-secondary {
+  background: var(--border);
+  color: var(--fg, #111);
+}
+.ok {
+  color: #166534;
+  margin-top: 0.8rem;
+}
+.err {
+  color: #b91c1c;
+  margin-top: 0.8rem;
+}
+.sub {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+}
+.sub th,
+.sub td {
+  border: 1px solid var(--border);
+  padding: 0.35rem 0.5rem;
+  text-align: left;
+}
+.clip {
+  max-width: 280px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ev-row {
+  margin-bottom: 0.5rem;
+  align-items: end;
+}
+.comments {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.comments li {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.comments .meta {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-bottom: 0.25rem;
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

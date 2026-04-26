@@ -1,0 +1,71 @@
+﻿<section class="card">
+  <div class="head">
+    <h3>Incidencias</h3>
+    <a routerLink="/incidents/nuevo">+ Nueva incidencia</a>
+  </div>
+  <div class="subhead">
+    <span>Total: {{ total }}</span>
+    <label>
+      Estado
+      <select [value]="status" (change)="status = $any($event.target).value; applyFilters()">
+        <option value="">Todos</option>
+        <option value="open">Abierta</option>
+        <option value="in_progress">En proceso</option>
+        <option value="closed">Cerrada</option>
+      </select>
+    </label>
+    <label>
+      Riesgo
+      <select [value]="riskLevel" (change)="riskLevel = $any($event.target).value; applyFilters()">
+        <option value="">Todos</option>
+        <option value="low">Bajo</option>
+        <option value="medium">Medio</option>
+        <option value="high">Alto</option>
+      </select>
+    </label>
+    <label>
+      Tipo
+      <select [value]="incidentType" (change)="incidentType = $any($event.target).value; applyFilters()">
+        <option value="">Todos</option>
+        <option value="act">Acto inseguro</option>
+        <option value="condition">Condición insegura</option>
+      </select>
+    </label>
+    <label>
+      Mes
+      <input [value]="reportMonth" (input)="reportMonth = $any($event.target).value" (change)="applyFilters()" placeholder="ABRIL" />
+    </label>
+    <label>
+      Año
+      <input type="number" [value]="reportYear" (input)="reportYear = +$any($event.target).value" (change)="applyFilters()" />
+    </label>
+    <label>
+      Filas por página
+      <select [value]="pageSize" (change)="setPageSize($any($event.target).value)">
+        <option value="5">5</option>
+        <option value="10">10</option>
+        <option value="20">20</option>
+        <option value="50">50</option>
+      </select>
+    </label>
+  </div>
+  <table>
+    <thead><tr><th>Código</th><th>Área</th><th>Estado</th><th>Riesgo</th><th>Reportante</th></tr></thead>
+    <tbody>
+      @for (i of incidents; track i.id) {
+      <tr class="click-row" [routerLink]="['/incidents', i.incidentCode]">
+        <td>{{ i.incidentCode }}</td>
+        <td>{{ areaLabel(i.areaCode) }}</td>
+        <td>{{ estado(i.status) }}</td>
+        <td>{{ riesgo(i.riskLevel) }}</td>
+        <td>{{ i.reportedBy }}</td>
+      </tr>
+      }
+    </tbody>
+  </table>
+  <div class="pagination">
+    <button type="button" (click)="prevPage()" [disabled]="page <= 1">Anterior</button>
+    <span>Página {{ page }} de {{ totalPages }}</span>
+    <button type="button" (click)="nextPage()" [disabled]="page >= totalPages">Siguiente</button>
+  </div>
+</section>

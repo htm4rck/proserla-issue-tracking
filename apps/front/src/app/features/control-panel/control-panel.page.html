@@ -1,0 +1,78 @@
+﻿<section class="card">
+  <div class="head">
+    <div>
+      <h3>Panel de control por lider</h3>
+      @if (currentUser) {
+        <p>Vista de {{ currentUser.fullName }} · {{ currentUser.roleCode }} · {{ currentUser.areaCode }}{{ currentUser.leaderCode ? ' · ' + currentUser.leaderCode : '' }}</p>
+      }
+    </div>
+    <button type="button" (click)="run()" [disabled]="loading">{{ loading ? 'Consultando...' : 'Generar vista' }}</button>
+  </div>
+
+  <form [formGroup]="form" class="grid">
+    <label>Estado
+      <select formControlName="status">
+        <option value="">Todos los estados</option>
+        <option value="open">Abierta</option>
+        <option value="in_progress">En proceso</option>
+        <option value="closed">Cerrada</option>
+      </select>
+    </label>
+    <label>Area <input formControlName="areaCode" placeholder="Codigo de area" /></label>
+    <label>Lider <input formControlName="leaderCode" placeholder="Codigo de lider" /></label>
+    <label>Riesgo
+      <select formControlName="riskLevel">
+        <option value="">Todos</option>
+        <option value="low">Bajo</option>
+        <option value="medium">Medio</option>
+        <option value="high">Alto</option>
+      </select>
+    </label>
+    <label>Tipo
+      <select formControlName="incidentType">
+        <option value="">Todos</option>
+        <option value="act">Acto inseguro</option>
+        <option value="condition">Condicion insegura</option>
+      </select>
+    </label>
+    <label>Mes <input formControlName="reportMonth" placeholder="ABRIL" /></label>
+    <label>Ano <input formControlName="reportYear" type="number" /></label>
+  </form>
+
+  <div class="kpis">
+    <article><span>Abiertas</span><strong>{{ summary.open }}</strong></article>
+    <article><span>En proceso</span><strong>{{ summary.inProgress }}</strong></article>
+    <article><span>Cerradas</span><strong>{{ summary.closed }}</strong></article>
+    <article><span>Total</span><strong>{{ summary.total }}</strong></article>
+    <article><span>Cumplimiento</span><strong>{{ summary.compliancePct }}%</strong></article>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Codigo</th>
+        <th>Fecha</th>
+        <th>Reportante</th>
+        <th>Ubicacion</th>
+        <th>Riesgo</th>
+        <th>Estado</th>
+        <th>Responsable</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (row of rows; track row.id) {
+        <tr [routerLink]="['/incidents', row.incidentCode]">
+          <td>{{ row.incidentCode }}</td>
+          <td>{{ row.reportDay || '-' }}/{{ row.reportMonth || '-' }}/{{ row.reportYear || '-' }}</td>
+          <td>{{ row.reportedBy }}</td>
+          <td>{{ row.location }}</td>
+          <td>{{ riesgo(row.riskLevel) }}</td>
+          <td>{{ estado(row.status) }}</td>
+          <td>{{ row.assignedTo || '-' }}</td>
+        </tr>
+      } @empty {
+        <tr><td colspan="7">Sin incidencias para los filtros aplicados.</td></tr>
+      }
+    </tbody>
+  </table>
+</section>

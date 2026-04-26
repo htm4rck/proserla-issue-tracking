@@ -1,0 +1,219 @@
+<section class="hub">
+  <header class="hero panel">
+    <h2>Organización y seguridad</h2>
+    <p class="lead">
+      Aquí se define <strong>quién</strong> es cada usuario (rol), <strong>dónde</strong> trabaja (área) y <strong>a quién</strong> reporta
+      en campo (líder del área). Las incidencias usan códigos de área y líder para filtros y tableros.
+    </p>
+    <div class="model-grid">
+      @for (block of conceptBlocks; track block.titulo) {
+        <article class="model-card">
+          <h3>{{ block.titulo }}</h3>
+          <p>{{ block.desc }}</p>
+        </article>
+      }
+    </div>
+  </header>
+
+  <section class="seed panel">
+    <div class="seed-head">
+      <div>
+        <h3>Semilla de demostración</h3>
+        <p>Crea roles PACK/FIELD/PLANT, líderes LUCIA/MARIO/ROSA, usuarios demo e incidencias de ejemplo. Respuesta incluye guía legible.</p>
+      </div>
+      <button type="button" class="btn-seed" (click)="runSeed()" [disabled]="seedLoading">
+        {{ seedLoading ? 'Aplicando…' : 'Aplicar semilla demo' }}
+      </button>
+    </div>
+    @if (seedMessage) {
+      <p class="ok">{{ seedMessage }}</p>
+    }
+    @if (seedError) {
+      <p class="err">{{ seedError }}</p>
+    }
+    @if (seedPayload) {
+      <div class="seed-result">
+        <p><strong>Resumen:</strong> {{ seedPayload.resumen }}</p>
+        <h4>Cómo leer el modelo</h4>
+        <ul>
+          @for (m of seedPayload.comoLeerElModelo; track m.titulo) {
+            <li><strong>{{ m.titulo }}:</strong> {{ m.texto }}</li>
+          }
+        </ul>
+        <div class="counts">
+          <span class="pill">Roles: <strong>{{ seedPayload.conteos.roles }}</strong></span>
+          <span class="pill">Áreas: <strong>{{ seedPayload.conteos.areas }}</strong></span>
+          <span class="pill">Líderes: <strong>{{ seedPayload.conteos.lideres }}</strong></span>
+          <span class="pill">Usuarios: <strong>{{ seedPayload.conteos.usuarios }}</strong></span>
+          <span class="pill">Catálogos: <strong>{{ seedPayload.conteos.catalogos }}</strong></span>
+          <span class="pill">Incidencias: <strong>{{ seedPayload.conteos.incidencias }}</strong></span>
+        </div>
+        <h4>Usuarios demo (login por correo)</h4>
+        <table class="data">
+          <thead><tr><th>Correo</th><th>Rol</th><th>Área</th><th>Líder</th><th>Nota</th></tr></thead>
+          <tbody>
+            @for (u of seedPayload.usuariosDemo; track u.email) {
+              <tr>
+                <td>{{ u.email }}</td>
+                <td>{{ u.roleCode }}</td>
+                <td>{{ u.areaCode }}</td>
+                <td>{{ u.leaderCode }}</td>
+                <td>{{ u.nota }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+        <h4>Incidencias demo</h4>
+        <ul class="tight">
+          @for (i of seedPayload.incidenciasDemo; track i) {
+            <li>{{ i }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
+
+  <nav class="tabs" aria-label="Secciones">
+    <button type="button" [class.active]="activeTab === 'roles'" (click)="setTab('roles')">Roles</button>
+    <button type="button" [class.active]="activeTab === 'areas'" (click)="setTab('areas')">Áreas</button>
+    <button type="button" [class.active]="activeTab === 'leaders'" (click)="setTab('leaders')">Líderes</button>
+    <button type="button" [class.active]="activeTab === 'users'" (click)="setTab('users')">Usuarios</button>
+  </nav>
+
+  @if (activeTab === 'roles') {
+    <section class="panel tab-panel">
+      <h3>Roles registrados</h3>
+      <p class="hint">Código interno estable (admin, leader, operator) y nombre visible.</p>
+      <form [formGroup]="roleForm" class="grid-form" (ngSubmit)="saveRole()">
+        <label>Código <input formControlName="code" /></label>
+        <label>Nombre <input formControlName="name" /></label>
+        <button type="submit">Agregar rol</button>
+      </form>
+      <table class="data">
+        <thead><tr><th>Código</th><th>Nombre</th><th>Activo</th></tr></thead>
+        <tbody>
+          @for (r of rolesRows; track r.id) {
+            <tr><td>{{ r.code }}</td><td>{{ r.name }}</td><td>{{ r.isActive ? 'Sí' : 'No' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  @if (activeTab === 'areas') {
+    <section class="panel tab-panel">
+      <h3>Áreas</h3>
+      <p class="hint">Código corto (PACK, FIELD…) usado en incidencias y usuarios.</p>
+      <form [formGroup]="areaForm" class="grid-form" (ngSubmit)="saveArea()">
+        <label>Código <input formControlName="code" /></label>
+        <label>Nombre <input formControlName="name" /></label>
+        <button type="submit">Agregar área</button>
+      </form>
+      <table class="data">
+        <thead><tr><th>Código</th><th>Nombre</th><th>Activo</th></tr></thead>
+        <tbody>
+          @for (a of areasRows; track a.id) {
+            <tr><td>{{ a.code }}</td><td>{{ a.name }}</td><td>{{ a.isActive ? 'Sí' : 'No' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  @if (activeTab === 'leaders') {
+    <section class="panel tab-panel">
+      <h3>Líderes por área</h3>
+      <p class="hint">Cada líder va ligado a un <strong>código de área</strong> existente.</p>
+      <form [formGroup]="leaderForm" class="grid-form leaders" (ngSubmit)="saveLeader()">
+        <label>Código <input formControlName="code" /></label>
+        <label>Nombre completo <input formControlName="fullName" /></label>
+        <label>Correo <input formControlName="email" /></label>
+        <label>Código de área <input formControlName="areaCode" /></label>
+        <button type="submit">Agregar líder</button>
+      </form>
+      <table class="data">
+        <thead><tr><th>Código</th><th>Nombre</th><th>Área</th><th>Correo</th></tr></thead>
+        <tbody>
+          @for (l of leadersRows; track l.id) {
+            <tr><td>{{ l.code }}</td><td>{{ l.fullName }}</td><td>{{ areaLabel(l.areaCode) }}</td><td>{{ l.email ?? '—' }}</td></tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  @if (activeTab === 'users') {
+    <section class="panel tab-panel">
+      <h3>Crear usuarios y asignarlos por área</h3>
+      <p class="hint">Primero selecciona rol y área. Si el usuario reporta a un líder, selecciónalo en la misma área.</p>
+      @if (!isAdmin) {
+        <p class="err">Solo el administrador puede crear usuarios.</p>
+      }
+      <form [formGroup]="userForm" class="grid-form leaders" (ngSubmit)="saveUser()">
+        <label>Correo <input type="email" formControlName="email" /></label>
+        <label>Nombre completo <input formControlName="fullName" /></label>
+        <label>
+          Rol
+          <select formControlName="roleCode">
+            @for (r of rolesRows; track r.id) {
+              <option [value]="r.code">{{ r.name }} ({{ r.code }})</option>
+            }
+          </select>
+        </label>
+        <label>
+          Área
+          <select formControlName="areaCode" (change)="onUserAreaChange()">
+            <option value="">Seleccione</option>
+            @for (a of areasRows; track a.id) {
+              <option [value]="a.code">{{ a.name }} ({{ a.code }})</option>
+            }
+          </select>
+        </label>
+        <label>
+          Líder (opcional)
+          <select formControlName="leaderCode">
+            <option value="">Sin líder</option>
+            @for (l of leadersBySelectedArea; track l.id) {
+              <option [value]="l.code">{{ l.fullName }} ({{ l.code }})</option>
+            }
+          </select>
+        </label>
+        <button type="submit" [disabled]="!isAdmin">Agregar usuario</button>
+      </form>
+      <table class="data">
+        <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Área</th><th>Líder</th><th>Reset de contraseña</th></tr></thead>
+        <tbody>
+          @for (u of usersRows; track u.id) {
+            <tr>
+              <td>{{ u.fullName }}</td>
+              <td>{{ u.email }}</td>
+              <td>{{ roleLabel(u.roleCode) }}</td>
+              <td>{{ areaLabel(u.areaCode) }}</td>
+              <td>{{ leaderLabel(u.leaderCode) }}</td>
+              <td>
+                @if (isAdmin) {
+                  <div class="reset-pass">
+                    <input
+                      type="password"
+                      placeholder="Nueva contraseña"
+                      [value]="resetPasswordDraftByUserId[u.id] || ''"
+                      (input)="setResetPasswordDraft(u.id, $any($event.target).value)"
+                    />
+                    <button type="button" (click)="resetUserPassword(u)">Resetear</button>
+                    @if (resetPasswordMsgByUserId[u.id]) {
+                      <small>{{ resetPasswordMsgByUserId[u.id] }}</small>
+                    }
+                  </div>
+                } @else {
+                  —
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  <p class="foot-note">La administración de usuarios se realiza desde esta misma sección, en la pestaña <strong>Usuarios</strong>.</p>
+</section>

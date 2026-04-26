@@ -1,0 +1,24 @@
+.shell {
+  font-family: system-ui, sans-serif;
+  max-width: 960px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+header h1 {
+  margin: 0 0 0.25rem;
+}
+
+.meta {
+  margin: 0;
+  color: #444;
+}
+
+.ok {
+  color: #0a7a2d;
+  font-weight: 600;
+}
+
+.err {
+  color: #b00020;
+}

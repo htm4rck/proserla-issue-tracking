@@ -1,0 +1,109 @@
+﻿<div class="dash-wrap">
+  <header class="dash-toolbar panel">
+    <div>
+      <h2>Tablero operativo</h2>
+      <p>Indicadores y gráficas por líder, área, período, estado, riesgo y tipo.</p>
+    </div>
+    <div class="dash-actions">
+      @if (updatedAt) { <span class="timestamp">Actualizado {{ updatedAt | date: 'short' }}</span> }
+      <button type="button" class="primary" (click)="load()" [disabled]="loading">Actualizar</button>
+    </div>
+  </header>
+
+  <section class="panel filters" [formGroup]="filterForm">
+    <h3 class="filters-title">Filtros del tablero</h3>
+    <div class="filters-grid">
+      <label>Area
+        <select formControlName="areaCode">
+          <option value="">Todas</option>
+          @for (area of areas; track area.code) {
+            <option [value]="area.code">{{ area.name }}</option>
+          }
+        </select>
+      </label>
+      <label>Lider <input formControlName="leaderCode" placeholder="Todos (ej. LUCIA)" /></label>
+      <label>Estado
+        <select formControlName="status">
+          <option value="">Todos</option>
+          <option value="open">Abierta</option>
+          <option value="in_progress">En proceso</option>
+          <option value="closed">Cerrada</option>
+        </select>
+      </label>
+      <label>Riesgo
+        <select formControlName="riskLevel">
+          <option value="">Todos</option>
+          <option value="low">Bajo</option>
+          <option value="medium">Medio</option>
+          <option value="high">Alto</option>
+        </select>
+      </label>
+      <label>Tipo
+        <select formControlName="incidentType">
+          <option value="">Todos</option>
+          <option value="act">Acto inseguro</option>
+          <option value="condition">Condicion insegura</option>
+        </select>
+      </label>
+      <label>Mes <input formControlName="reportMonth" placeholder="ABRIL" /></label>
+      <label>Ano <input type="number" formControlName="reportYear" /></label>
+      <label>Periodo grafico
+        <select formControlName="period">
+          <option value="weekly">Semanal</option>
+          <option value="biweekly">Quincenal</option>
+          <option value="monthly">Mensual</option>
+          <option value="yearly">Anual</option>
+        </select>
+      </label>
+      <label>Fecha de referencia <input type="date" formControlName="referenceDate" /></label>
+      <button type="button" class="primary" (click)="load()" [disabled]="loading">Aplicar</button>
+    </div>
+    <p class="filters-hint">El antiguo panel de control queda integrado aqui: un solo tablero para gerencia, lideres y seguimiento operativo.</p>
+  </section>
+
+  @if (loading) {
+    <div class="state-loading panel">Cargando indicadores...</div>
+  } @else if (error) {
+    <div class="state-error">No se pudieron cargar los datos. Comprueba la API y vuelve a intentar.</div>
+  } @else if (summary) {
+    <section class="panel period-chip"><p><strong>Rango aplicado:</strong> {{ rangeLabel }}</p></section>
+
+    <div class="kpi-grid">
+      <article class="kpi-card open"><p class="kpi-label">Abiertas</p><p class="kpi-value">{{ summary.open }}</p><p class="kpi-hint">Sin cierre o accion completada.</p></article>
+      <article class="kpi-card progress"><p class="kpi-label">En proceso</p><p class="kpi-value">{{ summary.inProgress }}</p><p class="kpi-hint">Seguimiento activo.</p></article>
+      <article class="kpi-card closed"><p class="kpi-label">Cerradas</p><p class="kpi-value">{{ summary.closed }}</p><p class="kpi-hint">Accion validada.</p></article>
+      <article class="kpi-card total"><p class="kpi-label">Total en vista</p><p class="kpi-value">{{ summary.total }}</p><p class="kpi-hint">Registros filtrados.</p></article>
+      <article class="kpi-card compliance">
+        <p class="kpi-label">Cumplimiento</p><p class="kpi-value">{{ summary.compliancePct }}%</p><p class="kpi-hint">Cerradas / total.</p>
+        <div class="compliance-block"><div class="compliance-bar"><div class="compliance-fill" [style.width.%]="summary.compliancePct"></div></div></div>
+      </article>
+    </div>
+
+    <section class="panel charts">
+      <h3>Grafico por estado</h3>
+      <div class="bars">
+        @for (s of byStatus; track s.status) {
+          <div class="bar-row"><span class="bar-label">{{ s.label }}</span><div class="bar-track"><div class="bar-fill status" [class.open]="s.status === 'open'" [class.in-progress]="s.status === 'in_progress'" [class.closed]="s.status === 'closed'" [style.width.%]="barPct(s.value, maxStatusValue)"></div></div><span class="bar-value">{{ s.value }}</span></div>
+        }
+      </div>
+    </section>
+
+    <section class="panel charts">
+      <h3>Grafico por area</h3>
+      <div class="bars">
+        @for (a of byArea; track a.areaCode) {
+          <div class="bar-row"><span class="bar-label">{{ areaLabel(a.areaCode, a.areaName) }}</span><div class="bar-track"><div class="bar-fill area" [style.width.%]="barPct(a.total, maxAreaTotal)"></div></div><span class="bar-value">{{ a.total }}</span></div>
+          <div class="area-breakdown">A:{{ a.open }} · P:{{ a.inProgress }} · C:{{ a.closed }}</div>
+        }
+      </div>
+    </section>
+
+    <nav class="links-row panel" style="padding: 1rem">
+      <a routerLink="/incidents">Ver incidencias (con paginación)</a>
+      <a routerLink="/incidents/nuevo">Nueva incidencia</a>
+      <a routerLink="/reports">Centro de reportes</a>
+    </nav>
+  } @else {
+    <div class="state-empty panel">Sin datos de resumen.</div>
+  }
+</div>

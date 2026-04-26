@@ -1,0 +1,8 @@
+# Opcional: publicar Postgres en el host (ej. DBeaver o TypeORM desde fuera de Docker).
+# Uso: docker compose -f infra/docker-compose.yml -f infra/docker-compose.host-postgres.yml --env-file infra/.env up -d
+# Ajusta POSTGRES_PORT en .env si 15432 está ocupado.
+
+services:
+  postgres:
+    ports:
+      - "${POSTGRES_PORT:-15432}:5432"

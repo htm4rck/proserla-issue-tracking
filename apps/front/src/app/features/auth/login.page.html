@@ -1,0 +1,12 @@
+﻿<div class="login-wrap">
+  <section class="card">
+    <h2>Iniciar sesión</h2>
+    <p>Usa un correo de usuario existente. Se recomienda admin&#64;demo.local.</p>
+    <form [formGroup]="form" class="grid" (ngSubmit)="submit()">
+      <label>Correo <input formControlName="email" /></label>
+      <label>Contraseña <input type="password" formControlName="password" /></label>
+      <button type="submit">Ingresar</button>
+    </form>
+    @if (message) { <p class="error">{{ message }}</p> }
+  </section>
+</div>

@@ -1,0 +1,4 @@
+# Do not execute PHP (or other scripts) from the uploads directory.
+<FilesMatch "\.(?i:php|phtml|phar)$">
+    Require all denied
+</FilesMatch>

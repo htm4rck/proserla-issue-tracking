@@ -1,0 +1,12 @@
+﻿.card { background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:1rem; }
+.head { display:flex; justify-content:space-between; align-items:center; margin-bottom:.8rem; }
+.subhead { display:flex; flex-wrap:wrap; gap:.65rem; justify-content:flex-start; align-items:center; margin-bottom:.65rem; font-size:.85rem; color:var(--muted); }
+.subhead label { display:flex; align-items:center; gap:.45rem; }
+select,input { border:1px solid var(--border); border-radius:8px; padding:.3rem .4rem; font:inherit; }
+table { width:100%; border-collapse: collapse; }
+th,td { text-align:left; padding:.6rem; border-bottom:1px solid #eef2f7; font-size:.9rem; }
+.click-row { cursor: pointer; }
+.click-row:hover { background: rgba(79, 70, 229, 0.06); }
+.pagination { margin-top:.8rem; display:flex; justify-content:flex-end; align-items:center; gap:.6rem; font-size:.85rem; }
+.pagination button { border:1px solid var(--border); background:#fff; border-radius:8px; padding:.35rem .65rem; cursor:pointer; }
+.pagination button:disabled { opacity:.5; cursor:not-allowed; }
