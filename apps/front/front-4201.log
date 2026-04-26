@@ -1173,3 +1173,85 @@ Application bundle generation complete. [0.389 seconds]
 
 [39m[22m
 Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m[2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m [2m | [22m[36m265.06 kB[39m[2m | [22m
+
+Application bundle generation complete. [0.583 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.258 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Incomplete block "demo". If you meant to write the @ character, you should use the "&#64;" HTML entity instead.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/auth/login.page.html:30:39:
+[37m      30 │ ...lass="hint">Demo: <code>admin[32m@demo[37m.local</code> / <code>demo123...
+         ╵                                 [32m~~~~~[0m
+
+  Error occurs in the template of component LoginPageComponent.
+
+    src/app/features/auth/login.page.ts:10:15:
+[37m      10 │   templateUrl: [32m'./login.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+Application bundle generation failed. [0.581 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+[1m[31m[31mX [41;31m[[41;97mERROR[41;31m][0m [1mNG5002: Incomplete block "demo". If you meant to write the @ character, you should use the "&#64;" HTML entity instead.[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/auth/login.page.html:30:39:
+[37m      30 │ ...lass="hint">Demo: <code>admin[32m@demo[37m.local</code> / <code>demo123...
+         ╵                                 [32m~~~~~[0m
+
+  Error occurs in the template of component LoginPageComponent.
+
+    src/app/features/auth/login.page.ts:10:15:
+[37m      10 │   templateUrl: [32m'./login.page.html'[37m,
+         ╵                [32m~~~~~~~~~~~~~~~~~~~[0m
+
+[39m[22m
+[33m>[39m Changes detected. Rebuilding...
+[32m√[39m Changes detected. Rebuilding...
+[1mInitial chunk files[22m[2m | [22m[1mNames[22m        [2m | [22m [1mRaw size[22m
+[32mmain.js[39m            [2m | [22m[2mmain[22m         [2m | [22m[36m272.70 kB[39m[2m | [22m
+[32mpolyfills.js[39m       [2m | [22m[2mpolyfills[22m    [2m | [22m [36m89.77 kB[39m[2m | [22m
+[32mstyles.css[39m         [2m | [22m[2mstyles[22m       [2m | [22m[36m449 bytes[39m[2m | [22m
+
+[1m [22m                  [2m | [22m[1mInitial total[22m[2m | [22m[1m362.92 kB[22m
+
+Application bundle generation complete. [0.371 seconds]
+
+[1m[33m[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mTS-998113: KeyValuePipe is not used within the template of AuditLogPageComponent[0m [1m[35m[plugin angular-compiler][0m
+
+    src/app/features/audit/audit-log.page.ts:9:32:
+[37m      9 │   imports: [DatePipe, JsonPipe, [32mKeyValuePipe[37m, ReactiveFormsModule],
+        ╵                                 [32m~~~~~~~~~~~~[0m
+
+[39m[22m
+Page reload sent to client(s).

@@ -1,12 +1,34 @@
-﻿<div class="login-wrap">
-  <section class="card">
-    <h2>Iniciar sesión</h2>
-    <p>Usa un correo de usuario existente. Se recomienda admin&#64;demo.local.</p>
-    <form [formGroup]="form" class="grid" (ngSubmit)="submit()">
-      <label>Correo <input formControlName="email" /></label>
-      <label>Contraseña <input type="password" formControlName="password" /></label>
-      <button type="submit">Ingresar</button>
-    </form>
-    @if (message) { <p class="error">{{ message }}</p> }
+﻿<div class="login-shell">
+  <aside class="brand-panel">
+    <div class="brand-badge">Issue Tracking</div>
+    <h1>Gestion de incidencias y seguimiento operativo</h1>
+    <p>Controla registros, evidencias, estado y trazabilidad por area y responsable.</p>
+    <div class="stats">
+      <div><strong>24/7</strong><span>Monitoreo</span></div>
+      <div><strong>Roles</strong><span>Admin/Lider/Operador</span></div>
+      <div><strong>Audit</strong><span>Historial de cambios</span></div>
+    </div>
+  </aside>
+
+  <section class="login-panel">
+    <div class="card">
+      <h2>Iniciar sesion</h2>
+      <p class="subtitle">Ingresa tus credenciales para acceder al panel.</p>
+      <form [formGroup]="form" class="grid" (ngSubmit)="submit()">
+        <label>
+          Correo
+          <input formControlName="email" type="email" autocomplete="email" placeholder="admin@demo.local" />
+        </label>
+        <label>
+          Contrasena
+          <input formControlName="password" type="password" autocomplete="current-password" placeholder="********" />
+        </label>
+        <button type="submit" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Ingresando...' : 'Ingresar' }}
+        </button>
+      </form>
+      <p class="hint">Demo: <code>admin&#64;demo.local</code> / <code>demo1234</code></p>
+      @if (message) { <p class="error">{{ message }}</p> }
+    </div>
   </section>
 </div>

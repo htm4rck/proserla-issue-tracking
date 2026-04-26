@@ -22,13 +22,17 @@ export class LoginPageComponent {
   });
 
   message = '';
+  isSubmitting = false;
 
   submit(): void {
+    if (this.isSubmitting) return;
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
     }
 
+    this.message = '';
+    this.isSubmitting = true;
     this.api.login(this.form.getRawValue()).subscribe({
       next: ({ data }) => {
         this.session.setUser(data);
@@ -41,6 +45,10 @@ export class LoginPageComponent {
       },
       error: () => {
         this.message = 'No se pudo iniciar sesión. Verifica correo, contraseña y estado del usuario.';
+        this.isSubmitting = false;
+      },
+      complete: () => {
+        this.isSubmitting = false;
       },
     });
   }
