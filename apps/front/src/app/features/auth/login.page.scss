@@ -9,8 +9,8 @@
   background:
     linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.18)),
     image-set(
-      url('/assets/login/login-bg.webp') type('image/webp'),
-      url('/assets/login/login-bg.png') type('image/png')
+      url('/login/login-bg.webp') type('image/webp'),
+      url('/login/login-bg.png') type('image/png')
     );
   background-size: cover;
   background-position: center;
