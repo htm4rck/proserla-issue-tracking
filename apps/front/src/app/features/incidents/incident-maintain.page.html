@@ -65,7 +65,10 @@
           @for (img of existingImages; track img.id) {
             <tr>
               <td>{{ img.imageType }}</td>
-              <td class="clip"><a [href]="img.url" target="_blank" rel="noopener noreferrer">{{ img.url }}</a></td>
+              <td class="clip">
+                <button type="button" class="btn-link" (click)="openImagePreview(img)">Ver imagen</button>
+                <span class="muted small">{{ img.url }}</span>
+              </td>
               <td>{{ img.uploadedBy || '-' }}</td>
             </tr>
           }
@@ -97,3 +100,19 @@
   @if (feedback) { <p class="ok">{{ feedback }}</p> }
   @if (errorMsg) { <p class="err">{{ errorMsg }}</p> }
 </section>
+
+@if (previewImage) {
+  <div class="preview-overlay" (click)="closeImagePreview()">
+    <article class="preview-modal" (click)="$event.stopPropagation()">
+      <header>
+        <div>
+          <h5>Vista de evidencia</h5>
+          <p>{{ previewImage.imageType }} · {{ previewImage.uploadedBy || 'sin usuario' }}</p>
+        </div>
+        <button type="button" class="btn-secondary" (click)="closeImagePreview()">Cerrar</button>
+      </header>
+      <img [src]="previewImage.url" alt="Evidencia de incidencia" />
+      <a [href]="previewImage.url" target="_blank" rel="noopener noreferrer">Abrir imagen en pestaña nueva</a>
+    </article>
+  </div>
+}

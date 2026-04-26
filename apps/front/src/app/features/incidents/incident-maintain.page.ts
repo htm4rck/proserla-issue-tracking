@@ -29,6 +29,7 @@ export class IncidentMaintainPageComponent implements OnInit {
     comment: string;
     file?: File;
   }> = [];
+  previewImage: { url: string; imageType: string; uploadedBy?: string } | null = null;
 
   readonly form = this.fb.nonNullable.group({
     incidentCode: ['', Validators.required],
@@ -176,6 +177,18 @@ export class IncidentMaintainPageComponent implements OnInit {
 
   pendingFileName(row: { file?: File }): string {
     return row.file?.name ?? 'Sin archivo seleccionado';
+  }
+
+  openImagePreview(img: { url: string; imageType: string; uploadedBy?: string }): void {
+    this.previewImage = {
+      url: img.url,
+      imageType: img.imageType,
+      uploadedBy: img.uploadedBy,
+    };
+  }
+
+  closeImagePreview(): void {
+    this.previewImage = null;
   }
 
   uploadPendingFiles(incidentCode: string, status: string): Promise<void> {
