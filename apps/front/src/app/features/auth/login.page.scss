@@ -7,8 +7,11 @@
 
 .brand-panel {
   background:
-    linear-gradient(135deg, rgba(13, 71, 161, 0.72), rgba(0, 33, 113, 0.72)),
-    url('/assets/login/login-bg.png');
+    linear-gradient(180deg, rgba(0, 0, 0, 0.22), rgba(0, 0, 0, 0.18)),
+    image-set(
+      url('/assets/login/login-bg.webp') type('image/webp'),
+      url('/assets/login/login-bg.png') type('image/png')
+    );
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
