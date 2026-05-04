@@ -64,6 +64,24 @@ export class ReportsAreaPoint {
   total!: number;
 }
 
+export class MonthlyAreaPoint {
+  month!: string;       // 'ENERO' … 'DICIEMBRE'
+  monthIndex!: number;  // 1-12
+  areaCode!: string;
+  areaName!: string;
+  open!: number;
+  inProgress!: number;
+  closed!: number;
+  total!: number;
+}
+
+export class AnnualByAreaResponse {
+  year!: number;
+  areas!: string[];          // códigos de área presentes
+  areaNames!: Record<string, string>;
+  months!: MonthlyAreaPoint[];
+}
+
 export class ReportsAnalyticsResponse {
   summary!: ReportsSummaryResponse;
   period!: ReportsPeriod;

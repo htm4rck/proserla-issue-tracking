@@ -225,6 +225,16 @@ export class ApiClientService {
     return `${this.base}/reports/tabla.html${qs ? `?${qs}` : ''}`;
   }
 
+  reportsAnnualByArea(params: {
+    year: number;
+    areaCode?: string;
+    leaderCode?: string;
+  }): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.base}/reports/annual-by-area`, {
+      params: this.cleanParams(params as Record<string, unknown>),
+    });
+  }
+
   // ── Audit log ──────────────────────────────────────────────────────────
 
   listAuditLogs(params?: {

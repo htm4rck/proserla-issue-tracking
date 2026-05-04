@@ -1,80 +1,225 @@
-﻿<section class="card">
-  <h3>Centro de reportes</h3>
-  <p class="intro">
-    Puedes generar el <strong>resumen numerico</strong>, descargar <strong>Excel (.xlsx)</strong> y <strong>PDF</strong>, o abrir el
-    <strong>reporte en tablas</strong> (ABIERTO / EN PROCESO / CERRADO) con el mismo formato operativo que usas en campo:
-    reportante, fecha, ubicación, enlace a imagen, descripción y medidas (comentario de seguimiento).
-  </p>
-  <form [formGroup]="form" class="grid">
-    <select formControlName="areaCode">
-      <option value="">Todas las areas</option>
-      @for (area of areas; track area.code) {
-        <option [value]="area.code">{{ area.name }}</option>
-      }
-    </select>
-    <input formControlName="leaderCode" placeholder="Código de líder (opcional)" />
-    <select formControlName="status">
-      <option value="">Todos los estados</option>
-      <option value="open">Abierta</option>
-      <option value="in_progress">En proceso</option>
-      <option value="closed">Cerrada</option>
-    </select>
-    <select formControlName="riskLevel">
-      <option value="">Todos los riesgos</option>
-      <option value="low">Bajo</option>
-      <option value="medium">Medio</option>
-      <option value="high">Alto</option>
-    </select>
-    <select formControlName="incidentType">
-      <option value="">Todos los tipos</option>
-      <option value="act">Acto inseguro</option>
-      <option value="condition">Condición insegura</option>
-    </select>
-    <select formControlName="reportMonth">
-      <option value="">Todos los meses</option>
-      @for (m of monthOptions; track m.value) {
-        <option [value]="m.value">{{ m.label }}</option>
-      }
-    </select>
-    <select formControlName="reportYear">
-      <option value="">Todos los años</option>
-      @for (year of yearOptions; track year) {
-        <option [value]="year">{{ year }}</option>
-      }
-    </select>
-    <button type="button" (click)="run()">Generar</button>
-  </form>
-  @if (summary) {
-    <ul class="status-summary">
-      <li><span class="status-pill status-open">Pendiente</span> {{ summary.open }}</li>
-      <li><span class="status-pill status-progress">En proceso</span> {{ summary.inProgress }}</li>
-      <li><span class="status-pill status-closed">Cerrado</span> {{ summary.closed }}</li>
-      <li>Total de incidencias: {{ summary.total }}</li>
-      <li>Cumplimiento: {{ summary.compliancePct }}%</li>
-    </ul>
-  }
-  @if (tableHtmlUrl) {
-    <p class="actions">
-      <a [href]="pdfUrl" target="_blank" rel="noopener noreferrer">Descargar PDF</a>
-      <button type="button" class="linkish" (click)="downloadXlsx()" [disabled]="xlsxBusy">
-        {{ xlsxBusy ? 'Generando Excel…' : 'Descargar Excel (.xlsx)' }}
+﻿<div class="reports-wrap">
+
+  <!-- ── Encabezado ──────────────────────────────────────────────────────── -->
+  <header class="rpt-header panel">
+    <div>
+      <h2>Centro de reportes</h2>
+      <p>Genera resúmenes, gráficos y exporta la información en el formato que necesites.</p>
+    </div>
+  </header>
+
+  <!-- ── Filtros ─────────────────────────────────────────────────────────── -->
+  <section class="panel rpt-filters" [formGroup]="form">
+    <h3 class="section-title">Filtros</h3>
+    <div class="filters-grid">
+
+      <label>Área
+        <select formControlName="areaCode">
+          <option value="">Todas las áreas</option>
+          @for (area of areas; track area.code) {
+            <option [value]="area.code">{{ area.name }}</option>
+          }
+        </select>
+      </label>
+
+      <label>Líder
+        <select formControlName="leaderCode">
+          <option value="">Todos</option>
+          @for (l of leadersForArea; track l.code) {
+            <option [value]="l.code">{{ l.fullName }}</option>
+          }
+        </select>
+      </label>
+
+      <label>Estado
+        <select formControlName="status">
+          <option value="">Todos</option>
+          <option value="open">Abierta</option>
+          <option value="in_progress">En proceso</option>
+          <option value="closed">Cerrada</option>
+        </select>
+      </label>
+
+      <label>Riesgo
+        <select formControlName="riskLevel">
+          <option value="">Todos</option>
+          <option value="low">Bajo</option>
+          <option value="medium">Medio</option>
+          <option value="high">Alto</option>
+        </select>
+      </label>
+
+      <label>Tipo
+        <select formControlName="incidentType">
+          <option value="">Todos</option>
+          <option value="act">Acto inseguro</option>
+          <option value="condition">Condición insegura</option>
+          <option value="mixed">Mixto</option>
+        </select>
+      </label>
+
+      <label>Mes
+        <select formControlName="reportMonth">
+          <option value="">Todos</option>
+          @for (m of monthOptions; track m.value) {
+            <option [value]="m.value">{{ m.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label>Año
+        <select formControlName="reportYear">
+          <option value="">Todos</option>
+          @for (year of yearOptions; track year) {
+            <option [value]="year">{{ year }}</option>
+          }
+        </select>
+      </label>
+
+      <button type="button" class="btn-generate" (click)="run()" [disabled]="loading">
+        @if (loading) { <span class="spinner"></span> Generando… }
+        @else { Generar reporte }
       </button>
-      <button type="button" class="linkish" (click)="togglePreview()">
-        {{ showHtmlPreview ? 'Ocultar preview HTML' : 'Ver preview HTML' }}
-      </button>
-      <a [href]="tableHtmlUrl" target="_blank" rel="noopener noreferrer">Abrir reporte en tablas</a>
-      @if (csvUrl) {
-        <a [href]="csvUrl" target="_blank" rel="noopener noreferrer">Descargar CSV</a>
-      }
-    </p>
-    @if (xlsxError) {
-      <p class="err">{{ xlsxError }}</p>
-    }
-    @if (showHtmlPreview && previewHtmlUrl) {
-      <div class="preview">
-        <h4>Vista previa del reporte HTML</h4>
-        <iframe [src]="previewHtmlUrl" title="Vista previa del reporte de incidencias"></iframe>
+
+    </div>
+  </section>
+
+  <!-- ── Resultados ──────────────────────────────────────────────────────── -->
+  @if (generated && summary) {
+
+    <!-- KPIs rápidos -->
+    <div class="kpi-row">
+      <article class="kpi open">
+        <span class="kpi-n">{{ summary.open }}</span>
+        <span class="kpi-l">Abiertas</span>
+      </article>
+      <article class="kpi prog">
+        <span class="kpi-n">{{ summary.inProgress }}</span>
+        <span class="kpi-l">En proceso</span>
+      </article>
+      <article class="kpi close">
+        <span class="kpi-n">{{ summary.closed }}</span>
+        <span class="kpi-l">Cerradas</span>
+      </article>
+      <article class="kpi total">
+        <span class="kpi-n">{{ summary.total }}</span>
+        <span class="kpi-l">Total</span>
+      </article>
+      <article class="kpi compliance">
+        <span class="kpi-n">{{ summary.compliancePct }}%</span>
+        <span class="kpi-l">Cumplimiento</span>
+        <div class="mini-bar">
+          <div class="mini-fill" [style.width.%]="summary.compliancePct"></div>
+        </div>
+      </article>
+    </div>
+
+    <!-- Gráfico de barras por estado -->
+    <section class="panel chart-section">
+      <h3 class="section-title">Distribución por estado</h3>
+      <div class="bar-chart">
+        @for (bar of statusBars; track bar.label) {
+          <div class="bc-row">
+            <span class="bc-label">{{ bar.label }}</span>
+            <div class="bc-track">
+              <div class="bc-fill {{ bar.colorClass }}"
+                   [style.width.%]="barWidth(bar.pct)">
+              </div>
+            </div>
+            <span class="bc-meta">
+              <strong>{{ bar.value }}</strong>
+              <span class="bc-pct">{{ bar.pct }}%</span>
+            </span>
+          </div>
+        }
       </div>
+
+      <!-- Barra apilada total -->
+      <div class="stacked-total">
+        <span class="st-label">Total: {{ summary.total }}</span>
+        <div class="st-bar">
+          <div class="st-seg open"  [style.width.%]="barWidth(statusBars[0]?.pct ?? 0)" [title]="'Abiertas: ' + summary.open"></div>
+          <div class="st-seg prog"  [style.width.%]="barWidth(statusBars[1]?.pct ?? 0)" [title]="'En proceso: ' + summary.inProgress"></div>
+          <div class="st-seg close" [style.width.%]="barWidth(statusBars[2]?.pct ?? 0)" [title]="'Cerradas: ' + summary.closed"></div>
+        </div>
+        <div class="st-legend">
+          <span><span class="dot open"></span> Abiertas {{ statusBars[0]?.pct ?? 0 }}%</span>
+          <span><span class="dot prog"></span> En proceso {{ statusBars[1]?.pct ?? 0 }}%</span>
+          <span><span class="dot close"></span> Cerradas {{ statusBars[2]?.pct ?? 0 }}%</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Botones de exportación ─────────────────────────────────────────── -->
+    <section class="panel export-section">
+      <h3 class="section-title">Exportar</h3>
+      <p class="export-hint">Descarga el reporte con los mismos filtros aplicados arriba.</p>
+
+      <div class="export-buttons">
+
+        <button type="button" class="export-btn pdf" (click)="downloadPdf()" [disabled]="pdfBusy">
+          <span class="export-icon">📄</span>
+          <span class="export-text">
+            <strong>PDF</strong>
+            <small>Reporte imprimible</small>
+          </span>
+        </button>
+
+        <button type="button" class="export-btn xlsx" (click)="downloadXlsx()" [disabled]="xlsxBusy">
+          <span class="export-icon">📊</span>
+          <span class="export-text">
+            @if (xlsxBusy) {
+              <strong>Generando…</strong>
+              <small>Por favor espera</small>
+            } @else {
+              <strong>Excel (.xlsx)</strong>
+              <small>Hoja de cálculo</small>
+            }
+          </span>
+        </button>
+
+        <button type="button" class="export-btn csv" (click)="downloadCsv()" [disabled]="csvBusy">
+          <span class="export-icon">📋</span>
+          <span class="export-text">
+            <strong>CSV</strong>
+            <small>Datos planos</small>
+          </span>
+        </button>
+
+        <button type="button" class="export-btn html" (click)="openHtmlReport()">
+          <span class="export-icon">🌐</span>
+          <span class="export-text">
+            <strong>Tabla HTML</strong>
+            <small>Abrir en nueva pestaña</small>
+          </span>
+        </button>
+
+        <button type="button" class="export-btn preview" (click)="togglePreview()">
+          <span class="export-icon">👁</span>
+          <span class="export-text">
+            <strong>{{ showHtmlPreview ? 'Ocultar' : 'Vista previa' }}</strong>
+            <small>Preview en pantalla</small>
+          </span>
+        </button>
+
+      </div>
+
+      @if (xlsxError) {
+        <p class="export-error">⚠ {{ xlsxError }}</p>
+      }
+    </section>
+
+    <!-- Vista previa HTML -->
+    @if (showHtmlPreview && previewHtmlUrl) {
+      <section class="panel preview-section">
+        <div class="preview-head">
+          <h3 class="section-title">Vista previa del reporte</h3>
+          <button type="button" class="btn-close-preview" (click)="togglePreview()">✕ Cerrar</button>
+        </div>
+        <iframe [src]="previewHtmlUrl" title="Vista previa del reporte de incidencias"></iframe>
+      </section>
     }
+
   }
-</section>
+
+</div>

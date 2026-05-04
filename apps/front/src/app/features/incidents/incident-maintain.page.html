@@ -18,7 +18,7 @@
       <small class="field-hint">Se toma del usuario en sesion (no editable).</small>
     </label>
     <label>
-      Ano
+      Año
       <select formControlName="reportYear">
         <option value="">Seleccionar año</option>
         @for (year of yearOptions; track year) {
@@ -48,7 +48,16 @@
     </label>
     <label>Datos del reportado <input formControlName="reportedPerson" /></label>
     <label>Edad <input formControlName="reportedPersonAge" /></label>
-    <label>Proserla / tercero <input formControlName="employerType" /></label>
+    <label>
+      Procedencia
+      <select formControlName="employerType">
+        <option value="">Seleccionar procedencia</option>
+        <option value="proserla">Proserla</option>
+        <option value="tercero">Tercero / contratista</option>
+        <option value="directo">Personal directo</option>
+        <option value="visita">Visita</option>
+      </select>
+    </label>
     <label>
       Lider de area
       <select formControlName="areaLeaderKey">
@@ -67,10 +76,12 @@
     <label>Responsable <input formControlName="assignedTo" /></label>
     <label>Ubicacion <input formControlName="location" /></label>
     <label>Area de trabajo <input formControlName="workArea" /></label>
-    <label>Tipo
+    <label>
+      Tipo de incidencia
       <select formControlName="incidentType">
+        <option value="condition">Condición insegura</option>
         <option value="act">Acto inseguro</option>
-        <option value="condition">Condicion insegura</option>
+        <option value="mixed">Mixto</option>
       </select>
     </label>
     <label>Riesgo
@@ -89,7 +100,17 @@
         <small class="err">Para cerrar, agrega evidencia tipo "Cierre".</small>
       }
     </div>
-    <label>Tipo de reporte <input formControlName="reportSource" placeholder="WHATSAPP / CHECK LIST" /></label>
+    <label>
+      Tipo de reporte
+      <select formControlName="reportSource">
+        <option value="">Seleccionar tipo</option>
+        <option value="whatsapp">WhatsApp</option>
+        <option value="checklist">Checklist</option>
+        <option value="verbal">Verbal</option>
+        <option value="correo">Correo electrónico</option>
+        <option value="sistema">Sistema</option>
+      </select>
+    </label>
     <label class="full">Descripcion <textarea rows="4" formControlName="description"></textarea></label>
     <label class="full">Comentario de seguimiento <textarea rows="3" formControlName="comment"></textarea></label>
     <label class="full">Medidas correctivas <textarea rows="3" formControlName="correctiveMeasures"></textarea></label>

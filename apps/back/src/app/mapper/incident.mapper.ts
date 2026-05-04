@@ -145,7 +145,7 @@ export class CreateIncidentRequest {
   workArea?: string;
 
   @IsString()
-  @IsIn(['act', 'condition'])
+  @IsIn(['act', 'condition', 'mixed'])
   incidentType!: string;
 
   @IsString()
@@ -256,7 +256,7 @@ export class UpdateIncidentRequest {
 
   @IsOptional()
   @IsString()
-  @IsIn(['act', 'condition'])
+  @IsIn(['act', 'condition', 'mixed'])
   incidentType?: string;
 
   @IsOptional()

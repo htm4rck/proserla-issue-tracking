@@ -60,7 +60,7 @@ export class IncidentMaintainPageComponent implements OnInit {
     areaCode: [''],
     location: ['', Validators.required],
     workArea: [''],
-    incidentType: this.fb.nonNullable.control<'act' | 'condition'>('condition', Validators.required),
+    incidentType: this.fb.nonNullable.control<'act' | 'condition' | 'mixed'>('condition', Validators.required),
     riskLevel: this.fb.nonNullable.control<'low' | 'medium' | 'high'>('medium', Validators.required),
     description: ['', Validators.required],
     comment: [''],

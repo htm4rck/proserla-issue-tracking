@@ -2,6 +2,7 @@
 import { ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../mapper/api.mapper';
 import {
+  AnnualByAreaResponse,
   ReportsAnalyticsResponse,
   ReportsFilterRequest,
   ReportsSummaryResponse,
@@ -43,6 +44,25 @@ export class ReportsController {
     }
     const data = await this.reportsService.analytics(scoped);
     return new ApiResponse(true, 'Analitica de reportes generada correctamente', data);
+  }
+
+  @Get('annual-by-area')
+  async annualByArea(
+    @Query('year') yearParam: string,
+    @Query('areaCode') areaCode?: string,
+    @Query('leaderCode') leaderCode?: string,
+    @Headers('x-role-code') roleCode?: string,
+    @Headers('x-area-code') areaCodeHeader?: string,
+    @Headers('x-leader-code') leaderCodeHeader?: string,
+  ): Promise<ApiResponse<AnnualByAreaResponse>> {
+    const year = Number(yearParam) || new Date().getFullYear();
+    const scopedArea = roleCode === 'leader' ? (areaCodeHeader || areaCode) : areaCode;
+    const scopedLeader = roleCode === 'leader' ? (leaderCodeHeader || leaderCode) : leaderCode;
+    const data = await this.reportsService.annualByArea(year, {
+      areaCode: scopedArea,
+      leaderCode: scopedLeader,
+    });
+    return new ApiResponse(true, 'Gráfico anual por área generado correctamente', data);
   }
 
   @Get('export.csv')

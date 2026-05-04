@@ -8,6 +8,8 @@ import { IncidentResponseEntity } from '../entity/incident-response.entity';
 import { IncidentEntity } from '../entity/incident.entity';
 import { IncidentStatus } from '../enum/incident-status.enum';
 import {
+  AnnualByAreaResponse,
+  MonthlyAreaPoint,
   ReportsAnalyticsResponse,
   ReportsFilterRequest,
   ReportsPeriod,
@@ -111,6 +113,73 @@ export class ReportsService {
       rangeLabel: `${formatDate(range.start)} - ${formatDate(range.end)}`,
       byStatus: [...byStatus],
       byArea,
+    };
+  }
+
+  async annualByArea(year: number, filters: Pick<ReportsFilterRequest, 'areaCode' | 'leaderCode'>): Promise<AnnualByAreaResponse> {
+    const qb = this.incidentRepository.createQueryBuilder('incident');
+    qb.andWhere(
+      '(incident.reportYear = :year OR (incident.reportYear IS NULL AND EXTRACT(YEAR FROM incident.createdAt) = :year))',
+      { year },
+    );
+    if (filters.areaCode?.trim()) {
+      qb.andWhere('incident.areaCode = :areaCode', { areaCode: filters.areaCode.trim() });
+    }
+    if (filters.leaderCode?.trim()) {
+      qb.andWhere('incident.leaderCode = :leaderCode', { leaderCode: filters.leaderCode.trim() });
+    }
+    const incidents = await qb.getMany();
+    const areaNames = await this.loadAreaNames();
+
+    // Build map: monthIndex → areaCode → counts
+    type Counts = { open: number; inProgress: number; closed: number; total: number };
+    const matrix = new Map<number, Map<string, Counts>>();
+    for (let m = 1; m <= 12; m++) {
+      matrix.set(m, new Map());
+    }
+
+    const areaCodes = new Set<string>();
+    for (const inc of incidents) {
+      const monthIdx = inc.reportMonth
+        ? MESES.indexOf(inc.reportMonth.trim().toUpperCase()) + 1
+        : inc.createdAt.getMonth() + 1;
+      const mi = monthIdx > 0 && monthIdx <= 12 ? monthIdx : inc.createdAt.getMonth() + 1;
+      const ac = inc.areaCode;
+      areaCodes.add(ac);
+      const monthMap = matrix.get(mi)!;
+      const cur = monthMap.get(ac) ?? { open: 0, inProgress: 0, closed: 0, total: 0 };
+      cur.total += 1;
+      if (inc.status === IncidentStatus.OPEN) cur.open += 1;
+      if (inc.status === IncidentStatus.IN_PROGRESS) cur.inProgress += 1;
+      if (inc.status === IncidentStatus.CLOSED) cur.closed += 1;
+      monthMap.set(ac, cur);
+    }
+
+    const points: MonthlyAreaPoint[] = [];
+    for (let mi = 1; mi <= 12; mi++) {
+      const monthMap = matrix.get(mi)!;
+      for (const ac of areaCodes) {
+        const c = monthMap.get(ac) ?? { open: 0, inProgress: 0, closed: 0, total: 0 };
+        points.push({
+          month: MESES[mi - 1],
+          monthIndex: mi,
+          areaCode: ac,
+          areaName: areaNames.get(ac) ?? ac,
+          ...c,
+        });
+      }
+    }
+
+    const areaNameRecord: Record<string, string> = {};
+    for (const ac of areaCodes) {
+      areaNameRecord[ac] = areaNames.get(ac) ?? ac;
+    }
+
+    return {
+      year,
+      areas: [...areaCodes].sort(),
+      areaNames: areaNameRecord,
+      months: points,
     };
   }
 

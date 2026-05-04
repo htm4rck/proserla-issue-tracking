@@ -39,7 +39,7 @@ export interface Incident {
   assignedTo?: string;
   location: string;
   workArea?: string;
-  incidentType: 'act' | 'condition';
+  incidentType: 'act' | 'condition' | 'mixed';
   riskLevel: 'low' | 'medium' | 'high';
   description: string;
   comment?: string;

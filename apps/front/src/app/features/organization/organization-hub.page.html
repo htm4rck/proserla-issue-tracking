@@ -15,64 +15,6 @@
     </div>
   </header>
 
-  <section class="seed panel">
-    <div class="seed-head">
-      <div>
-        <h3>Semilla de demostración</h3>
-        <p>Crea roles PACK/FIELD/PLANT, líderes LUCIA/MARIO/ROSA, usuarios demo e incidencias de ejemplo. Respuesta incluye guía legible.</p>
-      </div>
-      <button type="button" class="btn-seed" (click)="runSeed()" [disabled]="seedLoading">
-        {{ seedLoading ? 'Aplicando…' : 'Aplicar semilla demo' }}
-      </button>
-    </div>
-    @if (seedMessage) {
-      <p class="ok">{{ seedMessage }}</p>
-    }
-    @if (seedError) {
-      <p class="err">{{ seedError }}</p>
-    }
-    @if (seedPayload) {
-      <div class="seed-result">
-        <p><strong>Resumen:</strong> {{ seedPayload.resumen }}</p>
-        <h4>Cómo leer el modelo</h4>
-        <ul>
-          @for (m of seedPayload.comoLeerElModelo; track m.titulo) {
-            <li><strong>{{ m.titulo }}:</strong> {{ m.texto }}</li>
-          }
-        </ul>
-        <div class="counts">
-          <span class="pill">Roles: <strong>{{ seedPayload.conteos.roles }}</strong></span>
-          <span class="pill">Áreas: <strong>{{ seedPayload.conteos.areas }}</strong></span>
-          <span class="pill">Líderes: <strong>{{ seedPayload.conteos.lideres }}</strong></span>
-          <span class="pill">Usuarios: <strong>{{ seedPayload.conteos.usuarios }}</strong></span>
-          <span class="pill">Catálogos: <strong>{{ seedPayload.conteos.catalogos }}</strong></span>
-          <span class="pill">Incidencias: <strong>{{ seedPayload.conteos.incidencias }}</strong></span>
-        </div>
-        <h4>Usuarios demo (login por correo)</h4>
-        <table class="data">
-          <thead><tr><th>Correo</th><th>Rol</th><th>Área</th><th>Líder</th><th>Nota</th></tr></thead>
-          <tbody>
-            @for (u of seedPayload.usuariosDemo; track u.email) {
-              <tr>
-                <td>{{ u.email }}</td>
-                <td>{{ u.roleCode }}</td>
-                <td>{{ u.areaCode }}</td>
-                <td>{{ u.leaderCode }}</td>
-                <td>{{ u.nota }}</td>
-              </tr>
-            }
-          </tbody>
-        </table>
-        <h4>Incidencias demo</h4>
-        <ul class="tight">
-          @for (i of seedPayload.incidenciasDemo; track i) {
-            <li>{{ i }}</li>
-          }
-        </ul>
-      </div>
-    }
-  </section>
-
   <nav class="tabs" aria-label="Secciones">
     <button type="button" [class.active]="activeTab === 'roles'" (click)="setTab('roles')">Roles</button>
     <button type="button" [class.active]="activeTab === 'areas'" (click)="setTab('areas')">Áreas</button>

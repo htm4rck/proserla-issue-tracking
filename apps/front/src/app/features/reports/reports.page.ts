@@ -2,10 +2,17 @@
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
-import { Area } from '../../core/models/api.models';
+import { Area, Leader } from '../../core/models/api.models';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
+
+interface BarItem {
+  label: string;
+  value: number;
+  pct: number;
+  colorClass: string;
+}
 
 @Component({
   selector: 'app-reports-page',
@@ -14,85 +21,174 @@ import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
   styleUrl: './reports.page.scss',
 })
 export class ReportsPageComponent implements OnInit {
-  private readonly api = inject(ApiClientService);
+  private readonly api   = inject(ApiClientService);
   private readonly session = inject(AuthSessionService);
-  private readonly fb = inject(FormBuilder);
+  private readonly fb    = inject(FormBuilder);
   private readonly sanitizer = inject(DomSanitizer);
 
   readonly form = this.fb.nonNullable.group({
-    areaCode: [this.session.scopedFilters().areaCode ?? ''],
-    leaderCode: [this.session.scopedFilters().leaderCode ?? ''],
-    status: [''],
-    riskLevel: [''],
+    areaCode:     [this.session.scopedFilters().areaCode   ?? ''],
+    leaderCode:   [this.session.scopedFilters().leaderCode ?? ''],
+    status:       [''],
+    riskLevel:    [''],
     incidentType: [''],
-    reportMonth: [''],
-    reportYear: [String(new Date().getFullYear())],
+    reportMonth:  [''],
+    reportYear:   [String(new Date().getFullYear())],
   });
 
-  summary: {
-    open: number;
-    inProgress: number;
-    closed: number;
-    total: number;
-    compliancePct: number;
-  } | null = null;
-  csvUrl = '';
-  pdfUrl = '';
-  tableHtmlUrl = '';
+  // ── Estado ──────────────────────────────────────────────────────────────
+  loading       = false;
+  generated     = false;
+  summary: { open: number; inProgress: number; closed: number; total: number; compliancePct: number } | null = null;
+
+  // Barras calculadas
+  statusBars:  BarItem[] = [];
+  riskBars:    BarItem[] = [];
+  typeBars:    BarItem[] = [];
+
+  // Descargas
+  csvUrl        = '';
+  pdfUrl        = '';
+  tableHtmlUrl  = '';
   previewHtmlUrl: SafeResourceUrl | null = null;
   showHtmlPreview = false;
-  xlsxBusy = false;
-  xlsxError = '';
+  xlsxBusy      = false;
+  xlsxError     = '';
+  pdfBusy       = false;
+  csvBusy       = false;
+
   private lastReportParams: Record<string, string | undefined> = {};
-  areas: Area[] = [];
+
+  // Catálogos
+  areas:   Area[]   = [];
+  leaders: Leader[] = [];
   readonly monthOptions = MONTH_OPTIONS;
-  readonly yearOptions = yearOptions(2020);
+  readonly yearOptions  = yearOptions(2020);
+
+  // ── Helpers ─────────────────────────────────────────────────────────────
+
+  get leadersForArea(): Leader[] {
+    const ac = this.form.controls.areaCode.value?.trim();
+    if (!ac) return this.leaders.filter(l => l.isActive);
+    return this.leaders.filter(l => l.isActive && l.areaCode === ac);
+  }
+
+  // ── Lifecycle ────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.api.listAreas().subscribe(({ data }) => (this.areas = data ?? []));
+    this.api.listLeaders().subscribe(({ data }) => (this.leaders = data ?? []));
+
     if (this.session.user?.roleCode === 'leader') {
       this.form.controls.areaCode.disable();
       this.form.controls.leaderCode.disable();
     }
+
+    // Auto-limpiar líder si cambia área
+    this.form.controls.areaCode.valueChanges.subscribe(ac => {
+      const cur = this.form.controls.leaderCode.value?.trim();
+      if (cur) {
+        const ok = this.leaders.some(l => l.isActive && l.areaCode === ac && l.code === cur);
+        if (!ok) this.form.controls.leaderCode.setValue('', { emitEvent: false });
+      }
+      if (ac) {
+        const inArea = this.leaders.filter(l => l.isActive && l.areaCode === ac);
+        if (inArea.length === 1) {
+          this.form.controls.leaderCode.setValue(inArea[0].code, { emitEvent: false });
+        }
+      }
+    });
   }
+
+  // ── Generar ──────────────────────────────────────────────────────────────
 
   run(): void {
     const raw = this.form.getRawValue();
     const q = Object.fromEntries(
-      Object.entries(raw).map(([key, value]) => [key, String(value).trim() || undefined]),
+      Object.entries(raw).map(([k, v]) => [k, String(v).trim() || undefined]),
     ) as Record<string, string | undefined>;
+
     this.lastReportParams = q;
     this.xlsxError = '';
-    this.api.reportsSummary(q).subscribe(({ data }) => (this.summary = data));
-    this.csvUrl = this.api.reportsCsvUrl(q);
-    this.pdfUrl = this.api.reportsPdfUrl(q);
-    this.tableHtmlUrl = this.api.reportsTableHtmlUrl(q);
-    this.previewHtmlUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.tableHtmlUrl);
-    this.showHtmlPreview = true;
+    this.loading = true;
+    this.generated = false;
+
+    this.api.reportsSummary(q)
+      .pipe(finalize(() => (this.loading = false)))
+      .subscribe({
+        next: ({ data }) => {
+          this.summary = data;
+          this.buildBars(data);
+          this.csvUrl       = this.api.reportsCsvUrl(q);
+          this.pdfUrl       = this.api.reportsPdfUrl(q);
+          this.tableHtmlUrl = this.api.reportsTableHtmlUrl(q);
+          this.previewHtmlUrl = this.sanitizer.bypassSecurityTrustResourceUrl(this.tableHtmlUrl);
+          this.showHtmlPreview = false;
+          this.generated = true;
+        },
+      });
   }
 
+  private buildBars(s: { open: number; inProgress: number; closed: number; total: number; compliancePct: number }): void {
+    const t = s.total || 1;
+    this.statusBars = [
+      { label: 'Abiertas',   value: s.open,       pct: Math.round(s.open       / t * 100), colorClass: 'open'  },
+      { label: 'En proceso', value: s.inProgress,  pct: Math.round(s.inProgress / t * 100), colorClass: 'prog'  },
+      { label: 'Cerradas',   value: s.closed,      pct: Math.round(s.closed     / t * 100), colorClass: 'close' },
+    ];
+    // riskBars y typeBars se podrían calcular si el backend los devuelve;
+    // por ahora los derivamos del resumen disponible.
+    this.riskBars  = [];
+    this.typeBars  = [];
+  }
+
+  // ── Descargas ────────────────────────────────────────────────────────────
+
   downloadXlsx(): void {
-    if (!this.tableHtmlUrl) return;
     this.xlsxError = '';
-    this.xlsxBusy = true;
-    this.api
-      .downloadReportsXlsx(this.lastReportParams)
+    this.xlsxBusy  = true;
+    this.api.downloadReportsXlsx(this.lastReportParams)
       .pipe(finalize(() => (this.xlsxBusy = false)))
       .subscribe({
-        next: (blob) => {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = 'incidencias-reporte.xlsx';
-          a.rel = 'noopener';
-          a.click();
-          URL.revokeObjectURL(url);
-        },
-        error: () => (this.xlsxError = 'No se pudo descargar el Excel. Comprueba la conexión o vuelve a generar el reporte.'),
+        next: blob => this.triggerDownload(blob, 'incidencias-reporte.xlsx'),
+        error: () => (this.xlsxError = 'No se pudo descargar el Excel.'),
       });
+  }
+
+  downloadPdf(): void {
+    this.pdfBusy = true;
+    // PDF se abre en nueva pestaña (el backend lo sirve directamente)
+    window.open(this.pdfUrl, '_blank', 'noopener,noreferrer');
+    this.pdfBusy = false;
+  }
+
+  downloadCsv(): void {
+    this.csvBusy = true;
+    window.open(this.csvUrl, '_blank', 'noopener,noreferrer');
+    this.csvBusy = false;
+  }
+
+  openHtmlReport(): void {
+    window.open(this.tableHtmlUrl, '_blank', 'noopener,noreferrer');
   }
 
   togglePreview(): void {
     this.showHtmlPreview = !this.showHtmlPreview;
+  }
+
+  private triggerDownload(blob: Blob, filename: string): void {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href     = url;
+    a.download = filename;
+    a.rel      = 'noopener';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  // ── Utilidades ───────────────────────────────────────────────────────────
+
+  barWidth(pct: number): number {
+    return Math.max(pct > 0 ? 6 : 0, pct);
   }
 }

@@ -10,9 +10,11 @@
     </div>
   </header>
 
+  <!-- ── Filtros ─────────────────────────────────────────────────────── -->
   <section class="panel filters" [formGroup]="filterForm">
     <h3 class="filters-title">Filtros del tablero</h3>
     <div class="filters-grid">
+
       <label>Periodo
         <select formControlName="period">
           <option value="weekly">Semanal</option>
@@ -21,7 +23,8 @@
           <option value="yearly">Anual</option>
         </select>
       </label>
-      <label>Area
+
+      <label>Área
         <select formControlName="areaCode">
           <option value="">Todas</option>
           @for (area of areas; track area.code) {
@@ -29,7 +32,17 @@
           }
         </select>
       </label>
-      <label>Lider <input formControlName="leaderCode" placeholder="Todos (ej. LUCIA)" /></label>
+
+      <!-- Líder: combo filtrado por área seleccionada -->
+      <label>Líder
+        <select formControlName="leaderCode">
+          <option value="">Todos</option>
+          @for (l of leadersForArea; track l.code) {
+            <option [value]="l.code">{{ l.fullName }}</option>
+          }
+        </select>
+      </label>
+
       <label>Estado
         <select formControlName="status">
           <option value="">Todos</option>
@@ -38,6 +51,7 @@
           <option value="closed">Cerrada</option>
         </select>
       </label>
+
       <label>Riesgo
         <select formControlName="riskLevel">
           <option value="">Todos</option>
@@ -46,79 +60,231 @@
           <option value="high">Alto</option>
         </select>
       </label>
+
       <label>Tipo
         <select formControlName="incidentType">
           <option value="">Todos</option>
           <option value="act">Acto inseguro</option>
-          <option value="condition">Condicion insegura</option>
+          <option value="condition">Condición insegura</option>
+          <option value="mixed">Mixto</option>
         </select>
       </label>
-      <label>Ano
-        <select formControlName="reportYear" [disabled]="!isMonthlyPeriod">
+
+      <label>Año
+        <select formControlName="reportYear" [attr.disabled]="!isMonthlyPeriod ? '' : null">
           <option value="">{{ isYearlyPeriod ? 'Todos' : 'Seleccionar año' }}</option>
           @for (year of yearOptions; track year) {
             <option [value]="year">{{ year }}</option>
           }
         </select>
       </label>
+
       <label>Mes
-        <select formControlName="reportMonth" [disabled]="!isMonthlyPeriod">
+        <select formControlName="reportMonth" [attr.disabled]="!isMonthlyPeriod ? '' : null">
           <option value="">{{ isYearlyPeriod ? 'Todos' : 'Seleccionar mes' }}</option>
           @for (m of monthOptions; track m.value) {
             <option [value]="m.value">{{ m.label }}</option>
           }
         </select>
       </label>
+
       <label>{{ referenceDateLabel }}
-        <input type="date" formControlName="referenceDate" [disabled]="!needsReferenceDate" />
+        <input type="date" formControlName="referenceDate" [attr.disabled]="!needsReferenceDate ? '' : null" />
       </label>
+
       <button type="button" class="primary" (click)="load()" [disabled]="loading">Aplicar</button>
     </div>
-    <p class="filters-hint">El antiguo panel de control queda integrado aqui: un solo tablero para gerencia, lideres y seguimiento operativo.</p>
+    <p class="filters-hint">El panel de control queda integrado aquí: un solo tablero para gerencia, líderes y seguimiento operativo.</p>
   </section>
 
+  <!-- ── Estados ─────────────────────────────────────────────────────── -->
   @if (loading) {
     <div class="state-loading panel">Cargando indicadores...</div>
   } @else if (error) {
     <div class="state-error">No se pudieron cargar los datos. Comprueba la API y vuelve a intentar.</div>
   } @else if (summary) {
+
     <section class="panel period-chip"><p><strong>Rango aplicado:</strong> {{ rangeLabel }}</p></section>
 
+    <!-- KPIs -->
     <div class="kpi-grid">
-      <article class="kpi-card open"><p class="kpi-label">Abiertas</p><p class="kpi-value">{{ summary.open }}</p><p class="kpi-hint">Sin cierre o accion completada.</p></article>
-      <article class="kpi-card progress"><p class="kpi-label">En proceso</p><p class="kpi-value">{{ summary.inProgress }}</p><p class="kpi-hint">Seguimiento activo.</p></article>
-      <article class="kpi-card closed"><p class="kpi-label">Cerradas</p><p class="kpi-value">{{ summary.closed }}</p><p class="kpi-hint">Accion validada.</p></article>
-      <article class="kpi-card total"><p class="kpi-label">Total en vista</p><p class="kpi-value">{{ summary.total }}</p><p class="kpi-hint">Registros filtrados.</p></article>
+      <article class="kpi-card open">
+        <p class="kpi-label">Abiertas</p>
+        <p class="kpi-value">{{ summary.open }}</p>
+        <p class="kpi-hint">Sin cierre o acción completada.</p>
+      </article>
+      <article class="kpi-card progress">
+        <p class="kpi-label">En proceso</p>
+        <p class="kpi-value">{{ summary.inProgress }}</p>
+        <p class="kpi-hint">Seguimiento activo.</p>
+      </article>
+      <article class="kpi-card closed">
+        <p class="kpi-label">Cerradas</p>
+        <p class="kpi-value">{{ summary.closed }}</p>
+        <p class="kpi-hint">Acción validada.</p>
+      </article>
+      <article class="kpi-card total">
+        <p class="kpi-label">Total en vista</p>
+        <p class="kpi-value">{{ summary.total }}</p>
+        <p class="kpi-hint">Registros filtrados.</p>
+      </article>
       <article class="kpi-card compliance">
-        <p class="kpi-label">Cumplimiento</p><p class="kpi-value">{{ summary.compliancePct }}%</p><p class="kpi-hint">Cerradas / total.</p>
-        <div class="compliance-block"><div class="compliance-bar"><div class="compliance-fill" [style.width.%]="summary.compliancePct"></div></div></div>
+        <p class="kpi-label">Cumplimiento</p>
+        <p class="kpi-value">{{ summary.compliancePct }}%</p>
+        <p class="kpi-hint">Cerradas / total.</p>
+        <div class="compliance-block">
+          <div class="compliance-bar">
+            <div class="compliance-fill" [style.width.%]="summary.compliancePct"></div>
+          </div>
+        </div>
       </article>
     </div>
 
+    <!-- Gráfico por estado -->
     <section class="panel charts">
-      <h3>Grafico por estado</h3>
+      <h3>Por estado</h3>
       <div class="bars">
         @for (s of byStatus; track s.status) {
-          <div class="bar-row"><span class="bar-label">{{ s.label }}</span><div class="bar-track"><div class="bar-fill status" [class.open]="s.status === 'open'" [class.in-progress]="s.status === 'in_progress'" [class.closed]="s.status === 'closed'" [style.width.%]="barPct(s.value, maxStatusValue)"></div></div><span class="bar-value">{{ s.value }}</span></div>
+          <div class="bar-row">
+            <span class="bar-label">{{ s.label }}</span>
+            <div class="bar-track">
+              <div class="bar-fill status"
+                [class.open]="s.status === 'open'"
+                [class.in-progress]="s.status === 'in_progress'"
+                [class.closed]="s.status === 'closed'"
+                [style.width.%]="barPct(s.value, maxStatusValue)">
+              </div>
+            </div>
+            <span class="bar-value">{{ s.value }}</span>
+          </div>
         }
       </div>
     </section>
 
+    <!-- Gráfico por área (período seleccionado) -->
     <section class="panel charts">
-      <h3>Grafico por area</h3>
+      <h3>Por área — {{ rangeLabel }}</h3>
       <div class="bars">
         @for (a of byArea; track a.areaCode) {
-          <div class="bar-row"><span class="bar-label">{{ areaLabel(a.areaCode, a.areaName) }}</span><div class="bar-track"><div class="bar-fill area" [style.width.%]="barPct(a.total, maxAreaTotal)"></div></div><span class="bar-value">{{ a.total }}</span></div>
-          <div class="area-breakdown">A:{{ a.open }} · P:{{ a.inProgress }} · C:{{ a.closed }}</div>
+          <div class="bar-row">
+            <span class="bar-label">{{ areaLabel(a.areaCode, a.areaName) }}</span>
+            <div class="bar-track stacked">
+              <div class="bar-seg open"  [style.width.%]="stackedPct(a.open, a.total)"       title="Abiertas: {{ a.open }}"></div>
+              <div class="bar-seg prog"  [style.width.%]="stackedPct(a.inProgress, a.total)" title="En proceso: {{ a.inProgress }}"></div>
+              <div class="bar-seg close" [style.width.%]="stackedPct(a.closed, a.total)"     title="Cerradas: {{ a.closed }}"></div>
+            </div>
+            <span class="bar-value">{{ a.total }}</span>
+          </div>
+          <div class="area-breakdown">
+            <span class="tag open">A: {{ a.open }}</span>
+            <span class="tag prog">P: {{ a.inProgress }}</span>
+            <span class="tag close">C: {{ a.closed }}</span>
+          </div>
         }
       </div>
+      <!-- Leyenda -->
+      <div class="legend">
+        <span class="leg-dot open"></span> Abiertas
+        <span class="leg-dot prog"></span> En proceso
+        <span class="leg-dot close"></span> Cerradas
+      </div>
+    </section>
+
+    <!-- ── Gráfico anual mes × área ──────────────────────────────────── -->
+    <section class="panel charts annual-chart">
+      <div class="annual-header">
+        <div>
+          <h3>Evolución anual por mes y área</h3>
+          <p class="charts-sub">Registros mes a mes — abiertos, en proceso y cerrados por área.</p>
+        </div>
+        @if (annualData && annualData.areas.length > 1) {
+          <div class="area-pills">
+            <button type="button"
+              class="pill"
+              [class.active]="annualFocusArea === null"
+              (click)="setAnnualFocusArea(null)">
+              Todas las áreas
+            </button>
+            @for (ac of annualData.areas; track ac) {
+              <button type="button"
+                class="pill"
+                [class.active]="annualFocusArea === ac"
+                (click)="setAnnualFocusArea(ac)">
+                {{ annualData.areaNames[ac] ?? ac }}
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      @if (annualLoading) {
+        <p class="loading-hint">Cargando gráfico anual…</p>
+      } @else if (!annualData || annualData.months.length === 0) {
+        <p class="empty-hint">Sin datos para el año seleccionado.</p>
+      } @else {
+        <div class="annual-grid">
+          @for (ms of annualMonthsForFocus(); track ms.monthIndex) {
+            <div class="month-col" [class.has-data]="ms.total > 0">
+              <!-- Barras apiladas verticales -->
+              <div class="month-bars">
+                <div class="vbar-wrap" [title]="ms.month + ': ' + ms.total + ' total'">
+                  @if (ms.total > 0) {
+                    <div class="vbar-seg close"
+                      [style.height.%]="stackedPct(ms.closed, ms.total)"
+                      [title]="'Cerradas: ' + ms.closed">
+                    </div>
+                    <div class="vbar-seg prog"
+                      [style.height.%]="stackedPct(ms.inProgress, ms.total)"
+                      [title]="'En proceso: ' + ms.inProgress">
+                    </div>
+                    <div class="vbar-seg open"
+                      [style.height.%]="stackedPct(ms.open, ms.total)"
+                      [title]="'Abiertas: ' + ms.open">
+                    </div>
+                  } @else {
+                    <div class="vbar-empty"></div>
+                  }
+                </div>
+                <span class="month-total">{{ ms.total > 0 ? ms.total : '' }}</span>
+              </div>
+              <!-- Etiqueta mes -->
+              <span class="month-label">{{ ms.month.slice(0, 3) }}</span>
+              <!-- Desglose por área (tooltip-like) -->
+              @if (ms.total > 0 && !annualFocusArea && annualData && annualData.areas.length > 1) {
+                <div class="month-area-breakdown">
+                  @for (pt of ms.byArea; track pt.areaCode) {
+                    @if (pt.total > 0) {
+                      <div class="mab-row">
+                        <span class="mab-area">{{ annualData.areaNames[pt.areaCode] ?? pt.areaCode }}</span>
+                        <span class="mab-counts">
+                          <span class="tag open">{{ pt.open }}</span>
+                          <span class="tag prog">{{ pt.inProgress }}</span>
+                          <span class="tag close">{{ pt.closed }}</span>
+                        </span>
+                      </div>
+                    }
+                  }
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Leyenda anual -->
+        <div class="legend">
+          <span class="leg-dot open"></span> Abiertas
+          <span class="leg-dot prog"></span> En proceso
+          <span class="leg-dot close"></span> Cerradas
+        </div>
+      }
     </section>
 
     <nav class="links-row panel" style="padding: 1rem">
-      <a routerLink="/incidents">Ver incidencias (con paginación)</a>
+      <a routerLink="/incidents">Ver incidencias</a>
       <a routerLink="/incidents/nuevo">Nueva incidencia</a>
       <a routerLink="/reports">Centro de reportes</a>
     </nav>
+
   } @else {
     <div class="state-empty panel">Sin datos de resumen.</div>
   }

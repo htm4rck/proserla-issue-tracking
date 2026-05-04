@@ -27,7 +27,6 @@
       @if (session.user; as user) {
         <div class="session-box">
           <strong>{{ user.fullName }}</strong>
-          <span>{{ user.roleCode }} · {{ user.areaCode }}{{ user.leaderCode ? ' · ' + user.leaderCode : '' }}</span>
           <a class="login-link" routerLink="/account/password">Clave</a>
           <button type="button" class="login-link" (click)="logout()">Salir</button>
         </div>
