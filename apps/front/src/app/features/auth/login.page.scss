@@ -16,26 +16,38 @@
   background-position: center;
   background-repeat: no-repeat;
   color: #fff;
-  padding: 3rem 2rem;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  gap: 1rem;
+  justify-content: flex-start;
+}
+
+/* Franja semitransparente solo para el badge y el título */
+.brand-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.6rem 2rem;
+  background: rgba(10, 20, 40, 0.38);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
 }
 
 .brand-badge {
   width: fit-content;
-  background: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 999px;
   padding: 0.35rem 0.75rem;
   font-size: 0.8rem;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.06em;
+  font-weight: 600;
 }
 
 .brand-panel h1 {
   margin: 0;
-  line-height: 1.2;
-  font-size: 1.8rem;
+  line-height: 1.25;
+  font-size: 1.7rem;
 }
 
 .brand-panel p {
@@ -160,8 +172,8 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .brand-panel {
-    padding: 1.7rem 1.2rem;
+  .brand-header {
+    padding: 1.2rem 1.2rem;
   }
 
   .stats {
