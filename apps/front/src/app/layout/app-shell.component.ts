@@ -12,6 +12,8 @@ export class AppShellComponent {
   readonly session = inject(AuthSessionService);
   private readonly router = inject(Router);
 
+  navOpen = false;
+
   private readonly fullMenu = [
     { label: 'Tablero', route: '/dashboard', icon: 'TB' },
     { label: 'Incidencias', route: '/incidents', icon: 'IN' },

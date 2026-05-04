@@ -1,5 +1,5 @@
 .audit-page {
-  padding: 24px;
+  padding: 1.25rem;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -180,3 +180,52 @@
 .err { color: #dc2626; }
 .empty { color: #9ca3af; font-style: italic; }
 .muted { color: #9ca3af; font-size: 0.82rem; }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .audit-table th:nth-child(2),
+  .audit-table td:nth-child(2),
+  .audit-table th:nth-child(5),
+  .audit-table td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .audit-page { padding: 0.75rem; }
+
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0.85rem;
+    gap: 0.65rem;
+  }
+
+  .filter-bar input,
+  .filter-bar select {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .filter-bar button { width: 100%; }
+
+  /* Solo fecha, código y expand en mobile */
+  .audit-table th:nth-child(3),
+  .audit-table td:nth-child(3) {
+    display: none;
+  }
+
+  .detail-cols {
+    grid-template-columns: 1fr;
+  }
+
+  .json-block { font-size: 0.7rem; }
+
+  .pagination {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+  }
+}

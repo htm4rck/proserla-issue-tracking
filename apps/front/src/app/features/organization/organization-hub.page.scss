@@ -264,3 +264,50 @@
   color: #4338ca;
   font-weight: 600;
 }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .model-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .data th:nth-child(4),
+  .data td:nth-child(4),
+  .data th:nth-child(5),
+  .data td:nth-child(5) {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .panel { padding: 0.85rem; }
+
+  .model-grid { grid-template-columns: 1fr; }
+
+  .tabs { gap: 0.25rem; }
+
+  .tabs button {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  .grid-form,
+  .grid-form.leaders {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-form button {
+    width: 100%;
+  }
+
+  /* Tabla usuarios: ocultar columnas menos críticas */
+  .data th:nth-child(3),
+  .data td:nth-child(3),
+  .data th:nth-child(6),
+  .data td:nth-child(6) {
+    display: none;
+  }
+
+  .reset-pass input { min-width: unset; width: 100%; }
+}

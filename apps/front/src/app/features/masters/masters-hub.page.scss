@@ -108,3 +108,22 @@
   padding: 0.4rem 0.55rem;
   text-align: left;
 }
+
+/* ── Responsive ─────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .panel { padding: 0.85rem; }
+
+  .tabs button {
+    padding: 0.4rem 0.65rem;
+    font-size: 0.82rem;
+  }
+
+  .grid-form {
+    grid-template-columns: 1fr;
+  }
+
+  .grid-form button { width: 100%; }
+
+  .data { font-size: 0.8rem; }
+}

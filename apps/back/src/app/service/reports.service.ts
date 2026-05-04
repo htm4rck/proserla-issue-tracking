@@ -241,9 +241,12 @@ export class ReportsService {
 
     const rows = incidents
       .map(
-        (i) => `<tr>
+        (i) => {
+          const stLabel = this.statusLabel(i.status);
+          const stClass = i.status === 'open' ? 'st-open' : i.status === 'in_progress' ? 'st-progress' : 'st-closed';
+          return `<tr>
           <td>${escapeHtml(i.incidentCode)}</td>
-          <td>${escapeHtml(this.statusLabel(i.status))}</td>
+          <td class="${stClass}">${escapeHtml(stLabel)}</td>
           <td>${escapeHtml(this.areaLabel(i.areaCode, areaNames))}</td>
           <td>${escapeHtml(i.leaderCode ?? '')}</td>
           <td>${escapeHtml(fechaReporte(i.createdAt))}</td>
@@ -255,7 +258,8 @@ export class ReportsService {
           <td>${escapeHtml(i.description)}</td>
           <td>${escapeHtml(i.correctiveMeasures ?? i.comment ?? '')}</td>
           <td>${escapeHtml(i.assignedTo ?? '')}</td>
-        </tr>`,
+        </tr>`;
+        },
       )
       .join('');
 
@@ -266,23 +270,42 @@ export class ReportsService {
   <style>
     body { font-family: Arial, Helvetica, sans-serif; }
     h1 { font-size: 18px; text-align: center; }
-    .summary td { font-weight: 700; background: #d9ead3; }
     table { border-collapse: collapse; width: 100%; font-size: 11px; }
-    th, td { border: 1px solid #333; padding: 6px; vertical-align: top; }
-    th { background: #d9eaf7; font-weight: 700; text-align: center; }
+    th, td { border: 1px solid #ccc; padding: 6px; vertical-align: top; }
+    /* KPIs */
+    .kpi-labels td { font-weight: 700; text-align: center; }
+    .kpi-open     td { background: #ffcdd2; color: #b71c1c; }
+    .kpi-progress td { background: #bbdefb; color: #0d47a1; }
+    .kpi-closed   td { background: #c8e6c9; color: #1b5e20; }
+    .kpi-total    td { background: #e0e0e0; color: #212121; }
+    .kpi-pct      td { background: #ede7f6; color: #4a148c; }
+    /* Cabecera de columnas */
+    .col-header th { background: #1a237e; color: #fff; text-align: center; font-weight: 700; }
+    /* Estado en celda */
+    .st-open     { background: #ffcdd2; color: #b71c1c; font-weight: 700; text-align: center; }
+    .st-progress { background: #bbdefb; color: #0d47a1; font-weight: 700; text-align: center; }
+    .st-closed   { background: #c8e6c9; color: #1b5e20; font-weight: 700; text-align: center; }
   </style>
 </head>
 <body>
   <h1>Reporte de incidencias</h1>
   <p>Generado: ${escapeHtml(generatedAt)}</p>
-  <table class="summary">
-    <tr><td>Abiertas</td><td>En proceso</td><td>Cerradas</td><td>Total</td><td>Cumplimiento</td></tr>
-    <tr><td>${summary.open}</td><td>${summary.inProgress}</td><td>${summary.closed}</td><td>${summary.total}</td><td>${summary.compliancePct}%</td></tr>
+  <table>
+    <tr class="kpi-labels">
+      <td>Abiertas</td><td>En proceso</td><td>Cerradas</td><td>Total</td><td>Cumplimiento</td>
+    </tr>
+    <tr>
+      <td class="kpi-open">${summary.open}</td>
+      <td class="kpi-progress">${summary.inProgress}</td>
+      <td class="kpi-closed">${summary.closed}</td>
+      <td class="kpi-total">${summary.total}</td>
+      <td class="kpi-pct">${summary.compliancePct}%</td>
+    </tr>
   </table>
   <br />
   <table>
     <thead>
-      <tr>
+      <tr class="col-header">
         <th>Codigo</th><th>Estado</th><th>Area</th><th>Lider</th><th>Fecha</th><th>Reportante</th><th>Ubicacion</th><th>Area de trabajo</th><th>Riesgo</th><th>Tipo</th><th>Descripcion</th><th>Medidas</th><th>Responsable</th>
       </tr>
     </thead>
@@ -302,45 +325,76 @@ export class ReportsService {
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Issue Tracking';
     const sheet = workbook.addWorksheet('Incidencias', {
-      views: [{ state: 'frozen', ySplit: 4 }],
+      views: [{ state: 'frozen', ySplit: 7 }],
     });
 
-    sheet.getCell('A1').value = 'Reporte de incidencias';
-    sheet.getCell('A1').font = { bold: true, size: 14 };
+    // ── Título ────────────────────────────────────────────────────────────
+    sheet.mergeCells('A1:M1');
+    const titleCell = sheet.getCell('A1');
+    titleCell.value = 'Reporte de incidencias';
+    titleCell.font = { bold: true, size: 14, color: { argb: 'FF1A237E' } };
+    titleCell.alignment = { horizontal: 'center' };
+    titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8EAF6' } };
+
+    sheet.mergeCells('A2:M2');
     sheet.getCell('A2').value = `Generado: ${generatedAt}`;
+    sheet.getCell('A2').font = { size: 9, color: { argb: 'FF555555' } };
 
-    sheet.addRow(['Abiertas', 'En proceso', 'Cerradas', 'Total', 'Cumplimiento %']);
-    sheet.addRow([summary.open, summary.inProgress, summary.closed, summary.total, summary.compliancePct]);
-    sheet.getRow(3).font = { bold: true };
-    sheet.addRow([]);
+    // ── Fila de KPIs con colores por estado ───────────────────────────────
+    const kpiLabels = ['Abiertas', 'En proceso', 'Cerradas', 'Total', 'Cumplimiento %'];
+    const kpiValues = [summary.open, summary.inProgress, summary.closed, summary.total, summary.compliancePct];
+    const kpiLabelColors = ['FFFFCDD2', 'FFBBDEFB', 'FFC8E6C9', 'FFE0E0E0', 'FFEDE7F6'];
+    const kpiTextColors  = ['FFB71C1C', 'FF0D47A1', 'FF1B5E20', 'FF212121', 'FF4A148C'];
 
+    const labelRow = sheet.addRow(kpiLabels);   // row 3
+    const valueRow = sheet.addRow(kpiValues);   // row 4
+
+    kpiLabels.forEach((_, colIdx) => {
+      const col = colIdx + 1;
+      const lCell = labelRow.getCell(col);
+      const vCell = valueRow.getCell(col);
+
+      lCell.font = { bold: true, color: { argb: kpiTextColors[colIdx] } };
+      lCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: kpiLabelColors[colIdx] } };
+      lCell.alignment = { horizontal: 'center' };
+      lCell.border = { bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } } };
+
+      vCell.font = { bold: true, size: 13, color: { argb: kpiTextColors[colIdx] } };
+      vCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: kpiLabelColors[colIdx] } };
+      vCell.alignment = { horizontal: 'center' };
+    });
+
+    sheet.addRow([]);  // row 5 — separador
+
+    // ── Cabecera de columnas ──────────────────────────────────────────────
     const header = [
-      'Codigo',
-      'Estado',
-      'Area',
-      'Lider',
-      'Fecha',
-      'Reportante',
-      'Ubicacion',
-      'Area de trabajo',
-      'Riesgo',
-      'Tipo',
-      'Descripcion',
-      'Medidas',
-      'Responsable',
+      'Codigo', 'Estado', 'Area', 'Lider', 'Fecha',
+      'Reportante', 'Ubicacion', 'Area de trabajo',
+      'Riesgo', 'Tipo', 'Descripcion', 'Medidas', 'Responsable',
     ];
-    const headerRow = sheet.addRow(header);
-    headerRow.font = { bold: true };
-    headerRow.fill = {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFD9EAF7' },
+    const headerRow = sheet.addRow(header);   // row 6
+    headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+    headerRow.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1A237E' } };
+    headerRow.alignment = { horizontal: 'center' };
+    headerRow.eachCell((cell) => {
+      cell.border = {
+        top: { style: 'thin', color: { argb: 'FF3949AB' } },
+        bottom: { style: 'medium', color: { argb: 'FF3949AB' } },
+      };
+    });
+
+    // ── Filas de datos con color de estado en la celda "Estado" ──────────
+    const statusFill: Record<string, { bg: string; text: string }> = {
+      Abierta:    { bg: 'FFFFCDD2', text: 'FFB71C1C' },
+      'En proceso': { bg: 'FFBBDEFB', text: 'FF0D47A1' },
+      Cerrada:    { bg: 'FFC8E6C9', text: 'FF1B5E20' },
     };
 
     for (const i of incidents) {
-      sheet.addRow([
+      const statusLabel = this.statusLabel(i.status);
+      const dataRow = sheet.addRow([
         i.incidentCode,
-        this.statusLabel(i.status),
+        statusLabel,
         this.areaLabel(i.areaCode, areaNames),
         i.leaderCode ?? '',
         fechaReporte(i.createdAt),
@@ -353,22 +407,21 @@ export class ReportsService {
         i.correctiveMeasures ?? i.comment ?? '',
         i.assignedTo ?? '',
       ]);
+
+      // Colorear celda de estado (columna B = índice 2)
+      const sf = statusFill[statusLabel];
+      if (sf) {
+        const statusCell = dataRow.getCell(2);
+        statusCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: sf.bg } };
+        statusCell.font = { bold: true, color: { argb: sf.text } };
+        statusCell.alignment = { horizontal: 'center' };
+      }
     }
 
     sheet.columns = [
-      { width: 14 },
-      { width: 12 },
-      { width: 22 },
-      { width: 12 },
-      { width: 18 },
-      { width: 18 },
-      { width: 22 },
-      { width: 16 },
-      { width: 10 },
-      { width: 20 },
-      { width: 40 },
-      { width: 36 },
-      { width: 18 },
+      { width: 14 }, { width: 12 }, { width: 22 }, { width: 12 }, { width: 14 },
+      { width: 18 }, { width: 22 }, { width: 16 }, { width: 10 }, { width: 20 },
+      { width: 40 }, { width: 36 }, { width: 18 },
     ];
 
     const raw = await workbook.xlsx.writeBuffer();
@@ -424,26 +477,53 @@ export class ReportsService {
     const css = `
       * { box-sizing: border-box; }
       body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #111; }
-      h1.banner { text-align: center; border: 2px solid #111; padding: 10px 16px; margin: 28px 0 12px; font-size: 18px; letter-spacing: 0.05em; }
-      h1.open { background: #f5f0e6; }
-      h1.progress { background: #f5f0e6; }
-      h1.closed { background: #c8e6c9; }
+
+      /* ── Cabeceras de sección ── */
+      h1.banner {
+        text-align: center;
+        border-left: 6px solid;
+        border-radius: 6px;
+        padding: 12px 20px;
+        margin: 32px 0 10px;
+        font-size: 17px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+      h1.open     { background: #ffebee; color: #c62828; border-color: #e53935; }
+      h1.progress { background: #e3f2fd; color: #1565c0; border-color: #1e88e5; }
+      h1.closed   { background: #e8f5e9; color: #2e7d32; border-color: #43a047; }
+
+      /* ── Tablas ── */
       table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px; }
-      th, td { border: 1px solid #222; padding: 8px; vertical-align: top; }
-      th { background: #e8dcc4; text-align: center; font-weight: 700; }
-      tr.closed th { background: #b2dfdb; }
-      td.num { text-align: center; width: 40px; }
+      th, td { border: 1px solid #ccc; padding: 7px 9px; vertical-align: top; }
+      td.num { text-align: center; width: 36px; }
       td.img { text-align: center; white-space: nowrap; }
-      a.ver { color: #1565c0; font-weight: 600; }
+      a.ver  { color: #1565c0; font-weight: 600; }
+
+      /* Cabeceras de tabla por estado */
+      tr.th-open     th { background: #ffcdd2; color: #b71c1c; text-align: center; font-weight: 700; }
+      tr.th-progress th { background: #bbdefb; color: #0d47a1; text-align: center; font-weight: 700; }
+      tr.th-closed   th { background: #c8e6c9; color: #1b5e20; text-align: center; font-weight: 700; }
+
+      /* Filas de datos: franja de color muy suave en la primera columna */
+      tbody.open     tr td:first-child { border-left: 3px solid #e53935; }
+      tbody.progress tr td:first-child { border-left: 3px solid #1e88e5; }
+      tbody.closed   tr td:first-child { border-left: 3px solid #43a047; }
+
       .muted { color: #555; font-size: 11px; margin-top: 8px; }
+
+      @media print {
+        h1.banner { break-before: auto; }
+        table { page-break-inside: avoid; }
+      }
     `;
 
     const rowHtml = (rows: IncidentEntity[], variant: 'open' | 'progress' | 'closed'): string => {
       if (rows.length === 0) {
         return '<p class="muted">Sin registros.</p>';
       }
-      const thClass = variant === 'closed' ? 'closed' : '';
-      const head = `<tr class="${thClass}"><th>N°</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>IMAGEN</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
+      const thRowClass = `th-${variant}`;
+      const head = `<tr class="${thRowClass}"><th>N°</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>IMAGEN</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
       const body = rows
         .map((i, idx) => {
           const url = firstImageUrl.get(i.incidentCode);
@@ -462,7 +542,7 @@ export class ReportsService {
           </tr>`;
         })
         .join('');
-      return `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
+      return `<table><thead>${head}</thead><tbody class="${variant}">${body}</tbody></table>`;
     };
 
     return `<!DOCTYPE html>
@@ -656,12 +736,39 @@ export class ReportsService {
     areaNames: Map<string, string>,
     firstImageUrl: Map<string, string>,
   ): void {
+    // Colores por estado
+    const palette: Record<string, { bg: string; text: string; headerBg: string; headerText: string; accent: string }> = {
+      ABIERTO:    { bg: '#FFEBEE', text: '#C62828', headerBg: '#FFCDD2', headerText: '#B71C1C', accent: '#E53935' },
+      'EN PROCESO': { bg: '#E3F2FD', text: '#1565C0', headerBg: '#BBDEFB', headerText: '#0D47A1', accent: '#1E88E5' },
+      CERRADO:    { bg: '#E8F5E9', text: '#2E7D32', headerBg: '#C8E6C9', headerText: '#1B5E20', accent: '#43A047' },
+    };
+    const colors = palette[title] ?? { bg: '#F5F5F5', text: '#111111', headerBg: '#E0E0E0', headerText: '#111111', accent: '#9E9E9E' };
+
     const rows = incidents
       .filter((incident) => incident.status === status)
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+
     this.ensurePdfSpace(doc, 44);
-    doc.font('Helvetica-Bold').fontSize(12).fillColor('#111111').text(title);
-    doc.moveDown(0.3);
+
+    // ── Cabecera de sección con color ──────────────────────────────────────
+    const pageW = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+    const bannerH = 26;
+    doc
+      .roundedRect(doc.page.margins.left, doc.y, pageW, bannerH, 5)
+      .fillColor(colors.bg)
+      .fill();
+    // Borde izquierdo de acento
+    doc
+      .rect(doc.page.margins.left, doc.y, 5, bannerH)
+      .fillColor(colors.accent)
+      .fill();
+    doc
+      .font('Helvetica-Bold')
+      .fontSize(11)
+      .fillColor(colors.text)
+      .text(title, doc.page.margins.left + 12, doc.y - bannerH + 8, { width: pageW - 16 });
+    doc.y += 6;
+    doc.moveDown(0.4);
 
     if (rows.length === 0) {
       doc.font('Helvetica').fontSize(9).fillColor('#555555').text('Sin registros.');
@@ -672,7 +779,10 @@ export class ReportsService {
     rows.forEach((incident, idx) => {
       this.ensurePdfSpace(doc, 82);
       const top = doc.y;
-      doc.roundedRect(doc.page.margins.left, top, doc.page.width - 72, 70, 4).strokeColor('#cccccc').stroke();
+      // Borde de la tarjeta
+      doc.roundedRect(doc.page.margins.left, top, pageW, 70, 4).strokeColor('#cccccc').stroke();
+      // Franja de color en el borde izquierdo de la tarjeta
+      doc.rect(doc.page.margins.left, top, 4, 70).fillColor(colors.accent).fill();
       doc
         .font('Helvetica-Bold')
         .fontSize(8.5)
@@ -682,25 +792,27 @@ export class ReportsService {
             incident.areaCode,
             areaNames,
           )} | ${this.riskLabel(incident.riskLevel)}`,
-          doc.page.margins.left + 8,
+          doc.page.margins.left + 10,
           top + 7,
-          { width: doc.page.width - 88 },
+          { width: pageW - 18 },
         );
       doc
         .font('Helvetica')
         .fontSize(8)
+        .fillColor('#333333')
         .text(`Reportante: ${incident.reportedBy}    Ubicacion: ${incident.location}`, {
-          width: doc.page.width - 88,
+          width: pageW - 18,
         })
-        .text(`Descripcion: ${incident.description}`, { width: doc.page.width - 88 })
-        .text(`Medidas: ${incident.correctiveMeasures ?? incident.comment ?? '-'}`, { width: doc.page.width - 88 });
+        .text(`Descripcion: ${incident.description}`, { width: pageW - 18 })
+        .text(`Medidas: ${incident.correctiveMeasures ?? incident.comment ?? '-'}`, { width: pageW - 18 });
       const imgUrl = firstImageUrl.get(incident.incidentCode);
       if (imgUrl) {
-        doc.fillColor('#1d4ed8').text(`Imagen: ${imgUrl}`, { width: doc.page.width - 88 });
+        doc.fillColor('#1d4ed8').text(`Imagen: ${imgUrl}`, { width: pageW - 18 });
       }
       doc.fillColor('#111111');
       doc.y = top + 78;
     });
+    doc.moveDown(0.5);
   }
 
   private ensurePdfSpace(doc: PDFKit.PDFDocument, height: number): void {

@@ -1,4 +1,8 @@
-﻿<div class="layout">
+﻿<div class="layout" [class.nav-open]="navOpen">
+
+  <!-- Overlay para cerrar nav en mobile -->
+  <div class="nav-overlay" (click)="navOpen = false"></div>
+
   <aside class="sidebar panel">
     <div class="brand">
       <div class="logo">SST</div>
@@ -6,11 +10,12 @@
         <h1>RACI</h1>
         <p>Condiciones o actos inseguros</p>
       </div>
+      <button type="button" class="nav-close" (click)="navOpen = false" aria-label="Cerrar menú">✕</button>
     </div>
 
     <nav>
       @for (item of menu; track item.route) {
-        <a [routerLink]="item.route" routerLinkActive="active" class="nav-item">
+        <a [routerLink]="item.route" routerLinkActive="active" class="nav-item" (click)="navOpen = false">
           <span class="icon">{{ item.icon }}</span>
           <span>{{ item.label }}</span>
         </a>
@@ -20,13 +25,16 @@
 
   <div class="content-wrap">
     <header class="topbar panel">
-      <div>
-        <h2>Consola operativa</h2>
-        <p>Seguimiento de incidencias, evidencias y cumplimiento</p>
+      <div class="topbar-left">
+        <button type="button" class="hamburger" (click)="navOpen = !navOpen" aria-label="Abrir menú">☰</button>
+        <div>
+          <h2>Consola operativa</h2>
+          <p class="topbar-sub">Seguimiento de incidencias, evidencias y cumplimiento</p>
+        </div>
       </div>
       @if (session.user; as user) {
         <div class="session-box">
-          <strong>{{ user.fullName }}</strong>
+          <strong class="session-name">{{ user.fullName }}</strong>
           <a class="login-link" routerLink="/account/password">Clave</a>
           <button type="button" class="login-link" (click)="logout()">Salir</button>
         </div>

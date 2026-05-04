@@ -390,3 +390,36 @@
   .bc-row { grid-template-columns: 80px 1fr auto; }
   .export-btn { min-width: 130px; }
 }
+
+@media (max-width: 600px) {
+  .rpt-header,
+  .rpt-filters,
+  .chart-section,
+  .export-section { padding: 0.85rem; }
+
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .btn-generate { width: 100%; }
+
+  .kpi-row { grid-template-columns: 1fr 1fr; }
+
+  .bc-row {
+    grid-template-columns: 64px 1fr auto;
+    gap: 0.5rem;
+  }
+
+  .bc-label { font-size: 0.78rem; }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+
+  .export-btn {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .st-legend { flex-direction: column; gap: 0.35rem; }
+}

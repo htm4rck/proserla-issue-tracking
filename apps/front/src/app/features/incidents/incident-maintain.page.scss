@@ -215,3 +215,43 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .card { padding: 0.75rem; }
+
+  .head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .grid { gap: 0.65rem; }
+
+  .status-flow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .ev-row.grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sub th:nth-child(3),
+  .sub td:nth-child(3) {
+    display: none;
+  }
+
+  .actions button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .preview-modal {
+    padding: 0.75rem;
+  }
+
+  .preview-modal img {
+    max-height: 55vh;
+  }
+}
