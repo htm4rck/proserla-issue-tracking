@@ -141,7 +141,7 @@ export class ReportsService {
     const areaCodes = new Set<string>();
     for (const inc of incidents) {
       const monthIdx = inc.reportMonth
-        ? MESES.indexOf(inc.reportMonth.trim().toUpperCase()) + 1
+        ? (MESES as readonly string[]).indexOf(inc.reportMonth.trim().toUpperCase()) + 1
         : inc.createdAt.getMonth() + 1;
       const mi = monthIdx > 0 && monthIdx <= 12 ? monthIdx : inc.createdAt.getMonth() + 1;
       const ac = inc.areaCode;
