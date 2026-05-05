@@ -265,6 +265,92 @@
   font-weight: 600;
 }
 
+/* ── Chips de área ──────────────────────────────────────────────────────── */
+
+.area-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.area-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.18rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #f1f5f9;
+  border: 1px solid var(--border);
+  color: var(--text);
+  white-space: nowrap;
+
+  em {
+    font-style: normal;
+    color: var(--muted);
+    font-size: 0.7rem;
+  }
+
+  &.primary {
+    background: #eef2ff;
+    border-color: #c7d2fe;
+    color: #3730a3;
+    font-weight: 600;
+  }
+}
+
+.primary-dot {
+  font-size: 0.65rem;
+  color: #f59e0b;
+}
+
+/* ── Gestión de áreas inline ────────────────────────────────────────────── */
+
+.area-mgmt {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.mini-select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.25rem 0.4rem;
+  font: inherit;
+  font-size: 0.78rem;
+  background: #fff;
+  max-width: 140px;
+}
+
+.btn-xs {
+  border: none;
+  border-radius: 8px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &.btn-add    { background: #dcfce7; color: #166534; }
+  &.btn-remove { background: #fee2e2; color: #991b1b; }
+
+  &:hover.btn-add    { background: #bbf7d0; }
+  &:hover.btn-remove { background: #fecaca; }
+}
+
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.email-cell {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
 /* ── Responsive ─────────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {
@@ -301,7 +387,6 @@
     width: 100%;
   }
 
-  /* Tabla usuarios: ocultar columnas menos críticas */
   .data th:nth-child(3),
   .data td:nth-child(3),
   .data th:nth-child(6),
@@ -310,4 +395,7 @@
   }
 
   .reset-pass input { min-width: unset; width: 100%; }
+
+  .area-mgmt { flex-direction: column; align-items: flex-start; }
+  .mini-select { max-width: 100%; width: 100%; }
 }

@@ -5,8 +5,10 @@ import { AreaEntity } from '../entity/area.entity';
 import { CatalogItemEntity } from '../entity/catalog-item.entity';
 import { IncidentEntity } from '../entity/incident.entity';
 import { IncidentImageEntity } from '../entity/incident-image.entity';
+import { LeaderAreaEntity } from '../entity/leader-area.entity';
 import { LeaderEntity } from '../entity/leader.entity';
 import { RoleEntity } from '../entity/role.entity';
+import { UserAreaEntity } from '../entity/user-area.entity';
 import { UserEntity } from '../entity/user.entity';
 import { WorkSiteEntity } from '../entity/work-site.entity';
 import { SeedService } from '../service/seed.service';
@@ -17,7 +19,9 @@ import { SeedService } from '../service/seed.service';
       RoleEntity,
       AreaEntity,
       LeaderEntity,
+      LeaderAreaEntity,
       UserEntity,
+      UserAreaEntity,
       CatalogItemEntity,
       IncidentEntity,
       IncidentImageEntity,

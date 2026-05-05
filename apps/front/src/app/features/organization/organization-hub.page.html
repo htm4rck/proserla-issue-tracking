@@ -3,7 +3,7 @@
     <h2>Organización y seguridad</h2>
     <p class="lead">
       Aquí se define <strong>quién</strong> es cada usuario (rol), <strong>dónde</strong> trabaja (área) y <strong>a quién</strong> reporta
-      en campo (líder del área). Las incidencias usan códigos de área y líder para filtros y tableros.
+      en campo (líder del área). Un usuario o líder puede pertenecer a <strong>múltiples áreas</strong>.
     </p>
     <div class="model-grid">
       @for (block of conceptBlocks; track block.titulo) {
@@ -22,6 +22,7 @@
     <button type="button" [class.active]="activeTab === 'users'" (click)="setTab('users')">Usuarios</button>
   </nav>
 
+  <!-- ── ROLES ─────────────────────────────────────────────────────────────── -->
   @if (activeTab === 'roles') {
     <section class="panel tab-panel">
       <h3>Roles registrados</h3>
@@ -42,6 +43,7 @@
     </section>
   }
 
+  <!-- ── ÁREAS ──────────────────────────────────────────────────────────────── -->
   @if (activeTab === 'areas') {
     <section class="panel tab-panel">
       <h3>Áreas</h3>
@@ -62,35 +64,102 @@
     </section>
   }
 
+  <!-- ── LÍDERES ────────────────────────────────────────────────────────────── -->
   @if (activeTab === 'leaders') {
     <section class="panel tab-panel">
-      <h3>Líderes por área</h3>
-      <p class="hint">Cada líder va ligado a un <strong>código de área</strong> existente.</p>
+      <h3>Líderes</h3>
+      <p class="hint">Un líder puede cubrir <strong>múltiples áreas</strong>. El área marcada como <em>primaria</em> es la que aparece en filtros y dashboards por defecto.</p>
+
       <form [formGroup]="leaderForm" class="grid-form leaders" (ngSubmit)="saveLeader()">
         <label>Código <input formControlName="code" /></label>
         <label>Nombre completo <input formControlName="fullName" /></label>
         <label>Correo <input formControlName="email" /></label>
-        <label>Código de área <input formControlName="areaCode" /></label>
+        <label>
+          Área primaria
+          <select formControlName="areaCode">
+            <option value="">Seleccione</option>
+            @for (a of areasRows; track a.id) {
+              <option [value]="a.code">{{ a.name }} ({{ a.code }})</option>
+            }
+          </select>
+        </label>
         <button type="submit">Agregar líder</button>
       </form>
+
+      <!-- Tabla de líderes con sus áreas -->
       <table class="data">
-        <thead><tr><th>Código</th><th>Nombre</th><th>Área</th><th>Correo</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Áreas asignadas</th>
+            <th>Correo</th>
+            @if (isAdmin) { <th>Gestionar áreas</th> }
+          </tr>
+        </thead>
         <tbody>
           @for (l of leadersRows; track l.id) {
-            <tr><td>{{ l.code }}</td><td>{{ l.fullName }}</td><td>{{ areaLabel(l.areaCode) }}</td><td>{{ l.email ?? '—' }}</td></tr>
+            <tr>
+              <td>{{ l.code }}</td>
+              <td>{{ l.fullName }}</td>
+              <td>
+                <div class="area-chips">
+                  @for (la of (l.areas ?? []); track la.id) {
+                    <span class="area-chip" [class.primary]="la.isPrimary" [title]="la.isPrimary ? 'Área primaria' : ''">
+                      {{ areaLabel(la.areaCode) }}
+                      @if (la.isPrimary) { <span class="primary-dot">★</span> }
+                    </span>
+                  }
+                  @if (!(l.areas?.length)) {
+                    <span class="area-chip">{{ areaLabel(l.areaCode) }} ★</span>
+                  }
+                </div>
+              </td>
+              <td>{{ l.email ?? '—' }}</td>
+              @if (isAdmin) {
+                <td>
+                  <div class="area-mgmt">
+                    <select #addLeaderAreaSel class="mini-select">
+                      <option value="">+ Agregar área</option>
+                      @for (a of areasNotInLeader(l); track a.code) {
+                        <option [value]="a.code">{{ a.name }}</option>
+                      }
+                    </select>
+                    <button type="button" class="btn-xs btn-add"
+                      (click)="addLeaderArea(l, addLeaderAreaSel.value); addLeaderAreaSel.value = ''">
+                      Agregar
+                    </button>
+                    @if ((l.areas?.length ?? 0) > 1) {
+                      <select #rmLeaderAreaSel class="mini-select">
+                        <option value="">− Quitar área</option>
+                        @for (la of nonPrimaryLeaderAreas(l); track la.id) {
+                          <option [value]="la.areaCode">{{ areaLabel(la.areaCode) }}</option>
+                        }
+                      </select>
+                      <button type="button" class="btn-xs btn-remove"
+                        (click)="removeLeaderArea(l, rmLeaderAreaSel.value); rmLeaderAreaSel.value = ''">
+                        Quitar
+                      </button>
+                    }
+                  </div>
+                </td>
+              }
+            </tr>
           }
         </tbody>
       </table>
     </section>
   }
 
+  <!-- ── USUARIOS ───────────────────────────────────────────────────────────── -->
   @if (activeTab === 'users') {
     <section class="panel tab-panel">
-      <h3>Crear usuarios y asignarlos por área</h3>
-      <p class="hint">Primero selecciona rol y área. Si el usuario reporta a un líder, selecciónalo en la misma área.</p>
+      <h3>Usuarios</h3>
+      <p class="hint">Un usuario puede pertenecer a <strong>múltiples áreas</strong>, cada una con su propio líder. El área <em>primaria</em> se usa en los headers de sesión y filtros por defecto.</p>
       @if (!isAdmin) {
         <p class="err">Solo el administrador puede crear usuarios.</p>
       }
+
       <form [formGroup]="userForm" class="grid-form leaders" (ngSubmit)="saveUser()">
         <label>Correo <input type="email" formControlName="email" /></label>
         <label>Nombre completo <input formControlName="fullName" /></label>
@@ -103,7 +172,7 @@
           </select>
         </label>
         <label>
-          Área
+          Área primaria
           <select formControlName="areaCode" (change)="onUserAreaChange()">
             <option value="">Seleccione</option>
             @for (a of areasRows; track a.id) {
@@ -112,7 +181,7 @@
           </select>
         </label>
         <label>
-          Líder (opcional)
+          Líder del área primaria
           <select formControlName="leaderCode">
             <option value="">Sin líder</option>
             @for (l of leadersBySelectedArea; track l.id) {
@@ -122,38 +191,95 @@
         </label>
         <button type="submit" [disabled]="!isAdmin">Agregar usuario</button>
       </form>
-      <table class="data">
-        <thead><tr><th>Nombre</th><th>Correo</th><th>Rol</th><th>Área</th><th>Líder</th><th>Reset de contraseña</th></tr></thead>
-        <tbody>
-          @for (u of usersRows; track u.id) {
+
+      <!-- Tabla de usuarios con sus áreas -->
+      <div class="table-scroll">
+        <table class="data">
+          <thead>
             <tr>
-              <td>{{ u.fullName }}</td>
-              <td>{{ u.email }}</td>
-              <td>{{ roleLabel(u.roleCode) }}</td>
-              <td>{{ areaLabel(u.areaCode) }}</td>
-              <td>{{ leaderLabel(u.leaderCode) }}</td>
-              <td>
-                @if (isAdmin) {
-                  <div class="reset-pass">
-                    <input
-                      type="password"
-                      placeholder="Nueva contraseña"
-                      [value]="resetPasswordDraftByUserId[u.id] || ''"
-                      (input)="setResetPasswordDraft(u.id, $any($event.target).value)"
-                    />
-                    <button type="button" (click)="resetUserPassword(u)">Resetear</button>
-                    @if (resetPasswordMsgByUserId[u.id]) {
-                      <small>{{ resetPasswordMsgByUserId[u.id] }}</small>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Áreas asignadas</th>
+              @if (isAdmin) { <th>Gestionar áreas</th> }
+              @if (isAdmin) { <th>Reset contraseña</th> }
+            </tr>
+          </thead>
+          <tbody>
+            @for (u of usersRows; track u.id) {
+              <tr>
+                <td>{{ u.fullName }}</td>
+                <td class="email-cell">{{ u.email }}</td>
+                <td>{{ roleLabel(u.roleCode) }}</td>
+                <td>
+                  <div class="area-chips">
+                    @for (ua of (u.areas ?? []); track ua.id) {
+                      <span class="area-chip" [class.primary]="ua.isPrimary" [title]="ua.isPrimary ? 'Área primaria' : ''">
+                        {{ areaLabel(ua.areaCode) }}
+                        @if (ua.leaderCode) { <em>/ {{ leaderLabel(ua.leaderCode) }}</em> }
+                        @if (ua.isPrimary) { <span class="primary-dot">★</span> }
+                      </span>
+                    }
+                    @if (!(u.areas?.length)) {
+                      <span class="area-chip primary">{{ areaLabel(u.areaCode) }} ★</span>
                     }
                   </div>
-                } @else {
-                  —
+                </td>
+                @if (isAdmin) {
+                  <td>
+                    <div class="area-mgmt">
+                      <select #addAreaSel class="mini-select">
+                        <option value="">+ Área</option>
+                        @for (a of areasNotInUser(u); track a.code) {
+                          <option [value]="a.code">{{ a.name }}</option>
+                        }
+                      </select>
+                      <select #addLeaderSel class="mini-select">
+                        <option value="">Líder (opc.)</option>
+                        @for (l of leadersForArea(addAreaSel.value); track l.id) {
+                          <option [value]="l.code">{{ l.fullName }}</option>
+                        }
+                      </select>
+                      <button type="button" class="btn-xs btn-add"
+                        (click)="addUserArea(u, addAreaSel.value, addLeaderSel.value); addAreaSel.value = ''; addLeaderSel.value = ''">
+                        Agregar
+                      </button>
+                      @if ((u.areas?.length ?? 0) > 1) {
+                        <select #rmAreaSel class="mini-select">
+                          <option value="">− Quitar</option>
+                          @for (ua of nonPrimaryUserAreas(u); track ua.id) {
+                            <option [value]="ua.areaCode">{{ areaLabel(ua.areaCode) }}</option>
+                          }
+                        </select>
+                        <button type="button" class="btn-xs btn-remove"
+                          (click)="removeUserArea(u, rmAreaSel.value); rmAreaSel.value = ''">
+                          Quitar
+                        </button>
+                      }
+                    </div>
+                  </td>
                 }
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                @if (isAdmin) {
+                  <td>
+                    <div class="reset-pass">
+                      <input
+                        type="password"
+                        placeholder="Nueva contraseña"
+                        [value]="resetPasswordDraftByUserId[u.id] || ''"
+                        (input)="setResetPasswordDraft(u.id, $any($event.target).value)"
+                      />
+                      <button type="button" (click)="resetUserPassword(u)">Resetear</button>
+                      @if (resetPasswordMsgByUserId[u.id]) {
+                        <small>{{ resetPasswordMsgByUserId[u.id] }}</small>
+                      }
+                    </div>
+                  </td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </section>
   }
 

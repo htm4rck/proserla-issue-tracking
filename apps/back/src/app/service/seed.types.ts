@@ -16,6 +16,8 @@ export interface SeedLeaderInfo {
   areaCode: string;
   email: string;
   paraQueSirve: string;
+  /** Áreas adicionales (además de areaCode primaria) */
+  extraAreaCodes?: string[];
 }
 
 export interface SeedDemoUserInfo {
@@ -25,6 +27,8 @@ export interface SeedDemoUserInfo {
   areaCode: string;
   leaderCode: string;
   nota: string;
+  /** Áreas adicionales con su líder correspondiente */
+  extraAreas?: Array<{ areaCode: string; leaderCode?: string }>;
 }
 
 export interface SeedRunPayload {

@@ -5,8 +5,10 @@ import { AreaEntity } from '../entity/area.entity';
 import { CatalogItemEntity } from '../entity/catalog-item.entity';
 import { IncidentImageEntity } from '../entity/incident-image.entity';
 import { IncidentEntity } from '../entity/incident.entity';
+import { LeaderAreaEntity } from '../entity/leader-area.entity';
 import { LeaderEntity } from '../entity/leader.entity';
 import { RoleEntity } from '../entity/role.entity';
+import { UserAreaEntity } from '../entity/user-area.entity';
 import { UserEntity } from '../entity/user.entity';
 import { WorkSiteEntity } from '../entity/work-site.entity';
 import { IncidentImageType } from '../enum/incident-image-type.enum';
@@ -29,7 +31,9 @@ export class SeedService {
     @InjectRepository(RoleEntity) private readonly roles: Repository<RoleEntity>,
     @InjectRepository(AreaEntity) private readonly areas: Repository<AreaEntity>,
     @InjectRepository(LeaderEntity) private readonly leaders: Repository<LeaderEntity>,
+    @InjectRepository(LeaderAreaEntity) private readonly leaderAreas: Repository<LeaderAreaEntity>,
     @InjectRepository(UserEntity) private readonly users: Repository<UserEntity>,
+    @InjectRepository(UserAreaEntity) private readonly userAreas: Repository<UserAreaEntity>,
     @InjectRepository(CatalogItemEntity) private readonly catalogs: Repository<CatalogItemEntity>,
     @InjectRepository(IncidentEntity) private readonly incidents: Repository<IncidentEntity>,
     @InjectRepository(IncidentImageEntity) private readonly images: Repository<IncidentImageEntity>,
@@ -135,14 +139,32 @@ export class SeedService {
           }),
         );
       }
+      // Seed leader_areas — área primaria
+      const laExists = await this.leaderAreas.findOne({ where: { leaderCode: row.code, areaCode: row.areaCode } });
+      if (!laExists) {
+        await this.leaderAreas.save(
+          this.leaderAreas.create({ leaderCode: row.code, areaCode: row.areaCode, isPrimary: true }),
+        );
+      }
+      // Áreas adicionales del seed (si las hay)
+      if (row.extraAreaCodes) {
+        for (const extraArea of row.extraAreaCodes) {
+          const exists = await this.leaderAreas.findOne({ where: { leaderCode: row.code, areaCode: extraArea } });
+          if (!exists) {
+            await this.leaderAreas.save(
+              this.leaderAreas.create({ leaderCode: row.code, areaCode: extraArea, isPrimary: false }),
+            );
+          }
+        }
+      }
     }
   }
 
   private async seedUsers(): Promise<void> {
     for (const row of SEED_DEMO_USERS) {
-      const current = await this.users.findOne({ where: { email: row.email } });
+      let current = await this.users.findOne({ where: { email: row.email } });
       if (!current) {
-        await this.users.save(
+        current = await this.users.save(
           this.users.create({
             email: row.email,
             fullName: row.fullName,
@@ -156,6 +178,34 @@ export class SeedService {
       } else if (!current.passwordHash) {
         current.passwordHash = hashPassword(process.env.DEMO_DEFAULT_PASSWORD || 'demo1234');
         await this.users.save(current);
+      }
+      // Seed user_areas — área primaria
+      const uaExists = await this.userAreas.findOne({ where: { userId: current.id, areaCode: row.areaCode } });
+      if (!uaExists) {
+        await this.userAreas.save(
+          this.userAreas.create({
+            userId: current.id,
+            areaCode: row.areaCode,
+            leaderCode: row.leaderCode,
+            isPrimary: true,
+          }),
+        );
+      }
+      // Áreas adicionales del seed (si las hay)
+      if (row.extraAreas) {
+        for (const extra of row.extraAreas) {
+          const exists = await this.userAreas.findOne({ where: { userId: current.id, areaCode: extra.areaCode } });
+          if (!exists) {
+            await this.userAreas.save(
+              this.userAreas.create({
+                userId: current.id,
+                areaCode: extra.areaCode,
+                leaderCode: extra.leaderCode,
+                isPrimary: false,
+              }),
+            );
+          }
+        }
       }
     }
   }
@@ -213,8 +263,14 @@ export class SeedService {
       { catalogType: 'incident_status', code: 'closed', label: 'Cerrada' },
       { catalogType: 'report_source', code: 'whatsapp', label: 'WhatsApp' },
       { catalogType: 'report_source', code: 'checklist', label: 'Check list' },
+      { catalogType: 'report_source', code: 'verbal', label: 'Verbal' },
+      { catalogType: 'report_source', code: 'correo', label: 'Correo electrónico' },
+      { catalogType: 'report_source', code: 'sistema', label: 'Sistema' },
       { catalogType: 'employer_type', code: 'proserla', label: 'Proserla' },
-      { catalogType: 'employer_type', code: 'tercero', label: 'Tercero' },
+      { catalogType: 'employer_type', code: 'tercero', label: 'Tercero / contratista' },
+      { catalogType: 'employer_type', code: 'directo', label: 'Personal directo' },
+      { catalogType: 'employer_type', code: 'visita', label: 'Visita' },
+      { catalogType: 'employer_type', code: 'practicante', label: 'Practicante' },
     ];
 
     for (const row of rows) {

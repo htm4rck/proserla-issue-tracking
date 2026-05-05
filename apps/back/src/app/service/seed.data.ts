@@ -25,7 +25,14 @@ export const SEED_LEADERS: SeedLeaderInfo[] = [
   { code: 'ROSA', fullName: 'Rosa Delgado', areaCode: 'PLANT', email: 'rosa@demo.local', paraQueSirve: 'Lider de Planta.' },
   { code: 'MANUEL', fullName: 'Manuel Paredes', areaCode: 'LOG', email: 'manuel@demo.local', paraQueSirve: 'Lider de Logistica.' },
   { code: 'DIANA', fullName: 'Diana Diaz', areaCode: 'QA', email: 'diana@demo.local', paraQueSirve: 'Lider de Calidad.' },
-  { code: 'CARLOS', fullName: 'Carlos Melendez', areaCode: 'HSE', email: 'carlos@demo.local', paraQueSirve: 'Responsable HSE.' },
+  {
+    code: 'CARLOS',
+    fullName: 'Carlos Melendez',
+    areaCode: 'HSE',
+    email: 'carlos@demo.local',
+    paraQueSirve: 'Responsable HSE — cubre HSE y QA (ejemplo multi-area).',
+    extraAreaCodes: ['QA'],
+  },
 ];
 
 export const SEED_DEMO_USERS: SeedDemoUserInfo[] = [

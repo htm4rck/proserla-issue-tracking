@@ -17,7 +17,7 @@ export class OrganizationHubPageComponent implements OnInit {
   readonly conceptBlocks = [
     {
       titulo: 'Rol',
-      desc: 'Permisos en la aplicación: administrador, líder de área u operador. No confundir con el cargo en RR.HH.',
+      desc: 'Permisos en la aplicación: administrador, líder de área u operador.',
     },
     {
       titulo: 'Área',
@@ -25,11 +25,11 @@ export class OrganizationHubPageComponent implements OnInit {
     },
     {
       titulo: 'Líder',
-      desc: 'Referencia de responsable por área. Los operadores suelen enlazarse al líder de su misma área en la demo.',
+      desc: 'Responsable de una o varias áreas. Puede cubrir múltiples áreas simultáneamente.',
     },
     {
       titulo: 'Usuarios',
-      desc: 'Se crean con rol + área + (opcional) líder. Así se asignan operadores al líder correcto desde el inicio.',
+      desc: 'Pueden pertenecer a múltiples áreas, cada una con su propio líder. El área primaria (★) se usa en filtros y dashboards.',
     },
   ];
 
@@ -45,6 +45,8 @@ export class OrganizationHubPageComponent implements OnInit {
     return this.session.user?.roleCode === 'admin';
   }
 
+  // ── Labels ──────────────────────────────────────────────────────────────────
+
   areaLabel(areaCode: string): string {
     const code = (areaCode ?? '').trim().toUpperCase();
     return this.areasRows.find((a) => String(a.code).trim().toUpperCase() === code)?.name ?? areaCode;
@@ -58,20 +60,23 @@ export class OrganizationHubPageComponent implements OnInit {
   leaderLabel(leaderCode?: string): string {
     if (!leaderCode) return '—';
     const code = leaderCode.trim().toUpperCase();
-    const leader = this.leadersRows.find((l) => String(l.code).trim().toUpperCase() === code);
-    return leader?.fullName ?? leaderCode;
+    return this.leadersRows.find((l) => String(l.code).trim().toUpperCase() === code)?.fullName ?? leaderCode;
   }
+
+  // ── Formularios ─────────────────────────────────────────────────────────────
 
   roleForm = this.fb.nonNullable.group({
     code: ['', Validators.required],
     name: ['', Validators.required],
     isActive: [true],
   });
+
   areaForm = this.fb.nonNullable.group({
     code: ['', Validators.required],
     name: ['', Validators.required],
     isActive: [true],
   });
+
   leaderForm = this.fb.nonNullable.group({
     code: ['', Validators.required],
     fullName: ['', Validators.required],
@@ -79,6 +84,7 @@ export class OrganizationHubPageComponent implements OnInit {
     areaCode: ['', Validators.required],
     isActive: [true],
   });
+
   userForm = this.fb.nonNullable.group({
     email: ['', Validators.required],
     fullName: ['', Validators.required],
@@ -87,6 +93,8 @@ export class OrganizationHubPageComponent implements OnInit {
     leaderCode: [''],
     isActive: [true],
   });
+
+  // ── Datos ────────────────────────────────────────────────────────────────────
 
   rolesRows: any[] = [];
   areasRows: any[] = [];
@@ -99,6 +107,8 @@ export class OrganizationHubPageComponent implements OnInit {
   seedMessage = '';
   seedError = '';
   seedPayload: SeedRunPayload | null = null;
+
+  // ── Lifecycle ────────────────────────────────────────────────────────────────
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((pm) => {
@@ -122,6 +132,8 @@ export class OrganizationHubPageComponent implements OnInit {
     this.api.listSimple('leaders').subscribe(({ data }) => (this.leadersRows = data ?? []));
     this.api.listUsers().subscribe(({ data }) => (this.usersRows = data ?? []));
   }
+
+  // ── CRUD básico ──────────────────────────────────────────────────────────────
 
   saveRole(): void {
     if (this.roleForm.invalid) return;
@@ -147,25 +159,8 @@ export class OrganizationHubPageComponent implements OnInit {
     });
   }
 
-  get leadersBySelectedArea(): any[] {
-    const areaCode = (this.userForm.getRawValue().areaCode ?? '').trim().toUpperCase();
-    return (this.leadersRows ?? []).filter((l) => {
-      if (!areaCode) return true;
-      return String(l.areaCode ?? '').trim().toUpperCase() === areaCode;
-    });
-  }
-
-  onUserAreaChange(): void {
-    const currentLeader = this.userForm.getRawValue().leaderCode;
-    const valid = this.leadersBySelectedArea.some((l) => l.code === currentLeader);
-    if (!valid) {
-      this.userForm.patchValue({ leaderCode: '' });
-    }
-  }
-
   saveUser(): void {
-    if (!this.isAdmin) return;
-    if (this.userForm.invalid) return;
+    if (!this.isAdmin || this.userForm.invalid) return;
     const raw = this.userForm.getRawValue();
     const payload = {
       ...raw,
@@ -174,17 +169,99 @@ export class OrganizationHubPageComponent implements OnInit {
       leaderCode: raw.leaderCode.trim().toUpperCase() || undefined,
     };
     this.api.createUser(payload).subscribe(() => {
-      this.userForm.reset({
-        email: '',
-        fullName: '',
-        roleCode: 'operator',
-        areaCode: '',
-        leaderCode: '',
-        isActive: true,
-      });
+      this.userForm.reset({ email: '', fullName: '', roleCode: 'operator', areaCode: '', leaderCode: '', isActive: true });
       this.api.listUsers().subscribe(({ data }) => (this.usersRows = data ?? []));
     });
   }
+
+  // ── Gestión multi-área: usuarios ─────────────────────────────────────────────
+
+  addUserArea(user: any, areaCode: string, leaderCode: string): void {
+    if (!areaCode || !this.isAdmin) return;
+    this.api.addUserArea(user.id, { areaCode: areaCode.trim().toUpperCase(), leaderCode: leaderCode || undefined }).subscribe({
+      next: () => this.api.listUsers().subscribe(({ data }) => (this.usersRows = data ?? [])),
+      error: (err) => alert(err?.error?.message ?? 'No se pudo agregar el área'),
+    });
+  }
+
+  removeUserArea(user: any, areaCode: string): void {
+    if (!areaCode || !this.isAdmin) return;
+    this.api.removeUserArea(user.id, { areaCode: areaCode.trim().toUpperCase() }).subscribe({
+      next: () => this.api.listUsers().subscribe(({ data }) => (this.usersRows = data ?? [])),
+      error: (err) => alert(err?.error?.message ?? 'No se pudo quitar el área'),
+    });
+  }
+
+  /** Áreas que el usuario aún NO tiene asignadas */
+  areasNotInUser(user: any): any[] {
+    const assigned = new Set<string>((user.areas ?? []).map((ua: any) => ua.areaCode));
+    return this.areasRows.filter((a) => !assigned.has(a.code));
+  }
+
+  /** Áreas no primarias del usuario (se pueden quitar) */
+  nonPrimaryUserAreas(user: any): any[] {
+    return (user.areas ?? []).filter((ua: any) => !ua.isPrimary);
+  }
+
+  // ── Gestión multi-área: líderes ──────────────────────────────────────────────
+
+  addLeaderArea(leader: any, areaCode: string): void {
+    if (!areaCode || !this.isAdmin) return;
+    this.api.addLeaderArea(leader.code, { areaCode: areaCode.trim().toUpperCase() }).subscribe({
+      next: () => this.api.listSimple('leaders').subscribe(({ data }) => (this.leadersRows = data ?? [])),
+      error: (err) => alert(err?.error?.message ?? 'No se pudo agregar el área'),
+    });
+  }
+
+  removeLeaderArea(leader: any, areaCode: string): void {
+    if (!areaCode || !this.isAdmin) return;
+    this.api.removeLeaderArea(leader.code, { areaCode: areaCode.trim().toUpperCase() }).subscribe({
+      next: () => this.api.listSimple('leaders').subscribe(({ data }) => (this.leadersRows = data ?? [])),
+      error: (err) => alert(err?.error?.message ?? 'No se pudo quitar el área'),
+    });
+  }
+
+  /** Áreas que el líder aún NO tiene asignadas */
+  areasNotInLeader(leader: any): any[] {
+    const assigned = new Set<string>((leader.areas ?? []).map((la: any) => la.areaCode));
+    return this.areasRows.filter((a) => !assigned.has(a.code));
+  }
+
+  /** Áreas no primarias del líder (se pueden quitar) */
+  nonPrimaryLeaderAreas(leader: any): any[] {
+    return (leader.areas ?? []).filter((la: any) => !la.isPrimary);
+  }
+
+  // ── Helpers de formulario ────────────────────────────────────────────────────
+
+  get leadersBySelectedArea(): any[] {
+    const areaCode = (this.userForm.getRawValue().areaCode ?? '').trim().toUpperCase();
+    return (this.leadersRows ?? []).filter((l) => {
+      if (!areaCode) return true;
+      // Buscar en todas las áreas del líder
+      const leaderAreas: string[] = (l.areas ?? []).map((la: any) => String(la.areaCode).trim().toUpperCase());
+      if (leaderAreas.length > 0) return leaderAreas.includes(areaCode);
+      return String(l.areaCode ?? '').trim().toUpperCase() === areaCode;
+    });
+  }
+
+  leadersForArea(areaCode: string): any[] {
+    if (!areaCode) return [];
+    const code = areaCode.trim().toUpperCase();
+    return (this.leadersRows ?? []).filter((l) => {
+      const leaderAreas: string[] = (l.areas ?? []).map((la: any) => String(la.areaCode).trim().toUpperCase());
+      if (leaderAreas.length > 0) return leaderAreas.includes(code);
+      return String(l.areaCode ?? '').trim().toUpperCase() === code;
+    });
+  }
+
+  onUserAreaChange(): void {
+    const currentLeader = this.userForm.getRawValue().leaderCode;
+    const valid = this.leadersBySelectedArea.some((l) => l.code === currentLeader);
+    if (!valid) this.userForm.patchValue({ leaderCode: '' });
+  }
+
+  // ── Contraseña ───────────────────────────────────────────────────────────────
 
   setResetPasswordDraft(userId: string, value: string): void {
     this.resetPasswordDraftByUserId[userId] = value;
@@ -204,25 +281,6 @@ export class OrganizationHubPageComponent implements OnInit {
       },
       error: () => {
         this.resetPasswordMsgByUserId[user.id] = 'No se pudo resetear.';
-      },
-    });
-  }
-
-  runSeed(): void {
-    this.seedLoading = true;
-    this.seedMessage = '';
-    this.seedError = '';
-    this.seedPayload = null;
-    this.api.runSeed().subscribe({
-      next: ({ data, message }) => {
-        this.seedPayload = data;
-        this.seedMessage = message;
-        this.seedLoading = false;
-        this.reloadAll();
-      },
-      error: () => {
-        this.seedError = 'No se pudo ejecutar la semilla (¿API disponible y ruta /api/dev/seed?).';
-        this.seedLoading = false;
       },
     });
   }

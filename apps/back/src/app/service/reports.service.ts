@@ -432,7 +432,7 @@ export class ReportsService {
     const incidents = await this.queryIncidents(filters);
     const areaNames = await this.loadAreaNames();
     const codes = [...new Set(incidents.map((i) => i.incidentCode))];
-    const firstImageUrl = await this.loadFirstImageUrlByIncident(codes);
+    const imagesByCode = await this.loadImagesByIncident(codes);
     const summary = this.toSummary(incidents);
 
     return new Promise<Buffer>((resolve, reject) => {
@@ -453,9 +453,9 @@ export class ReportsService {
         );
       doc.moveDown(0.8);
 
-      this.writePdfSection(doc, 'ABIERTO', incidents, IncidentStatus.OPEN, areaNames, firstImageUrl);
-      this.writePdfSection(doc, 'EN PROCESO', incidents, IncidentStatus.IN_PROGRESS, areaNames, firstImageUrl);
-      this.writePdfSection(doc, 'CERRADO', incidents, IncidentStatus.CLOSED, areaNames, firstImageUrl);
+      this.writePdfSection(doc, 'ABIERTO', incidents, IncidentStatus.OPEN, areaNames, imagesByCode);
+      this.writePdfSection(doc, 'EN PROCESO', incidents, IncidentStatus.IN_PROGRESS, areaNames, imagesByCode);
+      this.writePdfSection(doc, 'CERRADO', incidents, IncidentStatus.CLOSED, areaNames, imagesByCode);
 
       doc.end();
     });
@@ -465,7 +465,7 @@ export class ReportsService {
     const incidents = await this.queryIncidents(filters);
     const areaNames = await this.loadAreaNames();
     const codes = [...new Set(incidents.map((i) => i.incidentCode))];
-    const firstImageUrl = await this.loadFirstImageUrlByIncident(codes);
+    const imagesByCode = await this.loadImagesByIncident(codes);
 
     const byStatus = (st: IncidentStatus) =>
       incidents.filter((i) => i.status === st).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
@@ -499,6 +499,8 @@ export class ReportsService {
       td.num { text-align: center; width: 36px; }
       td.img { text-align: center; white-space: nowrap; }
       a.ver  { color: #1565c0; font-weight: 600; }
+      a.ver-report  { display: block; color: #1565c0; font-weight: 600; font-size: 11px; }
+      a.ver-closure { display: block; color: #2e7d32; font-weight: 600; font-size: 11px; margin-top: 3px; }
 
       /* Cabeceras de tabla por estado */
       tr.th-open     th { background: #ffcdd2; color: #b71c1c; text-align: center; font-weight: 700; }
@@ -523,13 +525,18 @@ export class ReportsService {
         return '<p class="muted">Sin registros.</p>';
       }
       const thRowClass = `th-${variant}`;
-      const head = `<tr class="${thRowClass}"><th>N°</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>IMAGEN</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
+      const head = `<tr class="${thRowClass}"><th>N°</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>EVIDENCIAS</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
       const body = rows
         .map((i, idx) => {
-          const url = firstImageUrl.get(i.incidentCode);
-          const imgCell = url
-            ? `<a class="ver" href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">Ver</a>`
-            : '-';
+          const imgs = imagesByCode.get(i.incidentCode) ?? {};
+          const links: string[] = [];
+          if (imgs.report) {
+            links.push(`<a class="ver-report" href="${escapeHtml(imgs.report)}" target="_blank" rel="noopener noreferrer">📷 Ver informe</a>`);
+          }
+          if (imgs.closure) {
+            links.push(`<a class="ver-closure" href="${escapeHtml(imgs.closure)}" target="_blank" rel="noopener noreferrer">✅ Ver cierre</a>`);
+          }
+          const imgCell = links.length > 0 ? links.join('') : '-';
           return `<tr>
             <td class="num">${idx + 1}</td>
             <td>${escapeHtml(i.reportedBy)}</td>
@@ -589,6 +596,33 @@ export class ReportsService {
       if (!map.has(row.incidentCode)) {
         map.set(row.incidentCode, row.url);
       }
+    }
+    return map;
+  }
+
+  /**
+   * Carga todas las imágenes agrupadas por incidentCode.
+   * Devuelve un Map<incidentCode, { report?: string; closure?: string }>.
+   */
+  private async loadImagesByIncident(
+    codes: string[],
+  ): Promise<Map<string, { report?: string; closure?: string }>> {
+    const map = new Map<string, { report?: string; closure?: string }>();
+    if (codes.length === 0) return map;
+
+    const rows = await this.incidentImageRepository
+      .createQueryBuilder('img')
+      .where('img.incidentCode IN (:...codes)', { codes })
+      .orderBy('img.incidentCode', 'ASC')
+      .addOrderBy('img.createdAt', 'ASC')
+      .getMany();
+
+    for (const row of rows) {
+      const entry = map.get(row.incidentCode) ?? {};
+      const type = (row.imageType ?? '').toLowerCase();
+      if (type === 'report' && !entry.report) entry.report = row.url;
+      if (type === 'closure' && !entry.closure) entry.closure = row.url;
+      map.set(row.incidentCode, entry);
     }
     return map;
   }
@@ -734,85 +768,118 @@ export class ReportsService {
     incidents: IncidentEntity[],
     status: IncidentStatus,
     areaNames: Map<string, string>,
-    firstImageUrl: Map<string, string>,
+    imagesByCode: Map<string, { report?: string; closure?: string }>,
   ): void {
-    // Colores por estado
-    const palette: Record<string, { bg: string; text: string; headerBg: string; headerText: string; accent: string }> = {
-      ABIERTO:    { bg: '#FFEBEE', text: '#C62828', headerBg: '#FFCDD2', headerText: '#B71C1C', accent: '#E53935' },
-      'EN PROCESO': { bg: '#E3F2FD', text: '#1565C0', headerBg: '#BBDEFB', headerText: '#0D47A1', accent: '#1E88E5' },
-      CERRADO:    { bg: '#E8F5E9', text: '#2E7D32', headerBg: '#C8E6C9', headerText: '#1B5E20', accent: '#43A047' },
+    const palette: Record<string, { bg: string; text: string; accent: string }> = {
+      ABIERTO:      { bg: '#FFEBEE', text: '#C62828', accent: '#E53935' },
+      'EN PROCESO': { bg: '#E3F2FD', text: '#1565C0', accent: '#1E88E5' },
+      CERRADO:      { bg: '#E8F5E9', text: '#2E7D32', accent: '#43A047' },
     };
-    const colors = palette[title] ?? { bg: '#F5F5F5', text: '#111111', headerBg: '#E0E0E0', headerText: '#111111', accent: '#9E9E9E' };
+    const colors = palette[title] ?? { bg: '#F5F5F5', text: '#111111', accent: '#9E9E9E' };
 
     const rows = incidents
-      .filter((incident) => incident.status === status)
+      .filter((i) => i.status === status)
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
-    this.ensurePdfSpace(doc, 44);
-
-    // ── Cabecera de sección con color ──────────────────────────────────────
     const pageW = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-    const bannerH = 26;
-    doc
-      .roundedRect(doc.page.margins.left, doc.y, pageW, bannerH, 5)
-      .fillColor(colors.bg)
-      .fill();
-    // Borde izquierdo de acento
-    doc
-      .rect(doc.page.margins.left, doc.y, 5, bannerH)
-      .fillColor(colors.accent)
-      .fill();
+    const marginL = doc.page.margins.left;
+    const bannerH = 24;
+
+    this.ensurePdfSpace(doc, bannerH + 16);
+
+    // ── Banner de sección ────────────────────────────────────────────────
+    const bannerY = doc.y;
+    doc.rect(marginL, bannerY, pageW, bannerH).fillColor(colors.bg).fill();
+    doc.rect(marginL, bannerY, 5, bannerH).fillColor(colors.accent).fill();
+    // Texto centrado verticalmente en el banner
     doc
       .font('Helvetica-Bold')
       .fontSize(11)
       .fillColor(colors.text)
-      .text(title, doc.page.margins.left + 12, doc.y - bannerH + 8, { width: pageW - 16 });
-    doc.y += 6;
-    doc.moveDown(0.4);
+      .text(title, marginL + 12, bannerY + 7, { width: pageW - 16, lineBreak: false });
+    // Avanzar manualmente después del banner
+    doc.y = bannerY + bannerH + 6;
 
     if (rows.length === 0) {
-      doc.font('Helvetica').fontSize(9).fillColor('#555555').text('Sin registros.');
-      doc.moveDown(0.8);
+      doc
+        .font('Helvetica')
+        .fontSize(9)
+        .fillColor('#666666')
+        .text('Sin registros.', marginL + 8, doc.y);
+      doc.y += 20;
       return;
     }
 
-    rows.forEach((incident, idx) => {
-      this.ensurePdfSpace(doc, 82);
-      const top = doc.y;
-      // Borde de la tarjeta
-      doc.roundedRect(doc.page.margins.left, top, pageW, 70, 4).strokeColor('#cccccc').stroke();
-      // Franja de color en el borde izquierdo de la tarjeta
-      doc.rect(doc.page.margins.left, top, 4, 70).fillColor(colors.accent).fill();
+    for (let idx = 0; idx < rows.length; idx++) {
+      const incident = rows[idx];
+      const imgs = imagesByCode.get(incident.incidentCode) ?? {};
+
+      // Estimar altura del contenido para reservar espacio
+      const descLen = (incident.description ?? '').length;
+      const medLen  = (incident.correctiveMeasures ?? incident.comment ?? '').length;
+      const extraLines = Math.ceil(descLen / 90) + Math.ceil(medLen / 90);
+      const imgLines  = (imgs.report ? 1 : 0) + (imgs.closure ? 1 : 0);
+      const cardH = Math.max(72, 44 + extraLines * 10 + imgLines * 11);
+
+      this.ensurePdfSpace(doc, cardH + 8);
+
+      const cardY = doc.y;
+      const textX = marginL + 10;
+      const textW = pageW - 18;
+
+      // Fondo de tarjeta
+      doc.rect(marginL, cardY, pageW, cardH).fillColor('#FAFAFA').fill();
+      // Borde
+      doc.rect(marginL, cardY, pageW, cardH).strokeColor('#DDDDDD').lineWidth(0.5).stroke();
+      // Franja de acento izquierda
+      doc.rect(marginL, cardY, 4, cardH).fillColor(colors.accent).fill();
+
+      // Línea 1: código + fecha + área + riesgo
+      let curY = cardY + 7;
       doc
         .font('Helvetica-Bold')
         .fontSize(8.5)
         .fillColor('#111111')
         .text(
-          `${idx + 1}. ${incident.incidentCode} | ${fechaReporte(incident.createdAt)} | ${this.areaLabel(
-            incident.areaCode,
-            areaNames,
-          )} | ${this.riskLabel(incident.riskLevel)}`,
-          doc.page.margins.left + 10,
-          top + 7,
-          { width: pageW - 18 },
+          `${idx + 1}. ${incident.incidentCode} | ${fechaReporte(incident.createdAt)} | ${this.areaLabel(incident.areaCode, areaNames)} | ${this.riskLabel(incident.riskLevel)}`,
+          textX, curY, { width: textW, lineBreak: false },
         );
+      curY += 12;
+
+      // Línea 2: reportante + ubicación
       doc
         .font('Helvetica')
         .fontSize(8)
         .fillColor('#333333')
-        .text(`Reportante: ${incident.reportedBy}    Ubicacion: ${incident.location}`, {
-          width: pageW - 18,
-        })
-        .text(`Descripcion: ${incident.description}`, { width: pageW - 18 })
-        .text(`Medidas: ${incident.correctiveMeasures ?? incident.comment ?? '-'}`, { width: pageW - 18 });
-      const imgUrl = firstImageUrl.get(incident.incidentCode);
-      if (imgUrl) {
-        doc.fillColor('#1d4ed8').text(`Imagen: ${imgUrl}`, { width: pageW - 18 });
+        .text(`Reportante: ${incident.reportedBy}   Ubicacion: ${incident.location}`, textX, curY, { width: textW });
+      curY = doc.y + 1;
+
+      // Descripción
+      doc.text(`Descripcion: ${incident.description}`, textX, curY, { width: textW });
+      curY = doc.y + 1;
+
+      // Medidas
+      const medidas = incident.correctiveMeasures ?? incident.comment ?? '-';
+      doc.text(`Medidas: ${medidas}`, textX, curY, { width: textW });
+      curY = doc.y + 1;
+
+      // URLs de evidencia
+      if (imgs.report) {
+        doc.fillColor('#1565c0').text(`Informe: ${imgs.report}`, textX, curY, { width: textW });
+        curY = doc.y + 1;
       }
+      if (imgs.closure) {
+        doc.fillColor('#2e7d32').text(`Cierre: ${imgs.closure}`, textX, curY, { width: textW });
+        curY = doc.y + 1;
+      }
+
       doc.fillColor('#111111');
-      doc.y = top + 78;
-    });
-    doc.moveDown(0.5);
+
+      // Avanzar al final real del contenido + padding inferior
+      doc.y = Math.max(cardY + cardH, curY) + 6;
+    }
+
+    doc.y += 4; // separador entre secciones
   }
 
   private ensurePdfSpace(doc: PDFKit.PDFDocument, height: number): void {

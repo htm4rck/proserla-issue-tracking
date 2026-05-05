@@ -335,12 +335,29 @@ export class DashboardPageComponent implements OnInit {
     referenceDate: string,
   ): { reportYear?: string; reportMonth?: string; referenceDate?: string } {
     if (period === 'yearly') return {};
+
     if (period === 'monthly') {
+      const MESES = ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO',
+                     'JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
+      const monthIndex = MESES.indexOf(reportMonth.trim().toUpperCase()); // 0-based
+      const year = Number(reportYear.trim()) || new Date().getFullYear();
+
+      // Derivar referenceDate desde mes+año para que el backend calcule el rango correcto
+      let derivedReferenceDate: string | undefined;
+      if (monthIndex >= 0) {
+        // Primer día del mes seleccionado
+        const d = new Date(year, monthIndex, 1);
+        derivedReferenceDate = d.toISOString().slice(0, 10);
+      }
+
       return {
         reportYear: reportYear.trim() || undefined,
         reportMonth: reportMonth.trim().toUpperCase() || undefined,
+        referenceDate: derivedReferenceDate,
       };
     }
+
+    // weekly / biweekly — usan referenceDate directamente
     return { referenceDate: referenceDate || undefined };
   }
 }

@@ -106,6 +106,33 @@ export class ApiClientService {
     );
   }
 
+  // ── Gestión multi-área: usuarios ────────────────────────────────────────────
+
+  addUserArea(userId: string, payload: { areaCode: string; leaderCode?: string; isPrimary?: boolean }): Observable<ApiResponse<any[]>> {
+    return this.http.post<ApiResponse<any[]>>(`${this.base}/users/${encodeURIComponent(userId)}/areas`, payload);
+  }
+
+  removeUserArea(userId: string, payload: { areaCode: string }): Observable<ApiResponse<any[]>> {
+    return this.http.delete<ApiResponse<any[]>>(`${this.base}/users/${encodeURIComponent(userId)}/areas`, { body: payload });
+  }
+
+  setUserPrimaryArea(userId: string, areaCode: string): Observable<ApiResponse<any[]>> {
+    return this.http.patch<ApiResponse<any[]>>(
+      `${this.base}/users/${encodeURIComponent(userId)}/areas/${encodeURIComponent(areaCode)}/primary`,
+      {},
+    );
+  }
+
+  // ── Gestión multi-área: líderes ─────────────────────────────────────────────
+
+  addLeaderArea(leaderCode: string, payload: { areaCode: string; isPrimary?: boolean }): Observable<ApiResponse<any[]>> {
+    return this.http.post<ApiResponse<any[]>>(`${this.base}/leaders/${encodeURIComponent(leaderCode)}/areas`, payload);
+  }
+
+  removeLeaderArea(leaderCode: string, payload: { areaCode: string }): Observable<ApiResponse<any[]>> {
+    return this.http.delete<ApiResponse<any[]>>(`${this.base}/leaders/${encodeURIComponent(leaderCode)}/areas`, { body: payload });
+  }
+
   listAreas(): Observable<ApiResponse<Area[]>> {
     return this.http.get<ApiResponse<Area[]>>(`${this.base}/areas`);
   }
@@ -128,6 +155,12 @@ export class ApiClientService {
 
   listSimple(path: string): Observable<ApiResponse<any[]>> {
     return this.http.get<ApiResponse<any[]>>(`${this.base}/${path}`);
+  }
+
+  listCatalogByType(catalogType: string): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.base}/catalog-items`, {
+      params: { catalogType },
+    });
   }
 
   createSimple(path: string, payload: any): Observable<ApiResponse<any>> {

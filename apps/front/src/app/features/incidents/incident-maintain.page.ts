@@ -28,6 +28,7 @@ export class IncidentMaintainPageComponent implements OnInit {
   areas: Area[] = [];
   leaders: Leader[] = [];
   workSites: WorkSite[] = [];
+  employerTypes: Array<{ code: string; label: string }> = [];
   readonly monthOptions = MONTH_OPTIONS;
   readonly yearOptions = yearOptions(2020);
   /** Incidencia con codigo de lider que ya no esta en el maestro (solo edicion). */
@@ -95,21 +96,24 @@ export class IncidentMaintainPageComponent implements OnInit {
             areas: this.api.listAreas(),
             workSites: this.api.listWorkSites(),
             leaders: this.api.listLeaders(),
+            employerTypes: this.api.listCatalogByType('employer_type'),
           }).pipe(
-            map(({ areas, workSites, leaders }) => ({
+            map(({ areas, workSites, leaders, employerTypes }) => ({
               code,
               areas: areas.data ?? [],
               workSites: workSites.data ?? [],
               leaders: leaders.data ?? [],
+              employerTypes: employerTypes.data ?? [],
             })),
           );
         }),
       )
       .subscribe({
-        next: ({ code, areas, workSites, leaders }) => {
+        next: ({ code, areas, workSites, leaders, employerTypes }) => {
           this.areas = areas;
           this.workSites = workSites;
           this.leaders = leaders;
+          this.employerTypes = employerTypes.map((e: any) => ({ code: e.code, label: e.label }));
           if (code === 'nuevo') {
             this.setupCreate();
           } else {

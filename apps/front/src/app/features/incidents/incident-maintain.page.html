@@ -52,10 +52,9 @@
       Procedencia
       <select formControlName="employerType">
         <option value="">Seleccionar procedencia</option>
-        <option value="proserla">Proserla</option>
-        <option value="tercero">Tercero / contratista</option>
-        <option value="directo">Personal directo</option>
-        <option value="visita">Visita</option>
+        @for (et of employerTypes; track et.code) {
+          <option [value]="et.code">{{ et.label }}</option>
+        }
       </select>
     </label>
     <label>

@@ -14,6 +14,10 @@ export class LeaderEntity {
   @Column({ length: 180, nullable: true })
   email?: string;
 
+  /**
+   * Área primaria — se mantiene por compatibilidad con incidencias existentes.
+   * Siempre debe coincidir con la entrada isPrimary=true en leader_areas.
+   */
   @Column({ length: 60 })
   areaCode!: string;
 

@@ -14,9 +14,17 @@ export class UserEntity {
   @Column({ length: 40 })
   roleCode!: string;
 
+  /**
+   * Área primaria — se mantiene por compatibilidad con incidencias existentes
+   * y como fallback en headers de sesión. Siempre debe coincidir con la entrada
+   * isPrimary=true en user_areas.
+   */
   @Column({ length: 60 })
   areaCode!: string;
 
+  /**
+   * Líder del área primaria — fallback para headers de sesión.
+   */
   @Column({ length: 60, nullable: true })
   leaderCode?: string;
 

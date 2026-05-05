@@ -5,7 +5,7 @@ import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { WorkSite } from '../../core/models/api.models';
 
-type MasterTab = 'sites';
+type MasterTab = 'sites' | 'employer_type';
 
 @Component({
   selector: 'app-masters-hub-page',
@@ -22,11 +22,18 @@ export class MastersHubPageComponent implements OnInit {
 
   activeTab: MasterTab = 'sites';
   sitesRows: WorkSite[] = [];
+  catalogRows: Array<{ id: string; catalogType: string; code: string; label: string; isActive: boolean }> = [];
 
   siteForm = this.fb.nonNullable.group({
     code: ['', Validators.required],
     name: ['', Validators.required],
     sortOrder: [0],
+    isActive: [true],
+  });
+
+  catalogForm = this.fb.nonNullable.group({
+    code: ['', Validators.required],
+    label: ['', Validators.required],
     isActive: [true],
   });
 
@@ -37,7 +44,7 @@ export class MastersHubPageComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParamMap.subscribe((pm) => {
       const t = pm.get('tab') as MasterTab | null;
-      if (t === 'sites') this.activeTab = t;
+      if (t === 'sites' || t === 'employer_type') this.activeTab = t;
       else this.activeTab = 'sites';
     });
     this.reloadSites();
@@ -45,10 +52,15 @@ export class MastersHubPageComponent implements OnInit {
 
   setTab(tab: MasterTab): void {
     void this.router.navigate([], { relativeTo: this.route, queryParams: { tab }, queryParamsHandling: 'merge' });
+    if (tab === 'employer_type') this.reloadCatalog('employer_type');
   }
 
   reloadSites(): void {
     this.api.listWorkSitesAdmin().subscribe(({ data }) => (this.sitesRows = data ?? []));
+  }
+
+  reloadCatalog(catalogType: string): void {
+    this.api.listCatalogByType(catalogType).subscribe(({ data }) => (this.catalogRows = data ?? []));
   }
 
   saveSite(): void {
@@ -64,6 +76,22 @@ export class MastersHubPageComponent implements OnInit {
       .subscribe(() => {
         this.siteForm.reset({ code: '', name: '', sortOrder: 0, isActive: true });
         this.reloadSites();
+      });
+  }
+
+  saveCatalogItem(catalogType: string): void {
+    if (!this.isAdmin || this.catalogForm.invalid) return;
+    const raw = this.catalogForm.getRawValue();
+    this.api
+      .createSimple('catalog-items', {
+        catalogType,
+        code: raw.code.trim().toLowerCase(),
+        label: raw.label.trim(),
+        isActive: raw.isActive,
+      })
+      .subscribe(() => {
+        this.catalogForm.reset({ code: '', label: '', isActive: true });
+        this.reloadCatalog(catalogType);
       });
   }
 }

@@ -2,15 +2,16 @@
   <header class="hero panel">
     <h2>Maestros</h2>
     <p class="lead">
-      Catálogos reutilizables en incidencias y reportes. Aquí se mantiene el listado de <strong>fundo / planta</strong>; más pestañas se irán
-      sumando con el tiempo.
+      Catálogos reutilizables en incidencias y reportes. Administra los valores que aparecen en los combos del sistema.
     </p>
   </header>
 
   <nav class="tabs panel" aria-label="Maestros">
     <button type="button" [class.active]="activeTab === 'sites'" (click)="setTab('sites')">Fundo / planta</button>
+    <button type="button" [class.active]="activeTab === 'employer_type'" (click)="setTab('employer_type')">Procedencias</button>
   </nav>
 
+  <!-- ── Fundo / planta ─────────────────────────────────────────────────── -->
   @if (activeTab === 'sites') {
     <section class="tab-panel panel">
       <h3>Fundo / planta</h3>
@@ -42,12 +43,7 @@
 
       <table class="data">
         <thead>
-          <tr>
-            <th>Código</th>
-            <th>Nombre</th>
-            <th>Orden</th>
-            <th>Activo</th>
-          </tr>
+          <tr><th>Código</th><th>Nombre</th><th>Orden</th><th>Activo</th></tr>
         </thead>
         <tbody>
           @for (s of sitesRows; track s.id) {
@@ -57,6 +53,55 @@
               <td>{{ s.sortOrder }}</td>
               <td>{{ s.isActive ? 'Sí' : 'No' }}</td>
             </tr>
+          }
+        </tbody>
+      </table>
+    </section>
+  }
+
+  <!-- ── Procedencias ───────────────────────────────────────────────────── -->
+  @if (activeTab === 'employer_type') {
+    <section class="tab-panel panel">
+      <h3>Procedencias</h3>
+      <p class="hint">
+        Valores del combo <strong>Procedencia</strong> en el formulario de incidencias.
+        El código es interno (minúsculas, sin espacios); la etiqueta es lo que ve el usuario.
+      </p>
+
+      @if (isAdmin) {
+        <form [formGroup]="catalogForm" class="grid-form" (ngSubmit)="saveCatalogItem('employer_type')">
+          <label>
+            Código
+            <input formControlName="code" placeholder="contratista" />
+          </label>
+          <label>
+            Etiqueta visible
+            <input formControlName="label" placeholder="Contratista externo" />
+          </label>
+          <label class="row-check">
+            <input type="checkbox" formControlName="isActive" />
+            Activo
+          </label>
+          <button type="submit">Agregar</button>
+        </form>
+      } @else {
+        <p class="hint">Solo administradores pueden agregar procedencias.</p>
+      }
+
+      <table class="data">
+        <thead>
+          <tr><th>Código</th><th>Etiqueta</th><th>Activo</th></tr>
+        </thead>
+        <tbody>
+          @for (c of catalogRows; track c.id) {
+            <tr>
+              <td><code>{{ c.code }}</code></td>
+              <td>{{ c.label }}</td>
+              <td>{{ c.isActive ? 'Sí' : 'No' }}</td>
+            </tr>
+          }
+          @if (catalogRows.length === 0) {
+            <tr><td colspan="3" class="hint">Sin registros. Haz clic en la pestaña para cargar.</td></tr>
           }
         </tbody>
       </table>
