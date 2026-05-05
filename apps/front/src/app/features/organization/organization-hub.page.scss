@@ -265,6 +265,116 @@
   font-weight: 600;
 }
 
+/* ── Botón gestionar áreas ──────────────────────────────────────────────── */
+
+.btn-manage {
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--text);
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+
+  &:hover { background: #eef2ff; border-color: #c7d2fe; color: #3730a3; }
+  &.active { background: #eef2ff; border-color: #c7d2fe; color: #3730a3; }
+}
+
+/* ── Fila expandida ─────────────────────────────────────────────────────── */
+
+.row-expanded td {
+  background: #f8faff;
+}
+
+.expand-row td {
+  padding: 0 !important;
+  border-bottom: 2px solid #c7d2fe;
+}
+
+.expand-panel {
+  padding: 1rem 1.25rem;
+  background: #f0f4ff;
+  border-top: 1px solid #c7d2fe;
+}
+
+.expand-panel-title {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin-bottom: 0.75rem;
+
+  strong { color: var(--text); }
+}
+
+/* Áreas actuales con opción de quitar */
+.current-areas {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1rem;
+}
+
+.current-area-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.hint-inline {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Fila para agregar nueva área */
+.add-area-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  padding: 0.65rem 0.85rem;
+  background: #fff;
+  border: 1px dashed #c7d2fe;
+  border-radius: 10px;
+}
+
+.add-area-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #3730a3;
+  white-space: nowrap;
+}
+
+.add-area-select {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.35rem 0.55rem;
+  font: inherit;
+  font-size: 0.82rem;
+  background: #fff;
+  min-width: 160px;
+  flex: 1;
+}
+
+.area-msg {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: #166534;
+  background: #dcfce7;
+  border: 1px solid #bbf7d0;
+  border-radius: 8px;
+  padding: 0.4rem 0.65rem;
+
+  &.err {
+    color: #991b1b;
+    background: #fef2f2;
+    border-color: #fecaca;
+  }
+}
+
 /* ── Chips de área ──────────────────────────────────────────────────────── */
 
 .area-chips {

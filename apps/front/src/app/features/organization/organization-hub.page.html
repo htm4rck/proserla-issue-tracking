@@ -16,10 +16,10 @@
   </header>
 
   <nav class="tabs" aria-label="Secciones">
-    <button type="button" [class.active]="activeTab === 'roles'" (click)="setTab('roles')">Roles</button>
-    <button type="button" [class.active]="activeTab === 'areas'" (click)="setTab('areas')">Áreas</button>
+    <button type="button" [class.active]="activeTab === 'roles'"   (click)="setTab('roles')">Roles</button>
+    <button type="button" [class.active]="activeTab === 'areas'"   (click)="setTab('areas')">Áreas</button>
     <button type="button" [class.active]="activeTab === 'leaders'" (click)="setTab('leaders')">Líderes</button>
-    <button type="button" [class.active]="activeTab === 'users'" (click)="setTab('users')">Usuarios</button>
+    <button type="button" [class.active]="activeTab === 'users'"   (click)="setTab('users')">Usuarios</button>
   </nav>
 
   <!-- ── ROLES ─────────────────────────────────────────────────────────────── -->
@@ -68,12 +68,17 @@
   @if (activeTab === 'leaders') {
     <section class="panel tab-panel">
       <h3>Líderes</h3>
-      <p class="hint">Un líder puede cubrir <strong>múltiples áreas</strong>. El área marcada como <em>primaria</em> es la que aparece en filtros y dashboards por defecto.</p>
+      <p class="hint">
+        Un líder puede cubrir <strong>múltiples áreas</strong>.
+        El área con ★ es la primaria (usada en filtros y dashboards por defecto).
+        Haz clic en <strong>Gestionar áreas</strong> para agregar o quitar áreas a un líder existente.
+      </p>
 
+      <!-- Formulario nuevo líder -->
       <form [formGroup]="leaderForm" class="grid-form leaders" (ngSubmit)="saveLeader()">
-        <label>Código <input formControlName="code" /></label>
-        <label>Nombre completo <input formControlName="fullName" /></label>
-        <label>Correo <input formControlName="email" /></label>
+        <label>Código <input formControlName="code" placeholder="LUCIA" /></label>
+        <label>Nombre completo <input formControlName="fullName" placeholder="Lucía Asto" /></label>
+        <label>Correo <input formControlName="email" placeholder="lucia@empresa.com" /></label>
         <label>
           Área primaria
           <select formControlName="areaCode">
@@ -86,65 +91,105 @@
         <button type="submit">Agregar líder</button>
       </form>
 
-      <!-- Tabla de líderes con sus áreas -->
-      <table class="data">
+      <!-- Tabla de líderes -->
+      <table class="data leaders-table">
         <thead>
           <tr>
-            <th>Código</th>
             <th>Nombre</th>
+            <th>Código</th>
             <th>Áreas asignadas</th>
             <th>Correo</th>
-            @if (isAdmin) { <th>Gestionar áreas</th> }
+            @if (isAdmin) { <th style="width:120px"></th> }
           </tr>
         </thead>
         <tbody>
           @for (l of leadersRows; track l.id) {
-            <tr>
-              <td>{{ l.code }}</td>
-              <td>{{ l.fullName }}</td>
+            <!-- Fila principal -->
+            <tr [class.row-expanded]="expandedLeader === l.code">
+              <td><strong>{{ l.fullName }}</strong></td>
+              <td><code>{{ l.code }}</code></td>
               <td>
                 <div class="area-chips">
-                  @for (la of (l.areas ?? []); track la.id) {
-                    <span class="area-chip" [class.primary]="la.isPrimary" [title]="la.isPrimary ? 'Área primaria' : ''">
+                  @for (la of (l.areas?.length ? l.areas : [{areaCode: l.areaCode, isPrimary: true, id: 'fallback'}]); track la.id) {
+                    <span class="area-chip" [class.primary]="la.isPrimary">
                       {{ areaLabel(la.areaCode) }}
-                      @if (la.isPrimary) { <span class="primary-dot">★</span> }
+                      @if (la.isPrimary) { <span class="primary-dot" title="Área primaria">★</span> }
                     </span>
-                  }
-                  @if (!(l.areas?.length)) {
-                    <span class="area-chip">{{ areaLabel(l.areaCode) }} ★</span>
                   }
                 </div>
               </td>
               <td>{{ l.email ?? '—' }}</td>
               @if (isAdmin) {
                 <td>
-                  <div class="area-mgmt">
-                    <select #addLeaderAreaSel class="mini-select">
-                      <option value="">+ Agregar área</option>
-                      @for (a of areasNotInLeader(l); track a.code) {
-                        <option [value]="a.code">{{ a.name }}</option>
-                      }
-                    </select>
-                    <button type="button" class="btn-xs btn-add"
-                      (click)="addLeaderArea(l, addLeaderAreaSel.value); addLeaderAreaSel.value = ''">
-                      Agregar
-                    </button>
-                    @if ((l.areas?.length ?? 0) > 1) {
-                      <select #rmLeaderAreaSel class="mini-select">
-                        <option value="">− Quitar área</option>
-                        @for (la of nonPrimaryLeaderAreas(l); track la.id) {
-                          <option [value]="la.areaCode">{{ areaLabel(la.areaCode) }}</option>
-                        }
-                      </select>
-                      <button type="button" class="btn-xs btn-remove"
-                        (click)="removeLeaderArea(l, rmLeaderAreaSel.value); rmLeaderAreaSel.value = ''">
-                        Quitar
-                      </button>
-                    }
-                  </div>
+                  <button type="button"
+                    class="btn-manage"
+                    [class.active]="expandedLeader === l.code"
+                    (click)="toggleLeaderExpand(l.code)">
+                    {{ expandedLeader === l.code ? 'Cerrar ▲' : 'Gestionar áreas ▼' }}
+                  </button>
                 </td>
               }
             </tr>
+
+            <!-- Panel expandible de gestión de áreas -->
+            @if (isAdmin && expandedLeader === l.code) {
+              <tr class="expand-row">
+                <td colspan="5">
+                  <div class="expand-panel">
+                    <div class="expand-panel-title">
+                      Áreas de <strong>{{ l.fullName }}</strong>
+                    </div>
+
+                    <!-- Lista de áreas actuales con opción de quitar -->
+                    <div class="current-areas">
+                      @for (la of (l.areas?.length ? l.areas : [{areaCode: l.areaCode, isPrimary: true, id: 'fallback'}]); track la.id) {
+                        <div class="current-area-row">
+                          <span class="area-chip" [class.primary]="la.isPrimary">
+                            {{ areaLabel(la.areaCode) }}
+                            @if (la.isPrimary) { <span class="primary-dot">★ primaria</span> }
+                          </span>
+                          @if (!la.isPrimary && (l.areas?.length ?? 0) > 1) {
+                            <button type="button" class="btn-xs btn-remove"
+                              (click)="removeLeaderArea(l, la.areaCode)">
+                              Quitar
+                            </button>
+                          }
+                          @if (la.isPrimary) {
+                            <span class="hint-inline">No se puede quitar el área primaria</span>
+                          }
+                        </div>
+                      }
+                    </div>
+
+                    <!-- Agregar nueva área -->
+                    @if (areasNotInLeader(l).length > 0) {
+                      <div class="add-area-row">
+                        <span class="add-area-label">Agregar área:</span>
+                        <select [(ngModel)]="leaderAreaDraft[l.code]" class="add-area-select">
+                          <option value="">— Seleccionar área —</option>
+                          @for (a of areasNotInLeader(l); track a.code) {
+                            <option [value]="a.code">{{ a.name }} ({{ a.code }})</option>
+                          }
+                        </select>
+                        <button type="button" class="btn-xs btn-add"
+                          [disabled]="!leaderAreaDraft[l.code]"
+                          (click)="addLeaderAreaFromDraft(l)">
+                          + Agregar
+                        </button>
+                      </div>
+                    } @else {
+                      <p class="hint-inline">El líder ya tiene asignadas todas las áreas disponibles.</p>
+                    }
+
+                    @if (leaderAreaMsg[l.code]) {
+                      <p class="area-msg" [class.err]="leaderAreaMsg[l.code].startsWith('Error')">
+                        {{ leaderAreaMsg[l.code] }}
+                      </p>
+                    }
+                  </div>
+                </td>
+              </tr>
+            }
           }
         </tbody>
       </table>
@@ -155,7 +200,11 @@
   @if (activeTab === 'users') {
     <section class="panel tab-panel">
       <h3>Usuarios</h3>
-      <p class="hint">Un usuario puede pertenecer a <strong>múltiples áreas</strong>, cada una con su propio líder. El área <em>primaria</em> se usa en los headers de sesión y filtros por defecto.</p>
+      <p class="hint">
+        Un usuario puede pertenecer a <strong>múltiples áreas</strong>, cada una con su propio líder.
+        El área ★ es la primaria (usada en sesión y filtros por defecto).
+        Haz clic en <strong>Gestionar áreas</strong> para agregar o quitar áreas a un usuario existente.
+      </p>
       @if (!isAdmin) {
         <p class="err">Solo el administrador puede crear usuarios.</p>
       }
@@ -192,7 +241,6 @@
         <button type="submit" [disabled]="!isAdmin">Agregar usuario</button>
       </form>
 
-      <!-- Tabla de usuarios con sus áreas -->
       <div class="table-scroll">
         <table class="data">
           <thead>
@@ -201,73 +249,43 @@
               <th>Correo</th>
               <th>Rol</th>
               <th>Áreas asignadas</th>
-              @if (isAdmin) { <th>Gestionar áreas</th> }
+              @if (isAdmin) { <th style="width:140px"></th> }
               @if (isAdmin) { <th>Reset contraseña</th> }
             </tr>
           </thead>
           <tbody>
             @for (u of usersRows; track u.id) {
-              <tr>
+              <tr [class.row-expanded]="expandedUser === u.id">
                 <td>{{ u.fullName }}</td>
                 <td class="email-cell">{{ u.email }}</td>
                 <td>{{ roleLabel(u.roleCode) }}</td>
                 <td>
                   <div class="area-chips">
-                    @for (ua of (u.areas ?? []); track ua.id) {
-                      <span class="area-chip" [class.primary]="ua.isPrimary" [title]="ua.isPrimary ? 'Área primaria' : ''">
+                    @for (ua of (u.areas?.length ? u.areas : [{areaCode: u.areaCode, isPrimary: true, leaderCode: u.leaderCode, id: 'fallback'}]); track ua.id) {
+                      <span class="area-chip" [class.primary]="ua.isPrimary">
                         {{ areaLabel(ua.areaCode) }}
                         @if (ua.leaderCode) { <em>/ {{ leaderLabel(ua.leaderCode) }}</em> }
                         @if (ua.isPrimary) { <span class="primary-dot">★</span> }
                       </span>
                     }
-                    @if (!(u.areas?.length)) {
-                      <span class="area-chip primary">{{ areaLabel(u.areaCode) }} ★</span>
-                    }
                   </div>
                 </td>
                 @if (isAdmin) {
                   <td>
-                    <div class="area-mgmt">
-                      <select #addAreaSel class="mini-select">
-                        <option value="">+ Área</option>
-                        @for (a of areasNotInUser(u); track a.code) {
-                          <option [value]="a.code">{{ a.name }}</option>
-                        }
-                      </select>
-                      <select #addLeaderSel class="mini-select">
-                        <option value="">Líder (opc.)</option>
-                        @for (l of leadersForArea(addAreaSel.value); track l.id) {
-                          <option [value]="l.code">{{ l.fullName }}</option>
-                        }
-                      </select>
-                      <button type="button" class="btn-xs btn-add"
-                        (click)="addUserArea(u, addAreaSel.value, addLeaderSel.value); addAreaSel.value = ''; addLeaderSel.value = ''">
-                        Agregar
-                      </button>
-                      @if ((u.areas?.length ?? 0) > 1) {
-                        <select #rmAreaSel class="mini-select">
-                          <option value="">− Quitar</option>
-                          @for (ua of nonPrimaryUserAreas(u); track ua.id) {
-                            <option [value]="ua.areaCode">{{ areaLabel(ua.areaCode) }}</option>
-                          }
-                        </select>
-                        <button type="button" class="btn-xs btn-remove"
-                          (click)="removeUserArea(u, rmAreaSel.value); rmAreaSel.value = ''">
-                          Quitar
-                        </button>
-                      }
-                    </div>
+                    <button type="button"
+                      class="btn-manage"
+                      [class.active]="expandedUser === u.id"
+                      (click)="toggleUserExpand(u.id)">
+                      {{ expandedUser === u.id ? 'Cerrar ▲' : 'Gestionar áreas ▼' }}
+                    </button>
                   </td>
                 }
                 @if (isAdmin) {
                   <td>
                     <div class="reset-pass">
-                      <input
-                        type="password"
-                        placeholder="Nueva contraseña"
+                      <input type="password" placeholder="Nueva contraseña"
                         [value]="resetPasswordDraftByUserId[u.id] || ''"
-                        (input)="setResetPasswordDraft(u.id, $any($event.target).value)"
-                      />
+                        (input)="setResetPasswordDraft(u.id, $any($event.target).value)" />
                       <button type="button" (click)="resetUserPassword(u)">Resetear</button>
                       @if (resetPasswordMsgByUserId[u.id]) {
                         <small>{{ resetPasswordMsgByUserId[u.id] }}</small>
@@ -276,6 +294,72 @@
                   </td>
                 }
               </tr>
+
+              <!-- Panel expandible de gestión de áreas del usuario -->
+              @if (isAdmin && expandedUser === u.id) {
+                <tr class="expand-row">
+                  <td colspan="6">
+                    <div class="expand-panel">
+                      <div class="expand-panel-title">
+                        Áreas de <strong>{{ u.fullName }}</strong>
+                      </div>
+
+                      <div class="current-areas">
+                        @for (ua of (u.areas?.length ? u.areas : [{areaCode: u.areaCode, isPrimary: true, leaderCode: u.leaderCode, id: 'fallback'}]); track ua.id) {
+                          <div class="current-area-row">
+                            <span class="area-chip" [class.primary]="ua.isPrimary">
+                              {{ areaLabel(ua.areaCode) }}
+                              @if (ua.leaderCode) { <em>/ {{ leaderLabel(ua.leaderCode) }}</em> }
+                              @if (ua.isPrimary) { <span class="primary-dot">★ primaria</span> }
+                            </span>
+                            @if (!ua.isPrimary && (u.areas?.length ?? 0) > 1) {
+                              <button type="button" class="btn-xs btn-remove"
+                                (click)="removeUserArea(u, ua.areaCode)">
+                                Quitar
+                              </button>
+                            }
+                            @if (ua.isPrimary) {
+                              <span class="hint-inline">No se puede quitar el área primaria</span>
+                            }
+                          </div>
+                        }
+                      </div>
+
+                      @if (areasNotInUser(u).length > 0) {
+                        <div class="add-area-row">
+                          <span class="add-area-label">Agregar área:</span>
+                          <select [(ngModel)]="userAreaDraft[u.id + '_area']" class="add-area-select"
+                            (change)="userAreaDraft[u.id + '_leader'] = ''">
+                            <option value="">— Seleccionar área —</option>
+                            @for (a of areasNotInUser(u); track a.code) {
+                              <option [value]="a.code">{{ a.name }} ({{ a.code }})</option>
+                            }
+                          </select>
+                          <select [(ngModel)]="userAreaDraft[u.id + '_leader']" class="add-area-select">
+                            <option value="">Sin líder</option>
+                            @for (l of leadersForArea(userAreaDraft[u.id + '_area'] ?? ''); track l.id) {
+                              <option [value]="l.code">{{ l.fullName }}</option>
+                            }
+                          </select>
+                          <button type="button" class="btn-xs btn-add"
+                            [disabled]="!userAreaDraft[u.id + '_area']"
+                            (click)="addUserAreaFromDraft(u)">
+                            + Agregar
+                          </button>
+                        </div>
+                      } @else {
+                        <p class="hint-inline">El usuario ya tiene asignadas todas las áreas disponibles.</p>
+                      }
+
+                      @if (userAreaMsg[u.id]) {
+                        <p class="area-msg" [class.err]="userAreaMsg[u.id].startsWith('Error')">
+                          {{ userAreaMsg[u.id] }}
+                        </p>
+                      }
+                    </div>
+                  </td>
+                </tr>
+              }
             }
           </tbody>
         </table>

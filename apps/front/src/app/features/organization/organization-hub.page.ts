@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
@@ -9,7 +9,7 @@ type OrgTab = 'roles' | 'areas' | 'leaders' | 'users';
 
 @Component({
   selector: 'app-organization-hub-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, FormsModule],
   templateUrl: './organization-hub.page.html',
   styleUrl: './organization-hub.page.scss',
 })
@@ -102,6 +102,18 @@ export class OrganizationHubPageComponent implements OnInit {
   usersRows: any[] = [];
   resetPasswordDraftByUserId: Record<string, string> = {};
   resetPasswordMsgByUserId: Record<string, string> = {};
+
+  // ── Estado de paneles expandibles ────────────────────────────────────────
+  expandedLeader: string | null = null;
+  expandedUser: string | null = null;
+  /** Draft de área seleccionada para agregar a un líder: leaderCode → areaCode */
+  leaderAreaDraft: Record<string, string> = {};
+  /** Mensajes de resultado por líder */
+  leaderAreaMsg: Record<string, string> = {};
+  /** Draft para usuario: userId_area / userId_leader */
+  userAreaDraft: Record<string, string> = {};
+  /** Mensajes de resultado por usuario */
+  userAreaMsg: Record<string, string> = {};
 
   seedLoading = false;
   seedMessage = '';
@@ -201,6 +213,63 @@ export class OrganizationHubPageComponent implements OnInit {
   /** Áreas no primarias del usuario (se pueden quitar) */
   nonPrimaryUserAreas(user: any): any[] {
     return (user.areas ?? []).filter((ua: any) => !ua.isPrimary);
+  }
+
+  // ── Toggle paneles expandibles ───────────────────────────────────────────
+
+  toggleLeaderExpand(leaderCode: string): void {
+    this.expandedLeader = this.expandedLeader === leaderCode ? null : leaderCode;
+    if (this.expandedLeader) {
+      this.leaderAreaDraft[leaderCode] = '';
+      this.leaderAreaMsg[leaderCode] = '';
+    }
+  }
+
+  toggleUserExpand(userId: string): void {
+    this.expandedUser = this.expandedUser === userId ? null : userId;
+    if (this.expandedUser) {
+      this.userAreaDraft[userId + '_area'] = '';
+      this.userAreaDraft[userId + '_leader'] = '';
+      this.userAreaMsg[userId] = '';
+    }
+  }
+
+  // ── Gestión multi-área: líderes (con draft) ──────────────────────────────
+
+  addLeaderAreaFromDraft(leader: any): void {
+    const areaCode = (this.leaderAreaDraft[leader.code] ?? '').trim();
+    if (!areaCode) return;
+    this.leaderAreaMsg[leader.code] = '';
+    this.api.addLeaderArea(leader.code, { areaCode }).subscribe({
+      next: () => {
+        this.leaderAreaMsg[leader.code] = `✓ Área ${this.areaLabel(areaCode)} agregada correctamente.`;
+        this.leaderAreaDraft[leader.code] = '';
+        this.api.listSimple('leaders').subscribe(({ data }) => (this.leadersRows = data ?? []));
+      },
+      error: (err) => {
+        this.leaderAreaMsg[leader.code] = `Error: ${err?.error?.message ?? 'No se pudo agregar el área'}`;
+      },
+    });
+  }
+
+  // ── Gestión multi-área: usuarios (con draft) ─────────────────────────────
+
+  addUserAreaFromDraft(user: any): void {
+    const areaCode = (this.userAreaDraft[user.id + '_area'] ?? '').trim();
+    const leaderCode = (this.userAreaDraft[user.id + '_leader'] ?? '').trim() || undefined;
+    if (!areaCode) return;
+    this.userAreaMsg[user.id] = '';
+    this.api.addUserArea(user.id, { areaCode, leaderCode }).subscribe({
+      next: () => {
+        this.userAreaMsg[user.id] = `✓ Área ${this.areaLabel(areaCode)} agregada correctamente.`;
+        this.userAreaDraft[user.id + '_area'] = '';
+        this.userAreaDraft[user.id + '_leader'] = '';
+        this.api.listUsers().subscribe(({ data }) => (this.usersRows = data ?? []));
+      },
+      error: (err) => {
+        this.userAreaMsg[user.id] = `Error: ${err?.error?.message ?? 'No se pudo agregar el área'}`;
+      },
+    });
   }
 
   // ── Gestión multi-área: líderes ──────────────────────────────────────────────
