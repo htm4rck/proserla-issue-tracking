@@ -5,6 +5,7 @@ import PDFDocument from 'pdfkit';
 import { InspectionEntity } from '../entity/inspection.entity';
 import { InspectionResponseEntity } from '../entity/inspection-response.entity';
 import { AreaEntity } from '../entity/area.entity';
+import { LeaderEntity } from '../entity/leader.entity';
 import { LOGO_PROSERLA_B64 } from '../../assets/logo-proserla.b64';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -88,6 +89,8 @@ export class InspectionReportService {
     private readonly respRepo: Repository<InspectionResponseEntity>,
     @InjectRepository(AreaEntity)
     private readonly areaRepo: Repository<AreaEntity>,
+    @InjectRepository(LeaderEntity)
+    private readonly leaderRepo: Repository<LeaderEntity>,
   ) {}
 
   async generatePdf(inspectionCode: string): Promise<Buffer> {
@@ -101,6 +104,9 @@ export class InspectionReportService {
 
     const area = await this.areaRepo.findOne({ where: { code: insp.areaCode } });
     const areaName = area?.name ?? insp.areaCode;
+
+    const leader = await this.leaderRepo.findOne({ where: { code: insp.leaderCode } });
+    const leaderName = leader?.fullName ?? insp.leaderCode ?? '';
 
     // ── Descargar imágenes de evidencia en paralelo ──────────────────────────
     const imageBuffers = new Map<string, Buffer>();
@@ -267,7 +273,7 @@ export class InspectionReportService {
       y += infoHeaderH;
       cell(L,          y, c1, infoH, areaName,                      { size: 8 });
       cell(L + c1,     y, c2, infoH, reportDate(insp),              { size: 8, align: 'center' });
-      cell(L + c1+c2,  y, c3, infoH, esc(insp.leaderCode),          { size: 8 });
+      cell(L + c1+c2,  y, c3, infoH, esc(leaderName),               { size: 8 });
       cell(L + c1+c2+c3, y, c4, infoH, esc(insp.reportedBy),        { size: 8 });
       y += infoH;
 
@@ -427,7 +433,7 @@ export class InspectionReportService {
       // ══════════════════════════════════════════════════════════════════════
       const signRows: Array<{ title: string; name: string }> = [
         { title: 'RESPONSABLE DE LA INSPECCIÓN', name: esc(insp.reportedBy) },
-        { title: 'RESPONSABLE DE ÁREA',           name: esc(insp.leaderCode) },
+        { title: 'RESPONSABLE DE ÁREA',           name: esc(leaderName) },
         { title: 'REPRESENTANTE DEL COMITÉ DE SEGURIDAD', name: '' },
         { title: 'RESPONSABLE DEL REGISTRO',      name: esc(insp.reportedBy) },
       ];

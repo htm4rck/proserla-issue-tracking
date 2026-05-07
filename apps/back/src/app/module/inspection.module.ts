@@ -6,6 +6,7 @@ import { InspectionResponseEntity } from '../entity/inspection-response.entity';
 import { InspectionSerialEntity } from '../entity/inspection-serial.entity';
 import { InspectionEntity } from '../entity/inspection.entity';
 import { AreaEntity } from '../entity/area.entity';
+import { LeaderEntity } from '../entity/leader.entity';
 import { UserEntity } from '../entity/user.entity';
 import { InspectionService } from '../service/inspection.service';
 import { InspectionReportService } from '../service/inspection-report.service';
@@ -17,6 +18,7 @@ import { InspectionReportService } from '../service/inspection-report.service';
       InspectionResponseEntity,
       InspectionSerialEntity,
       AreaEntity,
+      LeaderEntity,
       UserEntity,
     ]),
     AuditLogModule,
