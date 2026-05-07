@@ -9,7 +9,7 @@ export class RootController {
       platform: 'Tordo',
       website: 'https://tordo.io',
       description: 'Soluciones de integracion empresarial',
-      product: 'RACI - Sistema de Inspecciones de Seguridad y Salud en el Trabajo',
+      product: 'RACI - REGISTROS DE ACTOS Y CONDICIONES INSEGURAS',
       version: '1.0.0',
       status: 'operational',
     };
