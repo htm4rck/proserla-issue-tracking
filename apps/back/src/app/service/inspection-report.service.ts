@@ -250,7 +250,7 @@ export class InspectionReportService {
 
       for (const sec of sections) {
         y = sectionHeader(sec.title, y);
-        const h = multilineCell(L, y, W, 48, sec.content);
+        const h = multilineCell(L, y, W, 32, sec.content);
         y += h;
       }
 
@@ -286,7 +286,7 @@ export class InspectionReportService {
       y += 6;
 
       // ══════════════════════════════════════════════════════════════════════
-      // FIRMAS
+      // FIRMAS — verificar espacio para las 4 filas + pie antes de empezar
       // ══════════════════════════════════════════════════════════════════════
       const signRows: Array<{ title: string; name: string }> = [
         { title: 'RESPONSABLE DE LA INSPECCIÓN', name: esc(insp.assignedTo) },
@@ -295,12 +295,15 @@ export class InspectionReportService {
         { title: 'RESPONSABLE DEL REGISTRO',      name: esc(insp.reportedBy) },
       ];
 
+      // Cada fila de firma ocupa: 13 (header) + 22 (datos) = 35px
+      // Pie de página: ~14px. Total bloque firmas: 4×35 + 14 = 154px
+      const firmasBlockH = signRows.length * 35 + 20;
+      if (y + firmasBlockH > doc.page.height - 36) {
+        doc.addPage();
+        y = 36;
+      }
+
       for (const row of signRows) {
-        // Verificar si hay espacio; si no, nueva página
-        if (y + 28 > doc.page.height - 36) {
-          doc.addPage();
-          y = 36;
-        }
         y = sectionHeader(row.title, y, 13);
         const fw = W / 4;
         cell(L,          y, fw, 22, 'Nombre',  { bg: C.rowBg, bold: true, size: 7 });
@@ -315,11 +318,12 @@ export class InspectionReportService {
         y += 22;
       }
 
-      // ── Pie de página ─────────────────────────────────────────────────────
+      // ── Pie de página — inline, justo después de las firmas ───────────────
+      y += 6;
       doc.font('Helvetica').fontSize(6).fillColor(C.muted)
         .text(
           `Generado por RACI · ${new Date().toLocaleString('es-PE')} · Estado: ${statusLabel(insp.status)} · Riesgo: ${riskLabel(insp.riskLevel)}`,
-          L, doc.page.height - 24, { width: W, align: 'center' },
+          L, y, { width: W, align: 'center' },
         );
 
       doc.end();

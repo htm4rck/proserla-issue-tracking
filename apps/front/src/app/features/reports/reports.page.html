@@ -178,6 +178,19 @@
           </span>
         </button>
 
+        <button type="button" class="export-btn consolidated" (click)="downloadConsolidated()" [disabled]="consolidatedBusy">
+          <span class="export-icon">📋</span>
+          <span class="export-text">
+            @if (consolidatedBusy) {
+              <strong>Generando…</strong>
+              <small>Por favor espera</small>
+            } @else {
+              <strong>Informe Oficial</strong>
+              <small>Formato Proserla SST</small>
+            }
+          </span>
+        </button>
+
         <button type="button" class="export-btn csv" (click)="downloadCsv()" [disabled]="csvBusy">
           <span class="export-icon">📋</span>
           <span class="export-text">

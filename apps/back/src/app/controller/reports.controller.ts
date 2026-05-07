@@ -8,11 +8,15 @@ import {
   ReportsSummaryResponse,
 } from '../mapper/reports.mapper';
 import { ReportsService } from '../service/reports.service';
+import { InspectionConsolidatedReportService } from '../service/inspection-consolidated-report.service';
 
 @ApiTags('reports')
 @Controller('reports')
 export class ReportsController {
-  constructor(private readonly reportsService: ReportsService) {}
+  constructor(
+    private readonly reportsService: ReportsService,
+    private readonly consolidatedService: InspectionConsolidatedReportService,
+  ) {}
 
   @Get('summary')
   async summary(
@@ -150,5 +154,46 @@ export class ReportsController {
       scoped.leaderCode = leaderCodeHeader || query.leaderCode;
     }
     return this.reportsService.exportPrintableHtml(scoped);
+  }
+
+  /**
+   * Reporte consolidado por mes y fundo/planta — formato oficial Proserla.
+   * GET /api/reports/consolidated.xlsx?site=FUNDO+LA+VIÑA&reportMonth=ABRIL&reportYear=2026
+   */
+  @Get('consolidated.xlsx')
+  @Header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+  async consolidatedXlsx(
+    @Query('site') site?: string,
+    @Query('reportMonth') reportMonth?: string,
+    @Query('reportYear') reportYear?: string,
+    @Query('areaCode') areaCode?: string,
+    @Query('leaderCode') leaderCode?: string,
+    @Headers('x-role-code') roleCode?: string,
+    @Headers('x-area-code') areaCodeHeader?: string,
+    @Headers('x-leader-code') leaderCodeHeader?: string,
+  ): Promise<StreamableFile> {
+    const scopedArea   = roleCode === 'leader' ? (areaCodeHeader || areaCode) : areaCode;
+    const scopedLeader = roleCode === 'leader' ? (leaderCodeHeader || leaderCode) : leaderCode;
+
+    const month = (reportMonth ?? '').trim().toUpperCase() || undefined;
+    const year  = reportYear ? Number(reportYear) : undefined;
+
+    const sitePart   = site?.trim()   ? `-${site.trim().replace(/\s+/g, '_')}` : '';
+    const monthPart  = month          ? `-${month}` : '';
+    const yearPart   = year           ? `-${year}`  : '';
+    const filename   = `informe-inspeccion${sitePart}${monthPart}${yearPart}.xlsx`;
+
+    const buffer = await this.consolidatedService.generateXlsx({
+      site:        site?.trim(),
+      reportMonth: month,
+      reportYear:  year,
+      areaCode:    scopedArea,
+      leaderCode:  scopedLeader,
+    });
+
+    return new StreamableFile(buffer, {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      disposition: `attachment; filename="${filename}"`,
+    });
   }
 }

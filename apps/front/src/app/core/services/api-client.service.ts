@@ -310,4 +310,18 @@ export class ApiClientService {
       { responseType: 'blob' },
     );
   }
+
+  /** Descarga el informe consolidado oficial por mes/fundo (formato Proserla) */
+  downloadConsolidatedReport(params?: {
+    site?: string;
+    reportMonth?: string;
+    reportYear?: string;
+    areaCode?: string;
+    leaderCode?: string;
+  }): Observable<Blob> {
+    return this.http.get(`${this.base}/reports/consolidated.xlsx`, {
+      params: this.cleanParams(params ?? {}),
+      responseType: 'blob',
+    });
+  }
 }

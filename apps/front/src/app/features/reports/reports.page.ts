@@ -56,10 +56,11 @@ export class ReportsPageComponent implements OnInit {
   xlsxError     = '';
   pdfBusy       = false;
   csvBusy       = false;
+  consolidatedBusy = false;
 
   private lastReportParams: Record<string, string | undefined> = {};
 
-  // Catálogos
+  // Catï¿½logos
   areas:   Area[]   = [];
   leaders: Leader[] = [];
   readonly monthOptions = MONTH_OPTIONS;
@@ -84,7 +85,7 @@ export class ReportsPageComponent implements OnInit {
       this.form.controls.leaderCode.disable();
     }
 
-    // Auto-limpiar líder si cambia área
+    // Auto-limpiar lï¿½der si cambia ï¿½rea
     this.form.controls.areaCode.valueChanges.subscribe(ac => {
       const cur = this.form.controls.leaderCode.value?.trim();
       if (cur) {
@@ -136,7 +137,7 @@ export class ReportsPageComponent implements OnInit {
       { label: 'En proceso', value: s.inProgress,  pct: Math.round(s.inProgress / t * 100), colorClass: 'prog'  },
       { label: 'Cerradas',   value: s.closed,      pct: Math.round(s.closed     / t * 100), colorClass: 'close' },
     ];
-    // riskBars y typeBars se podrían calcular si el backend los devuelve;
+    // riskBars y typeBars se podrï¿½an calcular si el backend los devuelve;
     // por ahora los derivamos del resumen disponible.
     this.riskBars  = [];
     this.typeBars  = [];
@@ -155,9 +156,32 @@ export class ReportsPageComponent implements OnInit {
       });
   }
 
+  /** Descarga el informe consolidado oficial (formato Proserla) */
+  downloadConsolidated(): void {
+    this.consolidatedBusy = true;
+    const raw = this.form.getRawValue();
+    this.api.downloadConsolidatedReport({
+      site:        raw.areaCode ? undefined : undefined, // site viene del filtro de fundo
+      reportMonth: raw.reportMonth?.trim().toUpperCase() || undefined,
+      reportYear:  raw.reportYear?.trim() || undefined,
+      areaCode:    raw.areaCode?.trim() || undefined,
+      leaderCode:  raw.leaderCode?.trim() || undefined,
+    })
+      .pipe(finalize(() => (this.consolidatedBusy = false)))
+      .subscribe({
+        next: (blob) => {
+          const month = raw.reportMonth?.trim() || '';
+          const year  = raw.reportYear?.trim()  || '';
+          const fname = `informe-inspeccion${month ? '-' + month : ''}${year ? '-' + year : ''}.xlsx`;
+          this.triggerDownload(blob, fname);
+        },
+        error: () => (this.xlsxError = 'No se pudo generar el informe consolidado.'),
+      });
+  }
+
   downloadPdf(): void {
     this.pdfBusy = true;
-    // PDF se abre en nueva pestaña (el backend lo sirve directamente)
+    // PDF se abre en nueva pestaï¿½a (el backend lo sirve directamente)
     window.open(this.pdfUrl, '_blank', 'noopener,noreferrer');
     this.pdfBusy = false;
   }

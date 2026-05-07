@@ -341,6 +341,13 @@
     color: var(--text);
     &:hover:not(:disabled) { background: #f1f5f9; }
   }
+
+  &.consolidated {
+    background: #fdf4ff;
+    border-color: #e9d5ff;
+    color: #6b21a8;
+    &:hover:not(:disabled) { background: #f3e8ff; }
+  }
 }
 
 .export-error {
