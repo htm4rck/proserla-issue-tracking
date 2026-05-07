@@ -38,13 +38,13 @@ export interface SeedRunPayload {
   areas: SeedAreaInfo[];
   lideres: SeedLeaderInfo[];
   usuariosDemo: SeedDemoUserInfo[];
-  incidenciasDemo: string[];
+  inspeccionesDemo: string[];
   conteos: {
     roles: number;
     areas: number;
     lideres: number;
     usuarios: number;
     catalogos: number;
-    incidencias: number;
+    inspecciones: number;
   };
 }

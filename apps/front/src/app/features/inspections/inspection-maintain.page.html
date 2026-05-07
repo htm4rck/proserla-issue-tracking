@@ -1,6 +1,6 @@
 ﻿<section class="card">
   <div class="head">
-    <h3>{{ isCreate ? 'Nueva incidencia' : 'Mantenimiento de incidencia' }}</h3>
+    <h3>{{ isCreate ? 'Nueva inspección' : 'Mantenimiento de inspección' }}</h3>
     <a routerLink="/incidents">Volver al listado</a>
   </div>
 
@@ -9,7 +9,7 @@
       Codigo
       <input formControlName="incidentCode" [attr.placeholder]="isCreate ? 'Se asigna al guardar' : ''" />
       @if (isCreate) {
-        <small class="field-hint">Correlativo automatico INC-AAAA-NNNNN.</small>
+        <small class="field-hint">Correlativo automatico INS-AAAA-NNNNN.</small>
       }
     </label>
     <label>
@@ -76,7 +76,7 @@
     <label>Ubicacion <input formControlName="location" /></label>
     <label>Area de trabajo <input formControlName="workArea" /></label>
     <label>
-      Tipo de incidencia
+      Tipo de inspección
       <select formControlName="incidentType">
         <option value="condition">Condición insegura</option>
         <option value="act">Acto inseguro</option>
@@ -171,7 +171,7 @@
         </div>
         <button type="button" class="btn-secondary" (click)="closeImagePreview()">Cerrar</button>
       </header>
-      <img [src]="previewImage.url" alt="Evidencia de incidencia" />
+      <img [src]="previewImage.url" alt="Evidencia de inspección" />
       <a [href]="previewImage.url" target="_blank" rel="noopener noreferrer">Abrir imagen en pestaña nueva</a>
     </article>
   </div>

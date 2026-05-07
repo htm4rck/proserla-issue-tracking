@@ -47,7 +47,7 @@
   @if (activeTab === 'areas') {
     <section class="panel tab-panel">
       <h3>Áreas</h3>
-      <p class="hint">Código corto (PACK, FIELD…) usado en incidencias y usuarios.</p>
+      <p class="hint">Código corto (PACK, FIELD…) usado en inspecciones y usuarios.</p>
       <form [formGroup]="areaForm" class="grid-form" (ngSubmit)="saveArea()">
         <label>Código <input formControlName="code" /></label>
         <label>Nombre <input formControlName="name" /></label>

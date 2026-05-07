@@ -4,6 +4,7 @@
   --text: #0f172a;
   --muted: #64748b;
   --border: #e2e8f0;
+  --accent: #4f46e5;
 }
 
 * {
@@ -17,8 +18,28 @@ body {
   font-family: Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
   color: var(--text);
   background: var(--bg);
+  /* Evita scroll horizontal en mobile */
+  overflow-x: hidden;
 }
 
 a {
   color: inherit;
+}
+
+/* ── Utilidades globales responsive ─────────────────────────────────────── */
+
+/* Tablas con scroll horizontal en contenedores pequeños */
+.table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Inputs y selects full-width en mobile */
+@media (max-width: 600px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px; /* Evita zoom automático en iOS */
+  }
 }

@@ -1,18 +1,18 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { IncidentStatus } from '../enum/incident-status.enum';
+import { InspectionStatus } from '../enum/inspection-status.enum';
 
-@Entity('incidents')
-export class IncidentEntity {
+@Entity('inspections')
+export class InspectionEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ unique: true, length: 100 })
-  incidentCode!: string;
+  inspectionCode!: string;
 
   @Column({ length: 160 })
   reportedBy!: string;
 
-  /** Usuario que registró la incidencia (no editable manualmente desde UI). */
+  /** Usuario que registró la inspección (no editable manualmente desde UI). */
   @Column({ type: 'uuid', nullable: true })
   reportedByUserId?: string;
 
@@ -56,7 +56,7 @@ export class IncidentEntity {
   workArea?: string;
 
   @Column({ length: 30 })
-  incidentType!: string;
+  inspectionType!: string;
 
   @Column({ length: 30 })
   riskLevel!: string;
@@ -73,8 +73,8 @@ export class IncidentEntity {
   @Column({ type: 'text', nullable: true })
   correctiveMeasures?: string;
 
-  @Column({ type: 'enum', enum: IncidentStatus, default: IncidentStatus.OPEN })
-  status!: IncidentStatus;
+  @Column({ type: 'enum', enum: InspectionStatus, default: InspectionStatus.OPEN })
+  status!: InspectionStatus;
 
   @CreateDateColumn()
   createdAt!: Date;

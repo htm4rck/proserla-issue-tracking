@@ -1,4 +1,4 @@
-﻿export enum IncidentImageType {
+export enum InspectionImageType {
   REPORT = 'report',
   CLOSURE = 'closure',
 }

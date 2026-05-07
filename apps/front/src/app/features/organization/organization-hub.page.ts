@@ -21,7 +21,7 @@ export class OrganizationHubPageComponent implements OnInit {
     },
     {
       titulo: 'Área',
-      desc: 'Unidad física u organizativa (empaque, planta, campo). Las incidencias se etiquetan con un código de área.',
+      desc: 'Unidad física u organizativa (empaque, planta, campo). Las inspecciones se etiquetan con un código de área.',
     },
     {
       titulo: 'Líder',

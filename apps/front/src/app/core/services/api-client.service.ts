@@ -1,4 +1,4 @@
-﻿import { inject, Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -7,9 +7,9 @@ import {
   Area,
   AuditLogDetail,
   AuditLogPage,
-  Incident,
+  Inspection,
   Leader,
-  PaginatedIncidents,
+  PaginatedInspections,
   SessionUser,
   User,
   WorkSite,
@@ -51,44 +51,44 @@ export class ApiClientService {
     );
   }
 
-  listIncidents(params?: {
+  listInspections(params?: {
     status?: string;
     areaCode?: string;
     leaderCode?: string;
     riskLevel?: string;
-    incidentType?: string;
+    inspectionType?: string;
     reportMonth?: string;
     reportYear?: number;
-  }): Observable<ApiResponse<Incident[]>> {
-    return this.http.get<ApiResponse<Incident[]>>(`${this.base}/incidents`, { params: this.cleanParams(params) });
+  }): Observable<ApiResponse<Inspection[]>> {
+    return this.http.get<ApiResponse<Inspection[]>>(`${this.base}/inspections`, { params: this.cleanParams(params) });
   }
 
-  listIncidentsPaged(params?: {
+  listInspectionsPaged(params?: {
     status?: string;
     areaCode?: string;
     leaderCode?: string;
     riskLevel?: string;
-    incidentType?: string;
+    inspectionType?: string;
     reportMonth?: string;
     reportYear?: number;
     page?: number;
     pageSize?: number;
-  }): Observable<ApiResponse<PaginatedIncidents>> {
-    return this.http.get<ApiResponse<PaginatedIncidents>>(`${this.base}/incidents/paged`, {
+  }): Observable<ApiResponse<PaginatedInspections>> {
+    return this.http.get<ApiResponse<PaginatedInspections>>(`${this.base}/inspections/paged`, {
       params: this.cleanParams(params),
     });
   }
 
-  getIncident(incidentCode: string): Observable<ApiResponse<Incident | null>> {
-    return this.http.get<ApiResponse<Incident | null>>(`${this.base}/incidents/${incidentCode}`);
+  getInspection(inspectionCode: string): Observable<ApiResponse<Inspection | null>> {
+    return this.http.get<ApiResponse<Inspection | null>>(`${this.base}/inspections/${inspectionCode}`);
   }
 
-  createIncident(payload: Partial<Incident> & Record<string, unknown>): Observable<ApiResponse<Incident>> {
-    return this.http.post<ApiResponse<Incident>>(`${this.base}/incidents`, payload);
+  createInspection(payload: Partial<Inspection> & Record<string, unknown>): Observable<ApiResponse<Inspection>> {
+    return this.http.post<ApiResponse<Inspection>>(`${this.base}/inspections`, payload);
   }
 
-  updateIncident(incidentCode: string, payload: Record<string, unknown>): Observable<ApiResponse<Incident>> {
-    return this.http.patch<ApiResponse<Incident>>(`${this.base}/incidents/${encodeURIComponent(incidentCode)}`, payload);
+  updateInspection(inspectionCode: string, payload: Record<string, unknown>): Observable<ApiResponse<Inspection>> {
+    return this.http.patch<ApiResponse<Inspection>>(`${this.base}/inspections/${encodeURIComponent(inspectionCode)}`, payload);
   }
 
   listUsers(): Observable<ApiResponse<User[]>> {
@@ -106,7 +106,7 @@ export class ApiClientService {
     );
   }
 
-  // ── Gestión multi-área: usuarios ────────────────────────────────────────────
+  // -- Gesti�n multi-�rea: usuarios --------------------------------------------
 
   addUserArea(userId: string, payload: { areaCode: string; leaderCode?: string; isPrimary?: boolean }): Observable<ApiResponse<any[]>> {
     return this.http.post<ApiResponse<any[]>>(`${this.base}/users/${encodeURIComponent(userId)}/areas`, payload);
@@ -123,7 +123,7 @@ export class ApiClientService {
     );
   }
 
-  // ── Gestión multi-área: líderes ─────────────────────────────────────────────
+  // -- Gesti�n multi-�rea: l�deres ---------------------------------------------
 
   addLeaderArea(leaderCode: string, payload: { areaCode: string; isPrimary?: boolean }): Observable<ApiResponse<any[]>> {
     return this.http.post<ApiResponse<any[]>>(`${this.base}/leaders/${encodeURIComponent(leaderCode)}/areas`, payload);
@@ -167,11 +167,11 @@ export class ApiClientService {
     return this.http.post<ApiResponse<any>>(`${this.base}/${path}`, payload);
   }
 
-  listByIncident(path: string, incidentCode: string): Observable<ApiResponse<any[]>> {
-    return this.http.get<ApiResponse<any[]>>(`${this.base}/${path}/${incidentCode}`);
+  listByInspection(path: string, inspectionCode: string): Observable<ApiResponse<any[]>> {
+    return this.http.get<ApiResponse<any[]>>(`${this.base}/${path}/${inspectionCode}`);
   }
 
-  createByIncident(path: string, payload: any): Observable<ApiResponse<any>> {
+  createByInspection(path: string, payload: any): Observable<ApiResponse<any>> {
     return this.http.post<ApiResponse<any>>(`${this.base}/${path}`, payload);
   }
 
@@ -180,7 +180,7 @@ export class ApiClientService {
     leaderCode?: string;
     status?: string;
     riskLevel?: string;
-    incidentType?: string;
+    inspectionType?: string;
     reportMonth?: string;
     reportYear?: string;
   }): Observable<ApiResponse<any>> {
@@ -192,7 +192,7 @@ export class ApiClientService {
     leaderCode?: string;
     status?: string;
     riskLevel?: string;
-    incidentType?: string;
+    inspectionType?: string;
     reportMonth?: string;
     reportYear?: string;
     period?: 'weekly' | 'biweekly' | 'monthly' | 'yearly';
@@ -220,7 +220,7 @@ export class ApiClientService {
     leaderCode?: string;
     status?: string;
     riskLevel?: string;
-    incidentType?: string;
+    inspectionType?: string;
     reportMonth?: string;
     reportYear?: string;
   }): Observable<Blob> {
@@ -268,7 +268,7 @@ export class ApiClientService {
     });
   }
 
-  // ── Audit log ──────────────────────────────────────────────────────────
+  // -- Audit log ----------------------------------------------------------
 
   listAuditLogs(params?: {
     entityType?: string;
@@ -285,21 +285,21 @@ export class ApiClientService {
     return this.http.get<ApiResponse<AuditLogDetail | null>>(`${this.base}/audit-logs/${id}`);
   }
 
-  // ── Upload PHP bridge ──────────────────────────────────────────────────
+  // -- Upload PHP bridge --------------------------------------------------
 
-  uploadIncidentFile(
+  uploadInspectionFile(
     file: File,
-    incidentCode: string,
+    inspectionCode: string,
     imageType: 'report' | 'closure',
     options?: { uploadedBy?: string; comment?: string; status?: string },
   ): Observable<ApiResponse<any>> {
     const form = new FormData();
     form.append('file', file);
-    form.append('incidentCode', incidentCode);
+    form.append('inspectionCode', inspectionCode);
     form.append('imageType', imageType);
     if (options?.uploadedBy) form.append('uploadedBy', options.uploadedBy);
     if (options?.comment) form.append('comment', options.comment);
     if (options?.status) form.append('status', options.status);
-    return this.http.post<ApiResponse<any>>(`${this.base}/incident-images/upload`, form);
+    return this.http.post<ApiResponse<any>>(`${this.base}/Inspection-images/upload`, form);
   }
 }

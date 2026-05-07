@@ -1,6 +1,6 @@
 /** Textos visibles en español para valores técnicos que vienen del API. */
 
-export function etiquetaEstadoIncidencia(status: string): string {
+export function etiquetaEstadoInspeccion(status: string): string {
   switch (status) {
     case 'open':
       return 'Pendiente';
@@ -26,22 +26,24 @@ export function etiquetaNivelRiesgo(risk: string): string {
   }
 }
 
-export function etiquetaTipoIncidencia(tipo: string): string {
+export function etiquetaTipoInspeccion(tipo: string): string {
   switch (tipo) {
     case 'act':
       return 'Acto inseguro';
     case 'condition':
       return 'Condición insegura';
+    case 'mixed':
+      return 'Mixto';
     default:
       return tipo;
   }
 }
 
-/** Agrupa ítems en la tabla `catalog_items` (ej. tipos de incidencia, niveles de riesgo). */
+/** Agrupa ítems en la tabla `catalog_items` (ej. tipos de inspección, niveles de riesgo). */
 export function etiquetaTipoCatalogo(catalogType: string): string {
   switch (catalogType) {
-    case 'incident_type':
-      return 'Tipo de incidencia';
+    case 'inspection_type':
+      return 'Tipo de inspección';
     case 'risk_level':
       return 'Nivel de riesgo';
     default:

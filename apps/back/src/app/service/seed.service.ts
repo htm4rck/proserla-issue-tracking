@@ -3,20 +3,20 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AreaEntity } from '../entity/area.entity';
 import { CatalogItemEntity } from '../entity/catalog-item.entity';
-import { IncidentImageEntity } from '../entity/incident-image.entity';
-import { IncidentEntity } from '../entity/incident.entity';
+import { InspectionImageEntity } from '../entity/inspection-image.entity';
+import { InspectionEntity } from '../entity/inspection.entity';
 import { LeaderAreaEntity } from '../entity/leader-area.entity';
 import { LeaderEntity } from '../entity/leader.entity';
 import { RoleEntity } from '../entity/role.entity';
 import { UserAreaEntity } from '../entity/user-area.entity';
 import { UserEntity } from '../entity/user.entity';
 import { WorkSiteEntity } from '../entity/work-site.entity';
-import { IncidentImageType } from '../enum/incident-image-type.enum';
-import { IncidentStatus } from '../enum/incident-status.enum';
+import { InspectionImageType } from '../enum/inspection-image-type.enum';
+import { InspectionStatus } from '../enum/inspection-status.enum';
 import {
   SEED_AREAS,
   SEED_DEMO_USERS,
-  SEED_INCIDENTS,
+  SEED_INSPECTIONS,
   SEED_LEADERS,
   SEED_ROLES,
 } from './seed.data';
@@ -35,8 +35,8 @@ export class SeedService {
     @InjectRepository(UserEntity) private readonly users: Repository<UserEntity>,
     @InjectRepository(UserAreaEntity) private readonly userAreas: Repository<UserAreaEntity>,
     @InjectRepository(CatalogItemEntity) private readonly catalogs: Repository<CatalogItemEntity>,
-    @InjectRepository(IncidentEntity) private readonly incidents: Repository<IncidentEntity>,
-    @InjectRepository(IncidentImageEntity) private readonly images: Repository<IncidentImageEntity>,
+    @InjectRepository(InspectionEntity) private readonly inspections: Repository<InspectionEntity>,
+    @InjectRepository(InspectionImageEntity) private readonly inspectionImages: Repository<InspectionImageEntity>,
     @InjectRepository(WorkSiteEntity) private readonly workSites: Repository<WorkSiteEntity>,
   ) {}
 
@@ -47,8 +47,8 @@ export class SeedService {
     await this.seedUsers();
     await this.seedCatalogs();
     await this.seedWorkSites();
-    await this.seedIncidents();
-    await this.syncIncidentSerialFromExisting();
+    await this.seedInspections();
+    await this.syncInspectionSerialFromExisting();
     this.logger.log('Semilla de datos completada');
 
     return this.buildPayload();
@@ -60,13 +60,13 @@ export class SeedService {
   }
 
   private async buildPayload(): Promise<SeedRunPayload> {
-    const [roles, areas, lideres, usuarios, catalogos, incidencias] = await Promise.all([
+    const [roles, areas, lideres, usuarios, catalogos, inspecciones] = await Promise.all([
       this.roles.count(),
       this.areas.count(),
       this.leaders.count(),
       this.users.count(),
       this.catalogs.count(),
-      this.incidents.count(),
+      this.inspections.count(),
     ]);
 
     return {
@@ -93,8 +93,8 @@ export class SeedService {
       areas: SEED_AREAS,
       lideres: SEED_LEADERS,
       usuariosDemo: SEED_DEMO_USERS,
-      incidenciasDemo: SEED_INCIDENTS.slice(0, 8).map(
-        (i) => `${i.incidentCode} (${i.status}, ${i.areaCode}, ${i.reportMonth})`,
+      inspeccionesDemo: SEED_INSPECTIONS.slice(0, 8).map(
+        (i) => `${i.inspectionCode} (${i.status}, ${i.areaCode}, ${i.reportMonth})`,
       ),
       conteos: {
         roles,
@@ -102,7 +102,7 @@ export class SeedService {
         lideres,
         usuarios,
         catalogos,
-        incidencias,
+        inspecciones,
       },
     };
   }
@@ -227,25 +227,25 @@ export class SeedService {
     }
   }
 
-  /** Evita colisión de correlativos INC-* tras semilla con códigos fijos. */
-  private async syncIncidentSerialFromExisting(): Promise<void> {
-    const raw = await this.incidents
+  /** Evita colisión de correlativos INS-* tras semilla con códigos fijos. */
+  private async syncInspectionSerialFromExisting(): Promise<void> {
+    const raw = await this.inspections
       .createQueryBuilder('i')
-      .select('i.incidentCode', 'code')
-      .where("i.incidentCode ILIKE 'INC-%'")
+      .select('i.inspectionCode', 'code')
+      .where("i.inspectionCode ILIKE 'INS-%'")
       .getRawMany<{ code: string }>();
     const maxByYear = new Map<number, number>();
     for (const row of raw) {
-      const m = String(row.code).match(/^INC-(\d{4})-(\d+)$/i);
+      const m = String(row.code).match(/^INS-(\d{4})-(\d+)$/i);
       if (!m) continue;
       const y = Number(m[1]);
       const n = Number(m[2]);
       maxByYear.set(y, Math.max(maxByYear.get(y) ?? 0, n));
     }
     for (const [year, last] of maxByYear) {
-      await this.incidents.manager.query(
-        `INSERT INTO incident_serial (year, last_value) VALUES ($1, $2)
-         ON CONFLICT (year) DO UPDATE SET last_value = GREATEST(incident_serial.last_value, $2)`,
+      await this.inspections.manager.query(
+        `INSERT INTO inspection_serial (year, last_value) VALUES ($1, $2)
+         ON CONFLICT (year) DO UPDATE SET last_value = GREATEST(inspection_serial.last_value, $2)`,
         [year, last],
       );
     }
@@ -253,14 +253,14 @@ export class SeedService {
 
   private async seedCatalogs(): Promise<void> {
     const rows = [
-      { catalogType: 'incident_type', code: 'act', label: 'Acto inseguro' },
-      { catalogType: 'incident_type', code: 'condition', label: 'Condicion insegura' },
+      { catalogType: 'inspection_type', code: 'act', label: 'Acto inseguro' },
+      { catalogType: 'inspection_type', code: 'condition', label: 'Condicion insegura' },
       { catalogType: 'risk_level', code: 'low', label: 'Bajo' },
       { catalogType: 'risk_level', code: 'medium', label: 'Medio' },
       { catalogType: 'risk_level', code: 'high', label: 'Alto' },
-      { catalogType: 'incident_status', code: 'open', label: 'Abierta' },
-      { catalogType: 'incident_status', code: 'in_progress', label: 'En proceso' },
-      { catalogType: 'incident_status', code: 'closed', label: 'Cerrada' },
+      { catalogType: 'inspection_status', code: 'open', label: 'Abierta' },
+      { catalogType: 'inspection_status', code: 'in_progress', label: 'En proceso' },
+      { catalogType: 'inspection_status', code: 'closed', label: 'Cerrada' },
       { catalogType: 'report_source', code: 'whatsapp', label: 'WhatsApp' },
       { catalogType: 'report_source', code: 'checklist', label: 'Check list' },
       { catalogType: 'report_source', code: 'verbal', label: 'Verbal' },
@@ -281,43 +281,43 @@ export class SeedService {
     }
   }
 
-  private async seedIncidents(): Promise<void> {
-    for (const row of SEED_INCIDENTS) {
-      let incident = await this.incidents.findOne({ where: { incidentCode: row.incidentCode } });
-      if (!incident) {
-        incident = await this.incidents.save(this.incidents.create(row));
+  private async seedInspections(): Promise<void> {
+    for (const row of SEED_INSPECTIONS) {
+      let inspection = await this.inspections.findOne({ where: { inspectionCode: row.inspectionCode } });
+      if (!inspection) {
+        inspection = await this.inspections.save(this.inspections.create(row));
       } else {
-        await this.incidents.save(this.incidents.merge(incident, row));
+        await this.inspections.save(this.inspections.merge(inspection, row));
       }
-      await this.seedEvidenceForIncident(incident.incidentCode, incident.status);
+      await this.seedEvidenceForInspection(inspection.inspectionCode, inspection.status);
     }
   }
 
-  private async seedEvidenceForIncident(incidentCode: string, status: IncidentStatus): Promise<void> {
-    const reportExists = await this.images.findOne({ where: { incidentCode, imageType: IncidentImageType.REPORT } });
+  private async seedEvidenceForInspection(inspectionCode: string, status: InspectionStatus): Promise<void> {
+    const reportExists = await this.inspectionImages.findOne({ where: { inspectionCode, imageType: InspectionImageType.REPORT } });
     if (!reportExists) {
-      await this.images.save(
-        this.images.create({
-          incidentCode,
-          imageType: IncidentImageType.REPORT,
-          url: `https://picsum.photos/seed/${incidentCode}-report/600/400`,
-          storagePath: `${incidentCode}/report-demo.jpg`,
+      await this.inspectionImages.save(
+        this.inspectionImages.create({
+          inspectionCode,
+          imageType: InspectionImageType.REPORT,
+          url: `https://picsum.photos/seed/${inspectionCode}-report/600/400`,
+          storagePath: `${inspectionCode}/report-demo.jpg`,
           uploadedBy: 'operador@demo.local',
         }),
       );
     }
 
-    if (status === IncidentStatus.CLOSED) {
-      const closureExists = await this.images.findOne({
-        where: { incidentCode, imageType: IncidentImageType.CLOSURE },
+    if (status === InspectionStatus.CLOSED) {
+      const closureExists = await this.inspectionImages.findOne({
+        where: { inspectionCode, imageType: InspectionImageType.CLOSURE },
       });
       if (!closureExists) {
-        await this.images.save(
-          this.images.create({
-            incidentCode,
-            imageType: IncidentImageType.CLOSURE,
-            url: `https://picsum.photos/seed/${incidentCode}-closure/600/400`,
-            storagePath: `${incidentCode}/closure-demo.jpg`,
+        await this.inspectionImages.save(
+          this.inspectionImages.create({
+            inspectionCode,
+            imageType: InspectionImageType.CLOSURE,
+            url: `https://picsum.photos/seed/${inspectionCode}-closure/600/400`,
+            storagePath: `${inspectionCode}/closure-demo.jpg`,
             uploadedBy: 'lider@demo.local',
           }),
         );

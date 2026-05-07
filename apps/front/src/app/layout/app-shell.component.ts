@@ -16,7 +16,7 @@ export class AppShellComponent {
 
   private readonly fullMenu = [
     { label: 'Tablero', route: '/dashboard', icon: 'TB' },
-    { label: 'Incidencias', route: '/incidents', icon: 'IN' },
+    { label: 'Inspecciones', route: '/inspections', icon: 'IN' },
     { label: 'Organización y seguridad', route: '/organizacion', icon: 'SG' },
     { label: 'Maestros', route: '/maestros', icon: 'MS' },
     { label: 'Reportes', route: '/reports', icon: 'RP' },

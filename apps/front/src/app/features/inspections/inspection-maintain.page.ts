@@ -5,16 +5,16 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { EMPTY, forkJoin, map, switchMap } from 'rxjs';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
-import { Area, Incident, Leader, WorkSite } from '../../core/models/api.models';
+import { Area, Inspection, Leader, WorkSite } from '../../core/models/api.models';
 import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
 
 @Component({
-  selector: 'app-incident-maintain-page',
+  selector: 'app-inspection-maintain-page',
   imports: [ReactiveFormsModule, FormsModule, RouterLink],
-  templateUrl: './incident-maintain.page.html',
-  styleUrl: './incident-maintain.page.scss',
+  templateUrl: './inspection-maintain.page.html',
+  styleUrl: './inspection-maintain.page.scss',
 })
-export class IncidentMaintainPageComponent implements OnInit {
+export class InspectionMaintainPageComponent implements OnInit {
   private readonly api = inject(ApiClientService);
   private readonly session = inject(AuthSessionService);
   private readonly fb = inject(FormBuilder);
@@ -31,7 +31,7 @@ export class IncidentMaintainPageComponent implements OnInit {
   employerTypes: Array<{ code: string; label: string }> = [];
   readonly monthOptions = MONTH_OPTIONS;
   readonly yearOptions = yearOptions(2020);
-  /** Incidencia con codigo de lider que ya no esta en el maestro (solo edicion). */
+  /** Inspección con codigo de lider que ya no esta en el maestro (solo edicion). */
   orphanAreaLeaderOption: { key: string; label: string } | null = null;
 
   existingImages: Array<{ id: string; imageType: string; url: string; uploadedBy?: string; comment?: string; uploadOk?: boolean; uploadError?: string; status?: string }> = [];
@@ -45,8 +45,8 @@ export class IncidentMaintainPageComponent implements OnInit {
   previewImage: { url: string; imageType: string; uploadedBy?: string } | null = null;
 
   readonly form = this.fb.nonNullable.group({
-    /** En alta lo asigna el servidor (correlativo INC-AAAA-NNNNN). */
-    incidentCode: [''],
+    /** En alta lo asigna el servidor (correlativo INS-AAAA-NNNNN). */
+    inspectionCode: [''],
     /** Siempre desde usuario logueado (servidor valida x-user-email). */
     reportedBy: [''],
     reportYear: [new Date().getFullYear()],
@@ -61,7 +61,7 @@ export class IncidentMaintainPageComponent implements OnInit {
     areaCode: [''],
     location: ['', Validators.required],
     workArea: [''],
-    incidentType: this.fb.nonNullable.control<'act' | 'condition' | 'mixed'>('condition', Validators.required),
+    inspectionType: this.fb.nonNullable.control<'act' | 'condition' | 'mixed'>('condition', Validators.required),
     riskLevel: this.fb.nonNullable.control<'low' | 'medium' | 'high'>('medium', Validators.required),
     description: ['', Validators.required],
     comment: [''],
@@ -71,26 +71,21 @@ export class IncidentMaintainPageComponent implements OnInit {
     /** Valor compuesto `areaCode|leaderCode` para el combo visual (obligatorio solo en alta). */
     areaLeaderKey: [''],
     assignedTo: [''],
-    status: this.fb.nonNullable.control<Incident['status']>('open', Validators.required),
+    status: this.fb.nonNullable.control<Inspection['status']>('open', Validators.required),
   });
 
   ngOnInit(): void {
     this.form.controls.areaLeaderKey.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((key) => {
       const k = (key ?? '').trim();
-      if (!k && !this.isCreate) {
-        return;
-      }
+      if (!k && !this.isCreate) return;
       const parsed = this.parseAreaLeaderKey(k);
-      this.form.patchValue(
-        { areaCode: parsed.areaCode, leaderCode: parsed.leaderCode },
-        { emitEvent: false },
-      );
+      this.form.patchValue({ areaCode: parsed.areaCode, leaderCode: parsed.leaderCode }, { emitEvent: false });
     });
 
     this.route.paramMap
       .pipe(
         switchMap((pm) => {
-          const code = pm.get('incidentCode');
+          const code = pm.get('inspectionCode');
           if (!code) return EMPTY;
           return forkJoin({
             areas: this.api.listAreas(),
@@ -128,9 +123,7 @@ export class IncidentMaintainPageComponent implements OnInit {
     return this.areas.find((a) => a.code === areaCode)?.name ?? areaCode;
   }
 
-  areaLeaderOptionValue(l: Leader): string {
-    return `${l.areaCode}|${l.code}`;
-  }
+  areaLeaderOptionValue(l: Leader): string { return `${l.areaCode}|${l.code}`; }
 
   get leadersForSelect(): Leader[] {
     return [...this.leaders]
@@ -158,7 +151,7 @@ export class IncidentMaintainPageComponent implements OnInit {
     this.pendingEvidence = [];
     this.existingImages = [];
     this.form.reset({
-      incidentCode: '',
+      inspectionCode: '',
       reportedBy: this.reporterLabelFromSession(),
       reportYear: new Date().getFullYear(),
       reportMonth: '',
@@ -172,7 +165,7 @@ export class IncidentMaintainPageComponent implements OnInit {
       areaLeaderKey: '',
       location: '',
       workArea: '',
-      incidentType: 'condition',
+      inspectionType: 'condition',
       riskLevel: 'medium',
       description: '',
       comment: '',
@@ -182,7 +175,7 @@ export class IncidentMaintainPageComponent implements OnInit {
       assignedTo: '',
       status: 'open',
     });
-    this.form.controls.incidentCode.disable();
+    this.form.controls.inspectionCode.disable();
     this.form.controls.reportedBy.disable();
     this.form.controls.areaLeaderKey.setValidators(Validators.required);
     this.form.controls.areaLeaderKey.updateValueAndValidity({ emitEvent: false });
@@ -204,27 +197,22 @@ export class IncidentMaintainPageComponent implements OnInit {
     const u = this.session.user;
     if (!u?.areaCode || !u.leaderCode?.trim()) return;
     const key = `${u.areaCode}|${u.leaderCode.trim()}`;
-    const ok = this.leaders.some(
-      (l) => l.areaCode === u.areaCode && l.code === u.leaderCode?.trim() && l.isActive,
-    );
+    const ok = this.leaders.some((l) => l.areaCode === u.areaCode && l.code === u.leaderCode?.trim() && l.isActive);
     if (ok) this.form.controls.areaLeaderKey.setValue(key);
   }
 
   private loadExisting(code: string): void {
-    this.api.getIncident(code).subscribe({
+    this.api.getInspection(code).subscribe({
       next: ({ data }) => {
-        if (!data) {
-          this.errorMsg = 'Incidencia no encontrada';
-          return;
-        }
-        this.applyIncident(data);
-        this.reloadImages(data.incidentCode);
+        if (!data) { this.errorMsg = 'Inspección no encontrada'; return; }
+        this.applyInspection(data);
+        this.reloadImages(data.inspectionCode);
       },
-      error: () => (this.errorMsg = 'No se pudo cargar la incidencia.'),
+      error: () => (this.errorMsg = 'No se pudo cargar la inspección.'),
     });
   }
 
-  private applyIncident(data: Incident): void {
+  private applyInspection(data: Inspection): void {
     const ac = data.areaCode;
     const lc = (data.leaderCode ?? '').trim();
     this.orphanAreaLeaderOption = null;
@@ -243,7 +231,7 @@ export class IncidentMaintainPageComponent implements OnInit {
     }
 
     this.form.patchValue({
-      incidentCode: data.incidentCode,
+      inspectionCode: data.inspectionCode,
       reportedBy: data.reportedBy,
       reportYear: data.reportYear ?? new Date().getFullYear(),
       reportMonth: data.reportMonth ?? '',
@@ -259,7 +247,7 @@ export class IncidentMaintainPageComponent implements OnInit {
       assignedTo: data.assignedTo ?? '',
       location: data.location,
       workArea: data.workArea ?? '',
-      incidentType: data.incidentType,
+      inspectionType: data.inspectionType,
       riskLevel: data.riskLevel,
       description: data.description,
       comment: data.comment ?? '',
@@ -267,7 +255,7 @@ export class IncidentMaintainPageComponent implements OnInit {
       correctiveMeasures: data.correctiveMeasures ?? '',
       status: data.status,
     });
-    this.form.controls.incidentCode.disable();
+    this.form.controls.inspectionCode.disable();
     this.form.controls.reportedBy.disable();
   }
 
@@ -278,20 +266,12 @@ export class IncidentMaintainPageComponent implements OnInit {
   }
 
   private reloadImages(code: string): void {
-    this.api.listByIncident('incident-images', code).subscribe(({ data }) => (this.existingImages = data ?? []));
+    this.api.listByInspection('inspection-images', code).subscribe(({ data }) => (this.existingImages = data ?? []));
   }
 
-  addEvidenceRow(): void {
-    this.pendingEvidence.push({ imageType: 'report', uploadedBy: '', comment: '' });
-  }
-
-  removePendingEvidence(index: number): void {
-    this.pendingEvidence.splice(index, 1);
-  }
-
-  setStatus(status: Incident['status']): void {
-    this.form.patchValue({ status });
-  }
+  addEvidenceRow(): void { this.pendingEvidence.push({ imageType: 'report', uploadedBy: '', comment: '' }); }
+  removePendingEvidence(index: number): void { this.pendingEvidence.splice(index, 1); }
+  setStatus(status: Inspection['status']): void { this.form.patchValue({ status }); }
 
   onFileSelected(index: number, event: Event): void {
     const input = event.target as HTMLInputElement;
@@ -300,34 +280,22 @@ export class IncidentMaintainPageComponent implements OnInit {
     this.pendingEvidence[index].file = file;
   }
 
-  pendingFileName(row: { file?: File }): string {
-    return row.file?.name ?? 'Sin archivo seleccionado';
-  }
+  pendingFileName(row: { file?: File }): string { return row.file?.name ?? 'Sin archivo seleccionado'; }
 
   openImagePreview(img: { url: string; imageType: string; uploadedBy?: string }): void {
-    this.previewImage = {
-      url: img.url,
-      imageType: img.imageType,
-      uploadedBy: img.uploadedBy,
-    };
+    this.previewImage = { url: img.url, imageType: img.imageType, uploadedBy: img.uploadedBy };
   }
 
-  closeImagePreview(): void {
-    this.previewImage = null;
-  }
+  closeImagePreview(): void { this.previewImage = null; }
 
-  uploadPendingFiles(incidentCode: string, status: string): Promise<void> {
-    const uploads = this.pendingEvidence
-      .map((row, idx) => ({ row, idx }))
-      .filter(({ row }) => row.file);
-
+  uploadPendingFiles(inspectionCode: string, status: string): Promise<void> {
+    const uploads = this.pendingEvidence.map((row, idx) => ({ row, idx })).filter(({ row }) => row.file);
     if (uploads.length === 0) return Promise.resolve();
-
     return new Promise((resolve) => {
       let pending = uploads.length;
       for (const { row } of uploads) {
         this.api
-          .uploadIncidentFile(row.file!, incidentCode, row.imageType, {
+          .uploadInspectionFile(row.file!, inspectionCode, row.imageType, {
             uploadedBy: row.uploadedBy || undefined,
             comment: row.comment || undefined,
             status,
@@ -355,22 +323,19 @@ export class IncidentMaintainPageComponent implements OnInit {
   submit(): void {
     this.feedback = '';
     this.errorMsg = '';
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      return;
-    }
+    if (this.form.invalid) { this.form.markAllAsTouched(); return; }
 
     const raw = this.form.getRawValue();
     const normalizedReportYear = Number(raw.reportYear);
     const reportYear = Number.isFinite(normalizedReportYear) && normalizedReportYear > 0 ? normalizedReportYear : undefined;
-    const hasRowsWithoutFile = this.pendingEvidence.some((row) => !row.file);
-    if (hasRowsWithoutFile) {
+
+    if (this.pendingEvidence.some((row) => !row.file)) {
       this.errorMsg = 'Hay evidencias pendientes sin archivo seleccionado. Adjunta el archivo o quita la fila.';
       return;
     }
 
     if (raw.status === 'closed' && !this.hasClosureEvidence) {
-      this.errorMsg = 'Para cerrar la incidencia debes adjuntar evidencia de cierre (imagen tipo "Cierre").';
+      this.errorMsg = 'Para cerrar la inspección debes adjuntar evidencia de cierre (imagen tipo "Cierre").';
       return;
     }
 
@@ -383,9 +348,9 @@ export class IncidentMaintainPageComponent implements OnInit {
         this.errorMsg = 'Seleccione fundo / planta.';
         return;
       }
-      const { incidentCode: _c, reportedBy: _r, ...rest } = raw;
+      const { inspectionCode: _c, reportedBy: _r, ...rest } = raw;
       this.api
-        .createIncident({
+        .createInspection({
           ...rest,
           reportYear,
           reportMonth: raw.reportMonth?.trim().toUpperCase() || undefined,
@@ -402,12 +367,12 @@ export class IncidentMaintainPageComponent implements OnInit {
         })
         .subscribe({
           next: ({ data }) => {
-            this.feedback = `Incidencia ${data.incidentCode} guardada correctamente.`;
-            void this.uploadPendingFiles(data.incidentCode, raw.status).then(() => {
-              void this.router.navigate(['/incidents', data.incidentCode], { replaceUrl: true });
+            this.feedback = `Inspección ${data.inspectionCode} guardada correctamente.`;
+            void this.uploadPendingFiles(data.inspectionCode, raw.status).then(() => {
+              void this.router.navigate(['/inspections', data.inspectionCode], { replaceUrl: true });
             });
           },
-          error: (err) => (this.errorMsg = err?.error?.message || 'No se pudo registrar la incidencia.'),
+          error: (err) => (this.errorMsg = err?.error?.message || 'No se pudo registrar la inspección.'),
         });
       return;
     }
@@ -428,7 +393,7 @@ export class IncidentMaintainPageComponent implements OnInit {
       assignedTo: raw.assignedTo || undefined,
       location: raw.location,
       workArea: raw.workArea || undefined,
-      incidentType: raw.incidentType,
+      inspectionType: raw.inspectionType,
       riskLevel: raw.riskLevel,
       description: raw.description,
       comment: raw.comment?.trim() || undefined,
@@ -438,26 +403,25 @@ export class IncidentMaintainPageComponent implements OnInit {
     };
 
     const runUpdate = (skipUploadAfterSave: boolean): void => {
-      this.api.updateIncident(raw.incidentCode, updatePayload).subscribe({
+      this.api.updateInspection(raw.inspectionCode, updatePayload).subscribe({
         next: () => {
           this.feedback = 'Cambios guardados correctamente.';
           if (skipUploadAfterSave) {
             this.pendingEvidence = [];
-            this.reloadImages(raw.incidentCode);
+            this.reloadImages(raw.inspectionCode);
             return;
           }
-          void this.uploadPendingFiles(raw.incidentCode, raw.status).then(() => {
+          void this.uploadPendingFiles(raw.inspectionCode, raw.status).then(() => {
             this.pendingEvidence = [];
-            this.reloadImages(raw.incidentCode);
+            this.reloadImages(raw.inspectionCode);
           });
         },
-        error: (err) => (this.errorMsg = err?.error?.message || 'No se pudo guardar la incidencia.'),
+        error: (err) => (this.errorMsg = err?.error?.message || 'No se pudo guardar la inspección.'),
       });
     };
 
-    // Para cierre, primero subimos evidencia; el backend exige que exista antes de permitir `status=closed`.
     if (raw.status === 'closed' && closurePending) {
-      void this.uploadPendingFiles(raw.incidentCode, raw.status).then(() => runUpdate(true));
+      void this.uploadPendingFiles(raw.inspectionCode, raw.status).then(() => runUpdate(true));
       return;
     }
 

@@ -1,17 +1,17 @@
-﻿import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { ApiClientService } from '../../core/services/api-client.service';
-import { Area, Incident, Leader } from '../../core/models/api.models';
+import { Area, Inspection, Leader } from '../../core/models/api.models';
 import { AuthSessionService } from '../../core/services/auth-session.service';
 import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
 import {
-  etiquetaEstadoIncidencia,
+  etiquetaEstadoInspeccion,
   etiquetaNivelRiesgo,
-  etiquetaTipoIncidencia,
+  etiquetaTipoInspeccion,
 } from '../../shared/etiquetas';
 
-export interface IncidentListImage {
+export interface InspectionListImage {
   id: string;
   imageType: string;
   url: string;
@@ -21,33 +21,33 @@ export interface IncidentListImage {
 }
 
 @Component({
-  selector: 'app-incident-list-page',
+  selector: 'app-inspection-list-page',
   imports: [RouterLink],
-  templateUrl: './incident-list.page.html',
-  styleUrl: './incident-list.page.scss',
+  templateUrl: './inspection-list.page.html',
+  styleUrl: './inspection-list.page.scss',
 })
-export class IncidentListPageComponent implements OnInit {
+export class InspectionListPageComponent implements OnInit {
   private readonly api = inject(ApiClientService);
   private readonly session = inject(AuthSessionService);
-  readonly estado = etiquetaEstadoIncidencia;
+  readonly estado = etiquetaEstadoInspeccion;
   readonly riesgo = etiquetaNivelRiesgo;
-  readonly tipoIncidencia = etiquetaTipoIncidencia;
+  readonly tipoInspeccion = etiquetaTipoInspeccion;
   readonly summaryColCount = 7;
   readonly monthOptions = MONTH_OPTIONS;
   readonly yearOptions = yearOptions(2020);
 
-  incidents: Incident[] = [];
+  inspections: Inspection[] = [];
   areas: Area[] = [];
   private areaNames = new Map<string, string>();
   private leaderNames = new Map<string, string>();
 
   private readonly expandedCodes = new Set<string>();
-  private readonly imagesByCode = new Map<string, IncidentListImage[]>();
+  private readonly imagesByCode = new Map<string, InspectionListImage[]>();
   private readonly loadingImagesFor = new Set<string>();
 
   status = '';
   riskLevel = '';
-  incidentType = '';
+  inspectionType = '';
   period: 'weekly' | 'biweekly' | 'monthly' | 'yearly' = 'monthly';
   reportMonth = '';
   reportYear = new Date().getFullYear();
@@ -80,18 +80,18 @@ export class IncidentListPageComponent implements OnInit {
     const temporal = this.normalizedTemporalFilters();
     const scope = this.session.scopedFilters();
     this.api
-      .listIncidentsPaged({
+      .listInspectionsPaged({
         ...scope,
         status: this.status || undefined,
         riskLevel: this.riskLevel || undefined,
-        incidentType: this.incidentType || undefined,
+        inspectionType: this.inspectionType || undefined,
         reportMonth: temporal.reportMonth,
         reportYear: temporal.reportYear,
         page: this.page,
         pageSize: this.pageSize,
       })
       .subscribe(({ data }) => {
-        this.incidents = data.items;
+        this.inspections = data.items;
         this.page = data.page;
         this.pageSize = data.pageSize;
         this.total = data.total;
@@ -122,33 +122,13 @@ export class IncidentListPageComponent implements OnInit {
     this.applyFilters();
   }
 
-  get isMonthlyPeriod(): boolean {
-    return this.period === 'monthly';
-  }
+  get isMonthlyPeriod(): boolean { return this.period === 'monthly'; }
+  get isYearlyPeriod(): boolean { return this.period === 'yearly'; }
+  get needsReferenceDate(): boolean { return this.period === 'weekly' || this.period === 'biweekly'; }
+  get referenceDateLabel(): string { return this.period === 'biweekly' ? 'Inicio de quincena' : 'Inicio de semana'; }
 
-  get isYearlyPeriod(): boolean {
-    return this.period === 'yearly';
-  }
-
-  get needsReferenceDate(): boolean {
-    return this.period === 'weekly' || this.period === 'biweekly';
-  }
-
-  get referenceDateLabel(): string {
-    return this.period === 'biweekly' ? 'Inicio de quincena' : 'Inicio de semana';
-  }
-
-  prevPage(): void {
-    if (this.page <= 1) return;
-    this.page -= 1;
-    this.reload();
-  }
-
-  nextPage(): void {
-    if (this.page >= this.totalPages) return;
-    this.page += 1;
-    this.reload();
-  }
+  prevPage(): void { if (this.page <= 1) return; this.page -= 1; this.reload(); }
+  nextPage(): void { if (this.page >= this.totalPages) return; this.page += 1; this.reload(); }
 
   setPageSize(value: string): void {
     const parsed = Number(value);
@@ -169,28 +149,17 @@ export class IncidentListPageComponent implements OnInit {
     }
   }
 
-  isExpanded(code: string): boolean {
-    return this.expandedCodes.has(code);
-  }
-
-  expandGlyph(code: string): string {
-    return this.isExpanded(code) ? '▲' : '▼';
-  }
-
-  getImages(code: string): IncidentListImage[] {
-    return this.imagesByCode.get(code) ?? [];
-  }
-
-  isImagesLoading(code: string): boolean {
-    return this.loadingImagesFor.has(code);
-  }
+  isExpanded(code: string): boolean { return this.expandedCodes.has(code); }
+  expandGlyph(code: string): string { return this.isExpanded(code) ? '▲' : '▼'; }
+  getImages(code: string): InspectionListImage[] { return this.imagesByCode.get(code) ?? []; }
+  isImagesLoading(code: string): boolean { return this.loadingImagesFor.has(code); }
 
   private ensureImagesLoaded(code: string): void {
     if (this.imagesByCode.has(code) || this.loadingImagesFor.has(code)) return;
     this.loadingImagesFor.add(code);
-    this.api.listByIncident('incident-images', code).subscribe({
+    this.api.listByInspection('inspection-images', code).subscribe({
       next: ({ data }) => {
-        this.imagesByCode.set(code, (data ?? []) as IncidentListImage[]);
+        this.imagesByCode.set(code, (data ?? []) as InspectionListImage[]);
         this.loadingImagesFor.delete(code);
       },
       error: () => {
@@ -202,14 +171,10 @@ export class IncidentListPageComponent implements OnInit {
 
   statusBadgeClass(status: string): string {
     switch (status) {
-      case 'open':
-        return 'badge badge-open';
-      case 'in_progress':
-        return 'badge badge-progress';
-      case 'closed':
-        return 'badge badge-closed';
-      default:
-        return 'badge';
+      case 'open': return 'badge badge-open';
+      case 'in_progress': return 'badge badge-progress';
+      case 'closed': return 'badge badge-closed';
+      default: return 'badge';
     }
   }
 
@@ -219,9 +184,7 @@ export class IncidentListPageComponent implements OnInit {
     return t;
   }
 
-  areaLabel(code: string): string {
-    return this.areaNames.get(code) ?? '—';
-  }
+  areaLabel(code: string): string { return this.areaNames.get(code) ?? '—'; }
 
   leaderLabel(areaCode: string, leaderCode?: string): string {
     const lc = leaderCode?.trim();
@@ -229,15 +192,15 @@ export class IncidentListPageComponent implements OnInit {
     return this.leaderNames.get(`${areaCode}|${lc}`) ?? '—';
   }
 
-  reportWhen(i: Incident): string {
+  reportWhen(i: Inspection): string {
     const y = i.reportYear;
     const m = i.reportMonth?.trim();
     const day = i.reportDay;
     const t = i.reportTime?.trim();
     const bits: string[] = [];
-    if (y != null && y !== undefined) bits.push(String(y));
+    if (y != null) bits.push(String(y));
     if (m) bits.push(m);
-    if (day != null && day !== undefined) bits.push(String(day));
+    if (day != null) bits.push(String(day));
     let s = bits.join(' ');
     if (t) s = s ? `${s} ${t}` : t;
     return s || '—';
@@ -249,10 +212,7 @@ export class IncidentListPageComponent implements OnInit {
     return Number.isNaN(d.getTime()) ? '—' : d.toLocaleString('es');
   }
 
-  dash(s: string | undefined | null): string {
-    const t = (s ?? '').trim();
-    return t || '—';
-  }
+  dash(s: string | undefined | null): string { return (s ?? '').trim() || '—'; }
 
   truncate(s: string | undefined | null, max = 72): string {
     const t = (s ?? '').trim();
@@ -261,9 +221,7 @@ export class IncidentListPageComponent implements OnInit {
   }
 
   private normalizedTemporalFilters(): { reportMonth?: string; reportYear?: number } {
-    if (this.period === 'yearly') {
-      return {};
-    }
+    if (this.period === 'yearly') return {};
     if (this.period === 'monthly') {
       const month = this.reportMonth.trim().toUpperCase();
       const year = Number(this.reportYear);
@@ -272,17 +230,13 @@ export class IncidentListPageComponent implements OnInit {
         reportYear: Number.isFinite(year) && year > 0 ? year : undefined,
       };
     }
-    // Para semanal/quincenal, la fecha de inicio determina el mes/año base.
     if (!this.referenceDate) return {};
     const d = new Date(this.referenceDate);
     if (Number.isNaN(d.getTime())) return {};
-    return {
-      reportYear: d.getFullYear(),
-      reportMonth: this.monthName(d.getMonth()),
-    };
+    return { reportYear: d.getFullYear(), reportMonth: this.monthName(d.getMonth()) };
   }
 
   private monthName(monthIndex: number): string {
-    return ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO', 'JULIO', 'AGOSTO', 'SEPTIEMBRE', 'OCTUBRE', 'NOVIEMBRE', 'DICIEMBRE'][monthIndex] ?? '';
+    return ['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'][monthIndex] ?? '';
   }
 }

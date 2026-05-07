@@ -2,7 +2,7 @@
   <header class="hero panel">
     <h2>Maestros</h2>
     <p class="lead">
-      Catálogos reutilizables en incidencias y reportes. Administra los valores que aparecen en los combos del sistema.
+      Catálogos reutilizables en inspecciones y reportes. Administra los valores que aparecen en los combos del sistema.
     </p>
   </header>
 
@@ -15,7 +15,7 @@
   @if (activeTab === 'sites') {
     <section class="tab-panel panel">
       <h3>Fundo / planta</h3>
-      <p class="hint">Valores usados en el combo de incidencias. El código es interno; el nombre es el que ve el operador.</p>
+      <p class="hint">Valores usados en el combo de inspecciones. El código es interno; el nombre es el que ve el operador.</p>
 
       @if (isAdmin) {
         <form [formGroup]="siteForm" class="grid-form" (ngSubmit)="saveSite()">
@@ -64,7 +64,7 @@
     <section class="tab-panel panel">
       <h3>Procedencias</h3>
       <p class="hint">
-        Valores del combo <strong>Procedencia</strong> en el formulario de incidencias.
+        Valores del combo <strong>Procedencia</strong> en el formulario de inspecciones.
         El código es interno (minúsculas, sin espacios); la etiqueta es lo que ve el usuario.
       </p>
 

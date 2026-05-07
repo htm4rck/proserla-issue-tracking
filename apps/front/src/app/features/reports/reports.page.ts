@@ -1,4 +1,4 @@
-﻿import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { finalize } from 'rxjs';
@@ -31,12 +31,12 @@ export class ReportsPageComponent implements OnInit {
     leaderCode:   [this.session.scopedFilters().leaderCode ?? ''],
     status:       [''],
     riskLevel:    [''],
-    incidentType: [''],
+    inspectionType: [''],
     reportMonth:  [''],
     reportYear:   [String(new Date().getFullYear())],
   });
 
-  // ── Estado ──────────────────────────────────────────────────────────────
+  // -- Estado --------------------------------------------------------------
   loading       = false;
   generated     = false;
   summary: { open: number; inProgress: number; closed: number; total: number; compliancePct: number } | null = null;
@@ -59,13 +59,13 @@ export class ReportsPageComponent implements OnInit {
 
   private lastReportParams: Record<string, string | undefined> = {};
 
-  // Catálogos
+  // Cat�logos
   areas:   Area[]   = [];
   leaders: Leader[] = [];
   readonly monthOptions = MONTH_OPTIONS;
   readonly yearOptions  = yearOptions(2020);
 
-  // ── Helpers ─────────────────────────────────────────────────────────────
+  // -- Helpers -------------------------------------------------------------
 
   get leadersForArea(): Leader[] {
     const ac = this.form.controls.areaCode.value?.trim();
@@ -73,7 +73,7 @@ export class ReportsPageComponent implements OnInit {
     return this.leaders.filter(l => l.isActive && l.areaCode === ac);
   }
 
-  // ── Lifecycle ────────────────────────────────────────────────────────────
+  // -- Lifecycle ------------------------------------------------------------
 
   ngOnInit(): void {
     this.api.listAreas().subscribe(({ data }) => (this.areas = data ?? []));
@@ -84,7 +84,7 @@ export class ReportsPageComponent implements OnInit {
       this.form.controls.leaderCode.disable();
     }
 
-    // Auto-limpiar líder si cambia área
+    // Auto-limpiar l�der si cambia �rea
     this.form.controls.areaCode.valueChanges.subscribe(ac => {
       const cur = this.form.controls.leaderCode.value?.trim();
       if (cur) {
@@ -100,7 +100,7 @@ export class ReportsPageComponent implements OnInit {
     });
   }
 
-  // ── Generar ──────────────────────────────────────────────────────────────
+  // -- Generar --------------------------------------------------------------
 
   run(): void {
     const raw = this.form.getRawValue();
@@ -136,13 +136,13 @@ export class ReportsPageComponent implements OnInit {
       { label: 'En proceso', value: s.inProgress,  pct: Math.round(s.inProgress / t * 100), colorClass: 'prog'  },
       { label: 'Cerradas',   value: s.closed,      pct: Math.round(s.closed     / t * 100), colorClass: 'close' },
     ];
-    // riskBars y typeBars se podrían calcular si el backend los devuelve;
+    // riskBars y typeBars se podr�an calcular si el backend los devuelve;
     // por ahora los derivamos del resumen disponible.
     this.riskBars  = [];
     this.typeBars  = [];
   }
 
-  // ── Descargas ────────────────────────────────────────────────────────────
+  // -- Descargas ------------------------------------------------------------
 
   downloadXlsx(): void {
     this.xlsxError = '';
@@ -150,14 +150,14 @@ export class ReportsPageComponent implements OnInit {
     this.api.downloadReportsXlsx(this.lastReportParams)
       .pipe(finalize(() => (this.xlsxBusy = false)))
       .subscribe({
-        next: blob => this.triggerDownload(blob, 'incidencias-reporte.xlsx'),
+        next: blob => this.triggerDownload(blob, 'inspecciones-reporte.xlsx'),
         error: () => (this.xlsxError = 'No se pudo descargar el Excel.'),
       });
   }
 
   downloadPdf(): void {
     this.pdfBusy = true;
-    // PDF se abre en nueva pestaña (el backend lo sirve directamente)
+    // PDF se abre en nueva pesta�a (el backend lo sirve directamente)
     window.open(this.pdfUrl, '_blank', 'noopener,noreferrer');
     this.pdfBusy = false;
   }
@@ -186,7 +186,7 @@ export class ReportsPageComponent implements OnInit {
     URL.revokeObjectURL(url);
   }
 
-  // ── Utilidades ───────────────────────────────────────────────────────────
+  // -- Utilidades -----------------------------------------------------------
 
   barWidth(pct: number): number {
     return Math.max(pct > 0 ? 6 : 0, pct);

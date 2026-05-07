@@ -5,11 +5,11 @@ export class AuditLogEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  /** Tipo de entidad: incident | user | area | leader | role | catalog_item */
+  /** Tipo de entidad: inspection | user | area | leader | role | catalog_item */
   @Column({ length: 60 })
   entityType!: string;
 
-  /** Identificador de negocio del objeto (incidentCode, userId, etc.) */
+  /** Identificador de negocio del objeto (inspectionCode, userId, etc.) */
   @Column({ length: 120 })
   entityId!: string;
 

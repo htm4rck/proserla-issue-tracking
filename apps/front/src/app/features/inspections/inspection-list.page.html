@@ -1,8 +1,8 @@
 ﻿<section class="card">
   <div class="page-header">
-    <h3>Incidencias</h3>
+    <h3>Inspecciones</h3>
     <div class="actions">
-      <a routerLink="/incidents/nuevo" class="btn-primary">+ Nueva incidencia</a>
+      <a routerLink="/inspections/nuevo" class="btn-primary">+ Nueva inspección</a>
     </div>
   </div>
 
@@ -28,10 +28,11 @@
     </label>
     <label>
       Tipo
-      <select [value]="incidentType" (change)="incidentType = $any($event.target).value; applyFilters()">
+      <select [value]="inspectionType" (change)="inspectionType = $any($event.target).value; applyFilters()">
         <option value="">Todos</option>
         <option value="act">Acto inseguro</option>
         <option value="condition">Condición insegura</option>
+        <option value="mixed">Mixto</option>
       </select>
     </label>
     <label>
@@ -92,29 +93,29 @@
         </tr>
       </thead>
       <tbody>
-        @for (i of incidents; track i.id) {
+        @for (i of inspections; track i.id) {
           <tr class="summary-row">
             <td class="nowrap">
-              <a [routerLink]="['/incidents', i.incidentCode]" class="code-link">{{ i.incidentCode }}</a>
+              <a [routerLink]="['/inspections', i.inspectionCode]" class="code-link">{{ i.inspectionCode }}</a>
             </td>
             <td class="cell-clip">
-              <a [routerLink]="['/incidents', i.incidentCode]" class="desc-link" [title]="i.description">
+              <a [routerLink]="['/inspections', i.inspectionCode]" class="desc-link" [title]="i.description">
                 {{ truncate(i.description, 56) }}
               </a>
             </td>
             <td>{{ dash(i.site) }}</td>
-            <td class="nowrap">{{ tipoIncidencia(i.incidentType) }}</td>
+            <td class="nowrap">{{ tipoInspeccion(i.inspectionType) }}</td>
             <td><span [class]="statusBadgeClass(i.status)">{{ estado(i.status) }}</span></td>
             <td class="nowrap">{{ riesgo(i.riskLevel) }}</td>
-            <td class="expand-cell" role="button" tabindex="0" (click)="toggleExpand($event, i.incidentCode)">
-              {{ expandGlyph(i.incidentCode) }}
+            <td class="expand-cell" role="button" tabindex="0" (click)="toggleExpand($event, i.inspectionCode)">
+              {{ expandGlyph(i.inspectionCode) }}
             </td>
           </tr>
-          @if (isExpanded(i.incidentCode)) {
+          @if (isExpanded(i.inspectionCode)) {
             <tr class="detail-row">
               <td [attr.colspan]="summaryColCount">
                 <div class="detail-panel">
-                  <a [routerLink]="['/incidents', i.incidentCode]" class="detail-open-link">Abrir ficha completa</a>
+                  <a [routerLink]="['/inspections', i.inspectionCode]" class="detail-open-link">Abrir ficha completa</a>
                   <div class="detail-grid">
                     <div><strong>Fecha / hora reporte:</strong> {{ reportWhen(i) }}</div>
                     <div><strong>Persona reportada:</strong> {{ dash(i.reportedPerson) }}</div>
@@ -135,13 +136,13 @@
                   </div>
                   <div class="detail-photos">
                     <strong>Evidencias (fotos)</strong>
-                    @if (isImagesLoading(i.incidentCode)) {
+                    @if (isImagesLoading(i.inspectionCode)) {
                       <p class="muted">Cargando imágenes…</p>
-                    } @else if (getImages(i.incidentCode).length === 0) {
+                    } @else if (getImages(i.inspectionCode).length === 0) {
                       <p class="muted">Sin archivos adjuntos.</p>
                     } @else {
                       <div class="photo-grid">
-                        @for (img of getImages(i.incidentCode); track img.id) {
+                        @for (img of getImages(i.inspectionCode); track img.id) {
                           <figure class="photo-thumb">
                             <a [href]="img.url" target="_blank" rel="noopener noreferrer">
                               <img [src]="img.url" [alt]="evidenciaTipo(img.imageType)" loading="lazy" />

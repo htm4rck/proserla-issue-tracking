@@ -51,7 +51,7 @@ export class AuthSessionService {
     if (path.startsWith('/organizacion')) return role === 'admin';
     if (path.startsWith('/maestros')) return role === 'admin';
     if (path.startsWith('/auditoria')) return role === 'admin';
-    if (path.startsWith('/incidents')) return role === 'admin' || role === 'aux_sst';
+    if (path.startsWith('/inspections')) return role === 'admin' || role === 'aux_sst';
     if (path.startsWith('/reports')) return role === 'admin' || role === 'aux_sst' || role === 'leader';
     if (path.startsWith('/dashboard')) return role === 'admin' || role === 'aux_sst' || role === 'leader';
     if (path.startsWith('/account/password')) return true;

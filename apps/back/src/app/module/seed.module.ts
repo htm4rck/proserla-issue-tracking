@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SeedController } from '../controller/seed.controller';
 import { AreaEntity } from '../entity/area.entity';
 import { CatalogItemEntity } from '../entity/catalog-item.entity';
-import { IncidentEntity } from '../entity/incident.entity';
-import { IncidentImageEntity } from '../entity/incident-image.entity';
+import { InspectionEntity } from '../entity/inspection.entity';
+import { InspectionImageEntity } from '../entity/inspection-image.entity';
 import { LeaderAreaEntity } from '../entity/leader-area.entity';
 import { LeaderEntity } from '../entity/leader.entity';
 import { RoleEntity } from '../entity/role.entity';
@@ -23,8 +23,8 @@ import { SeedService } from '../service/seed.service';
       UserEntity,
       UserAreaEntity,
       CatalogItemEntity,
-      IncidentEntity,
-      IncidentImageEntity,
+      InspectionEntity,
+      InspectionImageEntity,
       WorkSiteEntity,
     ]),
   ],

@@ -1,4 +1,4 @@
-﻿import { DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
@@ -8,7 +8,7 @@ import { AuthSessionService } from '../../core/services/auth-session.service';
 import { Area, Leader } from '../../core/models/api.models';
 import { MONTH_OPTIONS, yearOptions } from '../../shared/temporal-options';
 
-// ── Types ────────────────────────────────────────────────────────────────────
+// -- Types --------------------------------------------------------------------
 
 interface MonthlyAreaPoint {
   month: string;
@@ -28,7 +28,7 @@ interface AnnualByAreaData {
   months: MonthlyAreaPoint[];
 }
 
-/** Datos por mes para el gráfico anual (agrupados). */
+/** Datos por mes para el gr�fico anual (agrupados). */
 interface MonthSummary {
   month: string;
   monthIndex: number;
@@ -39,7 +39,7 @@ interface MonthSummary {
   byArea: MonthlyAreaPoint[];
 }
 
-// ── Component ────────────────────────────────────────────────────────────────
+// -- Component ----------------------------------------------------------------
 
 @Component({
   selector: 'app-dashboard-page',
@@ -57,7 +57,7 @@ export class DashboardPageComponent implements OnInit {
     leaderCode: [''],
     status: [''],
     riskLevel: [''],
-    incidentType: [''],
+    inspectionType: [''],
     reportMonth: [''],
     reportYear: [String(new Date().getFullYear())],
     period: ['monthly' as 'weekly' | 'biweekly' | 'monthly' | 'yearly'],
@@ -89,7 +89,7 @@ export class DashboardPageComponent implements OnInit {
   maxStatusValue = 1;
   maxAreaTotal = 1;
 
-  // ── Catálogos ──────────────────────────────────────────────────────────
+  // -- Cat�logos ----------------------------------------------------------
   areas: Area[] = [];
   leaders: Leader[] = [];
   readonly monthOptions = MONTH_OPTIONS;
@@ -97,15 +97,15 @@ export class DashboardPageComponent implements OnInit {
   private areaNames = new Map<string, string>();
   private readonly today = new Date().toISOString().slice(0, 10);
 
-  // ── Gráfico anual ──────────────────────────────────────────────────────
+  // -- Gr�fico anual ------------------------------------------------------
   annualLoading = false;
   annualData: AnnualByAreaData | null = null;
   annualMonths: MonthSummary[] = [];
   annualMaxTotal = 1;
-  /** Área seleccionada para desglose en el gráfico anual (null = todas) */
+  /** �rea seleccionada para desglose en el gr�fico anual (null = todas) */
   annualFocusArea: string | null = null;
 
-  // ── Helpers ────────────────────────────────────────────────────────────
+  // -- Helpers ------------------------------------------------------------
 
   get leadersForArea(): Leader[] {
     const areaCode = this.filterForm.controls.areaCode.value?.trim();
@@ -114,7 +114,7 @@ export class DashboardPageComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Cargar catálogos en paralelo
+    // Cargar cat�logos en paralelo
     this.api.listAreas().subscribe(({ data }) => {
       this.areas = data ?? [];
       this.areaNames = new Map(this.areas.map((a) => [a.code, a.name]));
@@ -134,11 +134,11 @@ export class DashboardPageComponent implements OnInit {
       this.filterForm.controls.leaderCode.disable();
     }
 
-    // Auto-fill líder al cambiar área
+    // Auto-fill l�der al cambiar �rea
     this.filterForm.controls.areaCode.valueChanges.subscribe((areaCode) => {
       if (this.session.user?.roleCode === 'leader') return;
       const current = this.filterForm.controls.leaderCode.value?.trim();
-      // Si el líder actual no pertenece al área nueva, limpiar
+      // Si el l�der actual no pertenece al �rea nueva, limpiar
       if (current) {
         const stillValid = this.leaders.some(
           (l) => l.isActive && l.areaCode === areaCode && l.code === current,
@@ -147,7 +147,7 @@ export class DashboardPageComponent implements OnInit {
           this.filterForm.controls.leaderCode.setValue('', { emitEvent: false });
         }
       }
-      // Si hay exactamente un líder en esa área, pre-seleccionarlo
+      // Si hay exactamente un l�der en esa �rea, pre-seleccionarlo
       if (areaCode) {
         const inArea = this.leaders.filter((l) => l.isActive && l.areaCode === areaCode);
         if (inArea.length === 1) {
@@ -156,7 +156,7 @@ export class DashboardPageComponent implements OnInit {
       }
     });
 
-    // Cambio de período
+    // Cambio de per�odo
     this.filterForm.controls.period.valueChanges.subscribe((period) =>
       this.applyEmbeddedTemporalFilters(period),
     );
@@ -177,7 +177,7 @@ export class DashboardPageComponent implements OnInit {
         leaderCode: q.leaderCode.trim() || undefined,
         status: q.status || undefined,
         riskLevel: q.riskLevel || undefined,
-        incidentType: q.incidentType || undefined,
+        inspectionType: q.inspectionType || undefined,
         reportMonth: temporal.reportMonth,
         reportYear: temporal.reportYear,
         period: q.period,
@@ -202,7 +202,7 @@ export class DashboardPageComponent implements OnInit {
         },
       });
 
-    // Cargar gráfico anual con el año del filtro
+    // Cargar gr�fico anual con el a�o del filtro
     const annualYear = Number(q.reportYear) || new Date().getFullYear();
     this.loadAnnual(annualYear, q.areaCode.trim() || undefined, q.leaderCode.trim() || undefined);
   }
@@ -267,7 +267,7 @@ export class DashboardPageComponent implements OnInit {
     return Math.max(1, ...this.annualMonthsForFocus().map((m) => m.total));
   }
 
-  // ── Utilidades ─────────────────────────────────────────────────────────
+  // -- Utilidades ---------------------------------------------------------
 
   barPct(value: number, max: number): number {
     return max <= 0 ? 0 : Math.max(4, Math.round((value / max) * 100));
@@ -342,10 +342,10 @@ export class DashboardPageComponent implements OnInit {
       const monthIndex = MESES.indexOf(reportMonth.trim().toUpperCase()); // 0-based
       const year = Number(reportYear.trim()) || new Date().getFullYear();
 
-      // Derivar referenceDate desde mes+año para que el backend calcule el rango correcto
+      // Derivar referenceDate desde mes+a�o para que el backend calcule el rango correcto
       let derivedReferenceDate: string | undefined;
       if (monthIndex >= 0) {
-        // Primer día del mes seleccionado
+        // Primer d�a del mes seleccionado
         const d = new Date(year, monthIndex, 1);
         derivedReferenceDate = d.toISOString().slice(0, 10);
       }
@@ -357,7 +357,7 @@ export class DashboardPageComponent implements OnInit {
       };
     }
 
-    // weekly / biweekly — usan referenceDate directamente
+    // weekly / biweekly � usan referenceDate directamente
     return { referenceDate: referenceDate || undefined };
   }
 }

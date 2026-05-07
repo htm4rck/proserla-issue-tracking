@@ -1,4 +1,4 @@
-﻿import {
+import {
   Body,
   Controller,
   Get,
@@ -10,14 +10,14 @@
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { ApiResponse } from '../mapper/api.mapper';
-import { IncidentImageService } from '../service/incident-image.service';
+import { InspectionImageService } from '../service/inspection-image.service';
 import { UploadService } from '../service/upload.service';
 
 /** Evita depender de @types/multer (Express 5 no exporta Multer en el namespace). */
 type UploadedFilePayload = { buffer: Buffer; originalname: string; mimetype: string };
 
 class CreateResponseBody {
-  incidentCode!: string;
+  inspectionCode!: string;
   status!: string;
   imageType!: string;
   url!: string;
@@ -26,11 +26,11 @@ class CreateResponseBody {
   comment?: string;
 }
 
-@ApiTags('incident-images')
-@Controller('incident-images')
-export class IncidentImageController {
+@ApiTags('inspection-images')
+@Controller('inspection-images')
+export class InspectionImageController {
   constructor(
-    private readonly imageService: IncidentImageService,
+    private readonly imageService: InspectionImageService,
     private readonly uploadService: UploadService,
   ) {}
 
@@ -50,7 +50,7 @@ export class IncidentImageController {
   @UseInterceptors(FileInterceptor('file'))
   async upload(
     @UploadedFile() file: UploadedFilePayload | undefined,
-    @Body() body: { incidentCode: string; imageType: 'report' | 'closure'; uploadedBy?: string; comment?: string; status?: string },
+    @Body() body: { inspectionCode: string; imageType: 'report' | 'closure'; uploadedBy?: string; comment?: string; status?: string },
   ) {
     if (!file?.buffer?.length) {
       return new ApiResponse(false, 'No se recibió ningún archivo', null);
@@ -59,13 +59,13 @@ export class IncidentImageController {
       fileBuffer: file.buffer,
       originalName: file.originalname,
       mimeType: file.mimetype,
-      incidentCode: body.incidentCode,
+      inspectionCode: body.inspectionCode,
       imageType: body.imageType ?? 'report',
     });
 
-    const url = uploadResult.url ?? `pending://${body.incidentCode}/${file.originalname}`;
+    const url = uploadResult.url ?? `pending://${body.inspectionCode}/${file.originalname}`;
     const entity = await this.imageService.create({
-      incidentCode: body.incidentCode,
+      inspectionCode: body.inspectionCode,
       status: body.status ?? 'open',
       imageType: body.imageType ?? 'report',
       url,
@@ -83,9 +83,9 @@ export class IncidentImageController {
     return new ApiResponse(uploadResult.ok, message, entity);
   }
 
-  @Get(':incidentCode')
-  async findByIncidentCode(@Param('incidentCode') incidentCode: string) {
-    const images = await this.imageService.findByIncidentCode(incidentCode);
+  @Get(':inspectionCode')
+  async findByInspectionCode(@Param('inspectionCode') inspectionCode: string) {
+    const images = await this.imageService.findByInspectionCode(inspectionCode);
     return new ApiResponse(true, 'Listado de evidencias obtenido correctamente', images);
   }
 }

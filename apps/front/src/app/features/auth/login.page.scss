@@ -180,3 +180,27 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 600px) {
+  .login-shell {
+    grid-template-columns: 1fr;
+    background: #f4f6fa;
+  }
+
+  /* Ocultar panel de imagen en mobile muy pequeño para dar más espacio al form */
+  .brand-panel {
+    display: none;
+  }
+
+  .login-panel {
+    padding: 1.5rem 1rem;
+    align-items: flex-start;
+    padding-top: 2.5rem;
+  }
+
+  .card {
+    width: 100%;
+    border-radius: 14px;
+    padding: 1.25rem 1rem;
+  }
+}

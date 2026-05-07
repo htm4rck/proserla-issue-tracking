@@ -21,7 +21,7 @@ export class ReportsFilterRequest {
 
   @IsOptional()
   @IsString()
-  incidentType?: string;
+  inspectionType?: string;
 
   @IsOptional()
   @IsString()

@@ -32,7 +32,7 @@ function detectMainChange(
   diff: Record<string, { from: unknown; to: unknown }>,
 ): { changeLabel: string; previousValue: string; nextValue: string } | null {
   // Prioridad: status > assignedTo > riskLevel > otros
-  const priority = ['status', 'assignedTo', 'riskLevel', 'incidentType', 'areaCode', 'leaderCode'];
+  const priority = ['status', 'assignedTo', 'riskLevel', 'inspectionType', 'areaCode', 'leaderCode'];
   for (const key of priority) {
     if (diff[key]) {
       return {

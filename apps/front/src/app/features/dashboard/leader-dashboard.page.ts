@@ -1,4 +1,4 @@
-﻿import { DatePipe } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';

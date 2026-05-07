@@ -22,7 +22,7 @@ export class UploadService {
     fileBuffer: Buffer;
     originalName: string;
     mimeType: string;
-    incidentCode: string;
+    inspectionCode: string;
     imageType: 'report' | 'closure';
   }): Promise<UploadResult> {
     const uploadUrl = this.config.get<string>('GODADDY_PHP_UPLOAD_URL');
@@ -40,7 +40,7 @@ export class UploadService {
       const bytes = new Uint8Array(params.fileBuffer);
       const blob = new Blob([bytes], { type: params.mimeType });
       form.append('file', blob, params.originalName);
-      form.append('codigo_incidencia', params.incidentCode);
+      form.append('codigo_inspeccion', params.inspectionCode);
       form.append('tipo_imagen', params.imageType);
 
       const controller = new AbortController();
@@ -63,14 +63,14 @@ export class UploadService {
       };
 
       if (!json.ok) {
-        this.logger.warn(`PHP bridge error for ${params.incidentCode}: ${json.error}`);
+        this.logger.warn(`PHP bridge error for ${params.inspectionCode}: ${json.error}`);
         return { ok: false, error: json.error ?? 'Unknown PHP bridge error' };
       }
 
       return { ok: true, url: json.url, storagePath: json.storage_path };
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
-      this.logger.error(`PHP bridge unreachable for ${params.incidentCode}: ${msg}`);
+      this.logger.error(`PHP bridge unreachable for ${params.inspectionCode}: ${msg}`);
       return { ok: false, error: `PHP bridge unreachable: ${msg}` };
     }
   }

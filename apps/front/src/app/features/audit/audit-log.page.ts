@@ -32,7 +32,7 @@ export class AuditLogPageComponent implements OnInit {
 
   readonly entityTypeOptions = [
     { value: '', label: 'Todos' },
-    { value: 'incident', label: 'Incidencia' },
+    { value: 'inspection', label: 'Inspección' },
     { value: 'user', label: 'Usuario' },
     { value: 'area', label: 'Área' },
     { value: 'leader', label: 'Líder' },

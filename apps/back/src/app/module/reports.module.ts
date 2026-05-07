@@ -2,12 +2,12 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ReportsController } from '../controller/reports.controller';
 import { AreaEntity } from '../entity/area.entity';
-import { IncidentResponseEntity } from '../entity/incident-response.entity';
-import { IncidentEntity } from '../entity/incident.entity';
+import { InspectionResponseEntity } from '../entity/inspection-response.entity';
+import { InspectionEntity } from '../entity/inspection.entity';
 import { ReportsService } from '../service/reports.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([IncidentEntity, IncidentResponseEntity, AreaEntity])],
+  imports: [TypeOrmModule.forFeature([InspectionEntity, InspectionResponseEntity, AreaEntity])],
   controllers: [ReportsController],
   providers: [ReportsService],
 })

@@ -1,22 +1,22 @@
 import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { IncidentStatus } from '../enum/incident-status.enum';
+import { InspectionStatus } from '../enum/inspection-status.enum';
 
 /**
- * Reemplaza incident_images.
- * Cada respuesta está asociada a un estado de la incidencia y puede tener comentario.
- * Una incidencia puede tener múltiples respuestas por estado.
+ * Reemplaza inspection_images.
+ * Cada respuesta está asociada a un estado de la inspección y puede tener comentario.
+ * Una inspección puede tener múltiples respuestas por estado.
  */
-@Entity('incident_responses')
-export class IncidentResponseEntity {
+@Entity('inspection_responses')
+export class InspectionResponseEntity {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
   @Column({ length: 100 })
-  incidentCode!: string;
+  inspectionCode!: string;
 
   /** Estado al que pertenece esta respuesta */
-  @Column({ type: 'enum', enum: IncidentStatus })
-  status!: IncidentStatus;
+  @Column({ type: 'enum', enum: InspectionStatus })
+  status!: InspectionStatus;
 
   /** report = apertura, closure = cierre */
   @Column({ length: 30 })

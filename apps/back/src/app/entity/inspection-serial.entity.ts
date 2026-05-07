@@ -1,8 +1,8 @@
 import { Column, Entity, PrimaryColumn } from 'typeorm';
 
-/** Contador anual para códigos correlativos de incidencias (INC-AAAA-NNNNN). */
-@Entity('incident_serial')
-export class IncidentSerialEntity {
+/** Contador anual para códigos correlativos de inspecciones (INS-AAAA-NNNNN). */
+@Entity('inspection_serial')
+export class InspectionSerialEntity {
   @PrimaryColumn({ type: 'int' })
   year!: number;
 

@@ -19,7 +19,7 @@
       <label>Código de líder <input formControlName="leaderCode" placeholder="ej. LUCIA" /></label>
       <button type="button" class="primary" (click)="load()">Aplicar filtros</button>
     </div>
-    <p class="filters-hint">Vacío = todas las incidencias. Tras semilla: PACK, FIELD, PLANT y líderes LUCIA, MARIO, ROSA.</p>
+    <p class="filters-hint">Vacío = todas las inspecciones. Tras semilla: PACK, FIELD, PLANT y líderes LUCIA, MARIO, ROSA.</p>
   </section>
 
   @if (loading) {
@@ -62,7 +62,7 @@
 
     <nav class="links-row panel" style="padding: 1rem">
       <a routerLink="/dashboard">Tablero global</a>
-      <a routerLink="/incidents">Incidencias</a>
+      <a routerLink="/incidents">Inspecciones</a>
       <a routerLink="/reports">Reportes</a>
     </nav>
   } @else {

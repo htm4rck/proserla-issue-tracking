@@ -1,12 +1,12 @@
-﻿import { Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import ExcelJS from 'exceljs';
 import PDFDocument from 'pdfkit';
 import { Repository } from 'typeorm';
 import { AreaEntity } from '../entity/area.entity';
-import { IncidentResponseEntity } from '../entity/incident-response.entity';
-import { IncidentEntity } from '../entity/incident.entity';
-import { IncidentStatus } from '../enum/incident-status.enum';
+import { InspectionResponseEntity } from '../entity/inspection-response.entity';
+import { InspectionEntity } from '../entity/inspection.entity';
+import { InspectionStatus } from '../enum/inspection-status.enum';
 import {
   AnnualByAreaResponse,
   MonthlyAreaPoint,
@@ -63,32 +63,32 @@ function cleanFilter(value?: string): string | undefined {
 @Injectable()
 export class ReportsService {
   constructor(
-    @InjectRepository(IncidentEntity)
-    private readonly incidentRepository: Repository<IncidentEntity>,
-    @InjectRepository(IncidentResponseEntity)
-    private readonly incidentImageRepository: Repository<IncidentResponseEntity>,
+    @InjectRepository(InspectionEntity)
+    private readonly inspectionRepository: Repository<InspectionEntity>,
+    @InjectRepository(InspectionResponseEntity)
+    private readonly inspectionImageRepository: Repository<InspectionResponseEntity>,
     @InjectRepository(AreaEntity)
     private readonly areaRepository: Repository<AreaEntity>,
   ) {}
 
   async summary(filters: ReportsFilterRequest): Promise<ReportsSummaryResponse> {
-    const incidents = await this.queryIncidents(filters);
-    return this.toSummary(incidents);
+    const inspections = await this.queryInspections(filters);
+    return this.toSummary(inspections);
   }
 
   async analytics(filters: ReportsFilterRequest): Promise<ReportsAnalyticsResponse> {
     const period = this.normalizePeriod(filters.period);
-    const incidents = await this.queryIncidents({ ...filters, period });
+    const inspections = await this.queryInspections({ ...filters, period });
     const areaNames = await this.loadAreaNames();
-    const summary = this.toSummary(incidents);
+    const summary = this.toSummary(inspections);
     const byStatus = [
-      { status: IncidentStatus.OPEN, label: 'Abiertas', value: summary.open },
-      { status: IncidentStatus.IN_PROGRESS, label: 'En proceso', value: summary.inProgress },
-      { status: IncidentStatus.CLOSED, label: 'Cerradas', value: summary.closed },
+      { status: InspectionStatus.OPEN, label: 'Abiertas', value: summary.open },
+      { status: InspectionStatus.IN_PROGRESS, label: 'En proceso', value: summary.inProgress },
+      { status: InspectionStatus.CLOSED, label: 'Cerradas', value: summary.closed },
     ] as const;
 
     const byAreaMap = new Map<string, { open: number; inProgress: number; closed: number; total: number }>();
-    for (const row of incidents) {
+    for (const row of inspections) {
       const current = byAreaMap.get(row.areaCode) ?? {
         open: 0,
         inProgress: 0,
@@ -96,9 +96,9 @@ export class ReportsService {
         total: 0,
       };
       current.total += 1;
-      if (row.status === IncidentStatus.OPEN) current.open += 1;
-      if (row.status === IncidentStatus.IN_PROGRESS) current.inProgress += 1;
-      if (row.status === IncidentStatus.CLOSED) current.closed += 1;
+      if (row.status === InspectionStatus.OPEN) current.open += 1;
+      if (row.status === InspectionStatus.IN_PROGRESS) current.inProgress += 1;
+      if (row.status === InspectionStatus.CLOSED) current.closed += 1;
       byAreaMap.set(row.areaCode, current);
     }
 
@@ -117,21 +117,21 @@ export class ReportsService {
   }
 
   async annualByArea(year: number, filters: Pick<ReportsFilterRequest, 'areaCode' | 'leaderCode'>): Promise<AnnualByAreaResponse> {
-    const qb = this.incidentRepository.createQueryBuilder('incident');
+    const qb = this.inspectionRepository.createQueryBuilder('inspection');
     qb.andWhere(
-      '(incident.reportYear = :year OR (incident.reportYear IS NULL AND EXTRACT(YEAR FROM incident.createdAt) = :year))',
+      '(inspection.reportYear = :year OR (inspection.reportYear IS NULL AND EXTRACT(YEAR FROM inspection.createdAt) = :year))',
       { year },
     );
     if (filters.areaCode?.trim()) {
-      qb.andWhere('incident.areaCode = :areaCode', { areaCode: filters.areaCode.trim() });
+      qb.andWhere('inspection.areaCode = :areaCode', { areaCode: filters.areaCode.trim() });
     }
     if (filters.leaderCode?.trim()) {
-      qb.andWhere('incident.leaderCode = :leaderCode', { leaderCode: filters.leaderCode.trim() });
+      qb.andWhere('inspection.leaderCode = :leaderCode', { leaderCode: filters.leaderCode.trim() });
     }
-    const incidents = await qb.getMany();
+    const inspections = await qb.getMany();
     const areaNames = await this.loadAreaNames();
 
-    // Build map: monthIndex → areaCode → counts
+    // Build map: monthIndex ? areaCode ? counts
     type Counts = { open: number; inProgress: number; closed: number; total: number };
     const matrix = new Map<number, Map<string, Counts>>();
     for (let m = 1; m <= 12; m++) {
@@ -139,19 +139,19 @@ export class ReportsService {
     }
 
     const areaCodes = new Set<string>();
-    for (const inc of incidents) {
-      const monthIdx = inc.reportMonth
-        ? (MESES as readonly string[]).indexOf(inc.reportMonth.trim().toUpperCase()) + 1
-        : inc.createdAt.getMonth() + 1;
-      const mi = monthIdx > 0 && monthIdx <= 12 ? monthIdx : inc.createdAt.getMonth() + 1;
-      const ac = inc.areaCode;
+    for (const ins of inspections) {
+      const monthIdx = ins.reportMonth
+        ? (MESES as readonly string[]).indexOf(ins.reportMonth.trim().toUpperCase()) + 1
+        : ins.createdAt.getMonth() + 1;
+      const mi = monthIdx > 0 && monthIdx <= 12 ? monthIdx : ins.createdAt.getMonth() + 1;
+      const ac = ins.areaCode;
       areaCodes.add(ac);
       const monthMap = matrix.get(mi)!;
       const cur = monthMap.get(ac) ?? { open: 0, inProgress: 0, closed: 0, total: 0 };
       cur.total += 1;
-      if (inc.status === IncidentStatus.OPEN) cur.open += 1;
-      if (inc.status === IncidentStatus.IN_PROGRESS) cur.inProgress += 1;
-      if (inc.status === IncidentStatus.CLOSED) cur.closed += 1;
+      if (ins.status === InspectionStatus.OPEN) cur.open += 1;
+      if (ins.status === InspectionStatus.IN_PROGRESS) cur.inProgress += 1;
+      if (ins.status === InspectionStatus.CLOSED) cur.closed += 1;
       monthMap.set(ac, cur);
     }
 
@@ -184,16 +184,16 @@ export class ReportsService {
   }
 
   async exportCsv(filters: ReportsFilterRequest): Promise<string> {
-    const incidents = await this.queryIncidents(filters);
+    const inspections = await this.queryInspections(filters);
     const areaNames = await this.loadAreaNames();
     const header = [
-      'incidentCode',
+      'inspectionCode',
       'status',
       'areaName',
       'areaCode',
       'leaderCode',
       'riskLevel',
-      'incidentType',
+      'inspectionType',
       'reportYear',
       'reportMonth',
       'reportDay',
@@ -207,14 +207,14 @@ export class ReportsService {
       'createdAt',
     ];
 
-    const rows = incidents.map((i) => [
-      i.incidentCode,
+    const rows = inspections.map((i) => [
+      i.inspectionCode,
       i.status,
       this.areaLabel(i.areaCode, areaNames),
       i.areaCode,
       i.leaderCode ?? '',
       i.riskLevel,
-      i.incidentType,
+      i.inspectionType,
       i.reportYear ?? '',
       i.reportMonth ?? '',
       i.reportDay ?? '',
@@ -234,18 +234,18 @@ export class ReportsService {
   }
 
   async exportExcel(filters: ReportsFilterRequest): Promise<string> {
-    const incidents = await this.queryIncidents(filters);
+    const inspections = await this.queryInspections(filters);
     const areaNames = await this.loadAreaNames();
-    const summary = this.toSummary(incidents);
+    const summary = this.toSummary(inspections);
     const generatedAt = formatDate(new Date());
 
-    const rows = incidents
+    const rows = inspections
       .map(
         (i) => {
           const stLabel = this.statusLabel(i.status);
           const stClass = i.status === 'open' ? 'st-open' : i.status === 'in_progress' ? 'st-progress' : 'st-closed';
           return `<tr>
-          <td>${escapeHtml(i.incidentCode)}</td>
+          <td>${escapeHtml(i.inspectionCode)}</td>
           <td class="${stClass}">${escapeHtml(stLabel)}</td>
           <td>${escapeHtml(this.areaLabel(i.areaCode, areaNames))}</td>
           <td>${escapeHtml(i.leaderCode ?? '')}</td>
@@ -254,7 +254,7 @@ export class ReportsService {
           <td>${escapeHtml(i.location)}</td>
           <td>${escapeHtml(i.workArea ?? '')}</td>
           <td>${escapeHtml(this.riskLabel(i.riskLevel))}</td>
-          <td>${escapeHtml(this.typeLabel(i.incidentType))}</td>
+          <td>${escapeHtml(this.typeLabel(i.inspectionType))}</td>
           <td>${escapeHtml(i.description)}</td>
           <td>${escapeHtml(i.correctiveMeasures ?? i.comment ?? '')}</td>
           <td>${escapeHtml(i.assignedTo ?? '')}</td>
@@ -288,7 +288,7 @@ export class ReportsService {
   </style>
 </head>
 <body>
-  <h1>Reporte de incidencias</h1>
+  <h1>Reporte de inspecciones</h1>
   <p>Generado: ${escapeHtml(generatedAt)}</p>
   <table>
     <tr class="kpi-labels">
@@ -317,21 +317,21 @@ export class ReportsService {
 
   /** Libro Excel real (.xlsx), no HTML disfrazado. */
   async exportXlsx(filters: ReportsFilterRequest): Promise<Buffer> {
-    const incidents = await this.queryIncidents(filters);
+    const inspections = await this.queryInspections(filters);
     const areaNames = await this.loadAreaNames();
-    const summary = this.toSummary(incidents);
+    const summary = this.toSummary(inspections);
     const generatedAt = formatDate(new Date());
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Issue Tracking';
-    const sheet = workbook.addWorksheet('Incidencias', {
+    const sheet = workbook.addWorksheet('Inspecciones', {
       views: [{ state: 'frozen', ySplit: 7 }],
     });
 
-    // ── Título ────────────────────────────────────────────────────────────
+    // -- T�tulo ------------------------------------------------------------
     sheet.mergeCells('A1:M1');
     const titleCell = sheet.getCell('A1');
-    titleCell.value = 'Reporte de incidencias';
+    titleCell.value = 'Reporte de inspecciones';
     titleCell.font = { bold: true, size: 14, color: { argb: 'FF1A237E' } };
     titleCell.alignment = { horizontal: 'center' };
     titleCell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8EAF6' } };
@@ -340,7 +340,7 @@ export class ReportsService {
     sheet.getCell('A2').value = `Generado: ${generatedAt}`;
     sheet.getCell('A2').font = { size: 9, color: { argb: 'FF555555' } };
 
-    // ── Fila de KPIs con colores por estado ───────────────────────────────
+    // -- Fila de KPIs con colores por estado -------------------------------
     const kpiLabels = ['Abiertas', 'En proceso', 'Cerradas', 'Total', 'Cumplimiento %'];
     const kpiValues = [summary.open, summary.inProgress, summary.closed, summary.total, summary.compliancePct];
     const kpiLabelColors = ['FFFFCDD2', 'FFBBDEFB', 'FFC8E6C9', 'FFE0E0E0', 'FFEDE7F6'];
@@ -364,9 +364,9 @@ export class ReportsService {
       vCell.alignment = { horizontal: 'center' };
     });
 
-    sheet.addRow([]);  // row 5 — separador
+    sheet.addRow([]);  // row 5 � separador
 
-    // ── Cabecera de columnas ──────────────────────────────────────────────
+    // -- Cabecera de columnas ----------------------------------------------
     const header = [
       'Codigo', 'Estado', 'Area', 'Lider', 'Fecha',
       'Reportante', 'Ubicacion', 'Area de trabajo',
@@ -383,17 +383,17 @@ export class ReportsService {
       };
     });
 
-    // ── Filas de datos con color de estado en la celda "Estado" ──────────
+    // -- Filas de datos con color de estado en la celda "Estado" ----------
     const statusFill: Record<string, { bg: string; text: string }> = {
       Abierta:    { bg: 'FFFFCDD2', text: 'FFB71C1C' },
       'En proceso': { bg: 'FFBBDEFB', text: 'FF0D47A1' },
       Cerrada:    { bg: 'FFC8E6C9', text: 'FF1B5E20' },
     };
 
-    for (const i of incidents) {
+    for (const i of inspections) {
       const statusLabel = this.statusLabel(i.status);
       const dataRow = sheet.addRow([
-        i.incidentCode,
+        i.inspectionCode,
         statusLabel,
         this.areaLabel(i.areaCode, areaNames),
         i.leaderCode ?? '',
@@ -402,13 +402,13 @@ export class ReportsService {
         i.location,
         i.workArea ?? '',
         this.riskLabel(i.riskLevel),
-        this.typeLabel(i.incidentType),
+        this.typeLabel(i.inspectionType),
         i.description,
         i.correctiveMeasures ?? i.comment ?? '',
         i.assignedTo ?? '',
       ]);
 
-      // Colorear celda de estado (columna B = índice 2)
+      // Colorear celda de estado (columna B = �ndice 2)
       const sf = statusFill[statusLabel];
       if (sf) {
         const statusCell = dataRow.getCell(2);
@@ -429,11 +429,11 @@ export class ReportsService {
   }
 
   async exportPdf(filters: ReportsFilterRequest): Promise<Buffer> {
-    const incidents = await this.queryIncidents(filters);
+    const inspections = await this.queryInspections(filters);
     const areaNames = await this.loadAreaNames();
-    const codes = [...new Set(incidents.map((i) => i.incidentCode))];
-    const imagesByCode = await this.loadImagesByIncident(codes);
-    const summary = this.toSummary(incidents);
+    const codes = [...new Set(inspections.map((i) => i.inspectionCode))];
+    const imagesByCode = await this.loadImagesByInspection(codes);
+    const summary = this.toSummary(inspections);
 
     return new Promise<Buffer>((resolve, reject) => {
       const doc = new PDFDocument({ margin: 36, size: 'A4', layout: 'landscape' });
@@ -442,7 +442,7 @@ export class ReportsService {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      doc.font('Helvetica-Bold').fontSize(16).text('Reporte de incidencias', { align: 'center' });
+      doc.font('Helvetica-Bold').fontSize(16).text('Reporte de inspecciones', { align: 'center' });
       doc.moveDown(0.4);
       doc
         .font('Helvetica')
@@ -453,32 +453,32 @@ export class ReportsService {
         );
       doc.moveDown(0.8);
 
-      this.writePdfSection(doc, 'ABIERTO', incidents, IncidentStatus.OPEN, areaNames, imagesByCode);
-      this.writePdfSection(doc, 'EN PROCESO', incidents, IncidentStatus.IN_PROGRESS, areaNames, imagesByCode);
-      this.writePdfSection(doc, 'CERRADO', incidents, IncidentStatus.CLOSED, areaNames, imagesByCode);
+      this.writePdfSection(doc, 'ABIERTO', inspections, InspectionStatus.OPEN, areaNames, imagesByCode);
+      this.writePdfSection(doc, 'EN PROCESO', inspections, InspectionStatus.IN_PROGRESS, areaNames, imagesByCode);
+      this.writePdfSection(doc, 'CERRADO', inspections, InspectionStatus.CLOSED, areaNames, imagesByCode);
 
       doc.end();
     });
   }
 
   async exportPrintableHtml(filters: ReportsFilterRequest): Promise<string> {
-    const incidents = await this.queryIncidents(filters);
+    const inspections = await this.queryInspections(filters);
     const areaNames = await this.loadAreaNames();
-    const codes = [...new Set(incidents.map((i) => i.incidentCode))];
-    const imagesByCode = await this.loadImagesByIncident(codes);
+    const codes = [...new Set(inspections.map((i) => i.inspectionCode))];
+    const imagesByCode = await this.loadImagesByInspection(codes);
 
-    const byStatus = (st: IncidentStatus) =>
-      incidents.filter((i) => i.status === st).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
+    const byStatus = (st: InspectionStatus) =>
+      inspections.filter((i) => i.status === st).sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
-    const open = byStatus(IncidentStatus.OPEN);
-    const progress = byStatus(IncidentStatus.IN_PROGRESS);
-    const closed = byStatus(IncidentStatus.CLOSED);
+    const open = byStatus(InspectionStatus.OPEN);
+    const progress = byStatus(InspectionStatus.IN_PROGRESS);
+    const closed = byStatus(InspectionStatus.CLOSED);
 
     const css = `
       * { box-sizing: border-box; }
       body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #111; }
 
-      /* ── Cabeceras de sección ── */
+      /* -- Cabeceras de secci�n -- */
       h1.banner {
         text-align: center;
         border-left: 6px solid;
@@ -493,7 +493,7 @@ export class ReportsService {
       h1.progress { background: #e3f2fd; color: #1565c0; border-color: #1e88e5; }
       h1.closed   { background: #e8f5e9; color: #2e7d32; border-color: #43a047; }
 
-      /* ── Tablas ── */
+      /* -- Tablas -- */
       table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px; }
       th, td { border: 1px solid #ccc; padding: 7px 9px; vertical-align: top; }
       td.num { text-align: center; width: 36px; }
@@ -520,21 +520,21 @@ export class ReportsService {
       }
     `;
 
-    const rowHtml = (rows: IncidentEntity[], variant: 'open' | 'progress' | 'closed'): string => {
+    const rowHtml = (rows: InspectionEntity[], variant: 'open' | 'progress' | 'closed'): string => {
       if (rows.length === 0) {
         return '<p class="muted">Sin registros.</p>';
       }
       const thRowClass = `th-${variant}`;
-      const head = `<tr class="${thRowClass}"><th>N°</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>EVIDENCIAS</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
+      const head = `<tr class="${thRowClass}"><th>N�</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>EVIDENCIAS</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
       const body = rows
         .map((i, idx) => {
-          const imgs = imagesByCode.get(i.incidentCode) ?? {};
+          const imgs = imagesByCode.get(i.inspectionCode) ?? {};
           const links: string[] = [];
           if (imgs.report) {
-            links.push(`<a class="ver-report" href="${escapeHtml(imgs.report)}" target="_blank" rel="noopener noreferrer">📷 Ver informe</a>`);
+            links.push(`<a class="ver-report" href="${escapeHtml(imgs.report)}" target="_blank" rel="noopener noreferrer">?? Ver informe</a>`);
           }
           if (imgs.closure) {
-            links.push(`<a class="ver-closure" href="${escapeHtml(imgs.closure)}" target="_blank" rel="noopener noreferrer">✅ Ver cierre</a>`);
+            links.push(`<a class="ver-closure" href="${escapeHtml(imgs.closure)}" target="_blank" rel="noopener noreferrer">? Ver cierre</a>`);
           }
           const imgCell = links.length > 0 ? links.join('') : '-';
           return `<tr>
@@ -557,7 +557,7 @@ export class ReportsService {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Reporte de incidencias</title>
+  <title>Reporte de inspecciones</title>
   <style>${css}</style>
 </head>
 <body>
@@ -567,7 +567,7 @@ export class ReportsService {
   ${rowHtml(progress, 'progress')}
   <h1 class="banner closed">CERRADO</h1>
   ${rowHtml(closed, 'closed')}
-  <p class="muted">Generado desde el sistema de gestion de incidencias.</p>
+  <p class="muted">Generado desde el sistema de gestion de inspecciones.</p>
 </body>
 </html>`;
   }
@@ -581,87 +581,87 @@ export class ReportsService {
     return areaNames.get(areaCode) ?? areaCode;
   }
 
-  private async loadFirstImageUrlByIncident(codes: string[]): Promise<Map<string, string>> {
+  private async loadFirstImageUrlByInspection(codes: string[]): Promise<Map<string, string>> {
     const map = new Map<string, string>();
     if (codes.length === 0) return map;
 
-    const rows = await this.incidentImageRepository
+    const rows = await this.inspectionImageRepository
       .createQueryBuilder('img')
-      .where('img.incidentCode IN (:...codes)', { codes })
-      .orderBy('img.incidentCode', 'ASC')
+      .where('img.inspectionCode IN (:...codes)', { codes })
+      .orderBy('img.inspectionCode', 'ASC')
       .addOrderBy('img.createdAt', 'ASC')
       .getMany();
 
     for (const row of rows) {
-      if (!map.has(row.incidentCode)) {
-        map.set(row.incidentCode, row.url);
+      if (!map.has(row.inspectionCode)) {
+        map.set(row.inspectionCode, row.url);
       }
     }
     return map;
   }
 
   /**
-   * Carga todas las imágenes agrupadas por incidentCode.
+   * Carga todas las im�genes agrupadas por incidentCode.
    * Devuelve un Map<incidentCode, { report?: string; closure?: string }>.
    */
-  private async loadImagesByIncident(
+  private async loadImagesByInspection(
     codes: string[],
   ): Promise<Map<string, { report?: string; closure?: string }>> {
     const map = new Map<string, { report?: string; closure?: string }>();
     if (codes.length === 0) return map;
 
-    const rows = await this.incidentImageRepository
+    const rows = await this.inspectionImageRepository
       .createQueryBuilder('img')
-      .where('img.incidentCode IN (:...codes)', { codes })
-      .orderBy('img.incidentCode', 'ASC')
+      .where('img.inspectionCode IN (:...codes)', { codes })
+      .orderBy('img.inspectionCode', 'ASC')
       .addOrderBy('img.createdAt', 'ASC')
       .getMany();
 
     for (const row of rows) {
-      const entry = map.get(row.incidentCode) ?? {};
+      const entry = map.get(row.inspectionCode) ?? {};
       const type = (row.imageType ?? '').toLowerCase();
       if (type === 'report' && !entry.report) entry.report = row.url;
       if (type === 'closure' && !entry.closure) entry.closure = row.url;
-      map.set(row.incidentCode, entry);
+      map.set(row.inspectionCode, entry);
     }
     return map;
   }
 
-  private async queryIncidents(filters: ReportsFilterRequest): Promise<IncidentEntity[]> {
-    const qb = this.incidentRepository.createQueryBuilder('incident');
+  private async queryInspections(filters: ReportsFilterRequest): Promise<InspectionEntity[]> {
+    const qb = this.inspectionRepository.createQueryBuilder('inspection');
     const areaCode = cleanFilter(filters.areaCode);
     const leaderCode = cleanFilter(filters.leaderCode);
     const status = cleanFilter(filters.status);
     const riskLevel = cleanFilter(filters.riskLevel);
-    const incidentType = cleanFilter(filters.incidentType);
+    const inspectionType = cleanFilter(filters.inspectionType);
     const reportMonth = cleanFilter(filters.reportMonth);
     const reportYearRaw = cleanFilter(filters.reportYear);
     const referenceDate = cleanFilter(filters.referenceDate);
 
     if (areaCode) {
-      qb.andWhere('incident.areaCode = :areaCode', { areaCode });
+      qb.andWhere('inspection.areaCode = :areaCode', { areaCode });
     }
 
     if (leaderCode) {
-      qb.andWhere('incident.leaderCode = :leaderCode', { leaderCode });
+      qb.andWhere('inspection.leaderCode = :leaderCode', { leaderCode });
     }
 
     if (status) {
-      qb.andWhere('incident.status = :status', { status });
+      qb.andWhere('inspection.status = :status', { status });
     }
 
     if (riskLevel) {
-      qb.andWhere('incident.riskLevel = :riskLevel', { riskLevel });
+      qb.andWhere('inspection.riskLevel = :riskLevel', { riskLevel });
     }
 
-    if (incidentType) {
-      qb.andWhere('incident.incidentType = :incidentType', { incidentType });
+    if (inspectionType) {
+      qb.andWhere('inspection.inspectionType = :inspectionType', { inspectionType });
     }
 
     if (reportMonth) {
       const monthNumber = this.monthNumber(reportMonth);
       qb.andWhere(
-        '(UPPER(incident.reportMonth) = :reportMonth OR (incident.reportMonth IS NULL AND EXTRACT(MONTH FROM incident.createdAt) = :monthNumber))',
+        '(UPPER(inspection.reportMonth) = :reportMonth OR (inspection.reportMonth IS NULL AND EXTRACT(MONTH FROM inspection.createdAt) = :monthNumber))',
         {
           reportMonth: reportMonth.toUpperCase(),
           monthNumber,
@@ -673,7 +673,7 @@ export class ReportsService {
       const reportYear = Number(reportYearRaw);
       if (Number.isFinite(reportYear)) {
         qb.andWhere(
-          '(incident.reportYear = :reportYear OR (incident.reportYear IS NULL AND EXTRACT(YEAR FROM incident.createdAt) = :reportYear))',
+          '(inspection.reportYear = :reportYear OR (inspection.reportYear IS NULL AND EXTRACT(YEAR FROM inspection.createdAt) = :reportYear))',
           { reportYear },
         );
       }
@@ -682,17 +682,17 @@ export class ReportsService {
     if (filters.period || referenceDate) {
       const period = this.normalizePeriod(filters.period);
       const { start, end } = this.resolveRange(period, referenceDate);
-      qb.andWhere('incident.createdAt BETWEEN :start AND :end', { start, end });
+      qb.andWhere('inspection.createdAt BETWEEN :start AND :end', { start, end });
     }
 
-    return qb.orderBy('incident.createdAt', 'DESC').getMany();
+    return qb.orderBy('inspection.createdAt', 'DESC').getMany();
   }
 
-  private toSummary(incidents: IncidentEntity[]): ReportsSummaryResponse {
-    const open = incidents.filter((x) => x.status === IncidentStatus.OPEN).length;
-    const inProgress = incidents.filter((x) => x.status === IncidentStatus.IN_PROGRESS).length;
-    const closed = incidents.filter((x) => x.status === IncidentStatus.CLOSED).length;
-    const total = incidents.length;
+  private toSummary(inspections: InspectionEntity[]): ReportsSummaryResponse {
+    const open = inspections.filter((x) => x.status === InspectionStatus.OPEN).length;
+    const inProgress = inspections.filter((x) => x.status === InspectionStatus.IN_PROGRESS).length;
+    const closed = inspections.filter((x) => x.status === InspectionStatus.CLOSED).length;
+    const total = inspections.length;
     const compliancePct = total > 0 ? Number(((closed / total) * 100).toFixed(2)) : 0;
     return { open, inProgress, closed, total, compliancePct };
   }
@@ -746,9 +746,9 @@ export class ReportsService {
     return index >= 0 ? index + 1 : Number(month) || 0;
   }
 
-  private statusLabel(status: IncidentStatus): string {
-    if (status === IncidentStatus.OPEN) return 'Abierta';
-    if (status === IncidentStatus.IN_PROGRESS) return 'En proceso';
+  private statusLabel(status: InspectionStatus): string {
+    if (status === InspectionStatus.OPEN) return 'Abierta';
+    if (status === InspectionStatus.IN_PROGRESS) return 'En proceso';
     return 'Cerrada';
   }
 
@@ -758,15 +758,15 @@ export class ReportsService {
     return 'Medio';
   }
 
-  private typeLabel(incidentType: string): string {
-    return incidentType === 'act' ? 'Acto inseguro' : 'Condicion insegura';
+  private typeLabel(inspectionType: string): string {
+    return inspectionType === 'act' ? 'Acto inseguro' : 'Condicion insegura';
   }
 
   private writePdfSection(
     doc: PDFKit.PDFDocument,
     title: string,
-    incidents: IncidentEntity[],
-    status: IncidentStatus,
+    inspections: InspectionEntity[],
+    status: InspectionStatus,
     areaNames: Map<string, string>,
     imagesByCode: Map<string, { report?: string; closure?: string }>,
   ): void {
@@ -777,7 +777,7 @@ export class ReportsService {
     };
     const colors = palette[title] ?? { bg: '#F5F5F5', text: '#111111', accent: '#9E9E9E' };
 
-    const rows = incidents
+    const rows = inspections
       .filter((i) => i.status === status)
       .sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
@@ -787,7 +787,7 @@ export class ReportsService {
 
     this.ensurePdfSpace(doc, bannerH + 16);
 
-    // ── Banner de sección ────────────────────────────────────────────────
+    // -- Banner de secci�n ------------------------------------------------
     const bannerY = doc.y;
     doc.rect(marginL, bannerY, pageW, bannerH).fillColor(colors.bg).fill();
     doc.rect(marginL, bannerY, 5, bannerH).fillColor(colors.accent).fill();
@@ -797,7 +797,7 @@ export class ReportsService {
       .fontSize(11)
       .fillColor(colors.text)
       .text(title, marginL + 12, bannerY + 7, { width: pageW - 16, lineBreak: false });
-    // Avanzar manualmente después del banner
+    // Avanzar manualmente despu�s del banner
     doc.y = bannerY + bannerH + 6;
 
     if (rows.length === 0) {
@@ -811,12 +811,12 @@ export class ReportsService {
     }
 
     for (let idx = 0; idx < rows.length; idx++) {
-      const incident = rows[idx];
-      const imgs = imagesByCode.get(incident.incidentCode) ?? {};
+      const inspection = rows[idx];
+      const imgs = imagesByCode.get(inspection.inspectionCode) ?? {};
 
       // Estimar altura del contenido para reservar espacio
-      const descLen = (incident.description ?? '').length;
-      const medLen  = (incident.correctiveMeasures ?? incident.comment ?? '').length;
+      const descLen = (inspection.description ?? '').length;
+      const medLen  = (inspection.correctiveMeasures ?? inspection.comment ?? '').length;
       const extraLines = Math.ceil(descLen / 90) + Math.ceil(medLen / 90);
       const imgLines  = (imgs.report ? 1 : 0) + (imgs.closure ? 1 : 0);
       const cardH = Math.max(72, 44 + extraLines * 10 + imgLines * 11);
@@ -834,32 +834,32 @@ export class ReportsService {
       // Franja de acento izquierda
       doc.rect(marginL, cardY, 4, cardH).fillColor(colors.accent).fill();
 
-      // Línea 1: código + fecha + área + riesgo
+      // L�nea 1: c�digo + fecha + �rea + riesgo
       let curY = cardY + 7;
       doc
         .font('Helvetica-Bold')
         .fontSize(8.5)
         .fillColor('#111111')
         .text(
-          `${idx + 1}. ${incident.incidentCode} | ${fechaReporte(incident.createdAt)} | ${this.areaLabel(incident.areaCode, areaNames)} | ${this.riskLabel(incident.riskLevel)}`,
+          `${idx + 1}. ${inspection.inspectionCode} | ${fechaReporte(inspection.createdAt)} | ${this.areaLabel(inspection.areaCode, areaNames)} | ${this.riskLabel(inspection.riskLevel)}`,
           textX, curY, { width: textW, lineBreak: false },
         );
       curY += 12;
 
-      // Línea 2: reportante + ubicación
+      // L�nea 2: reportante + ubicaci�n
       doc
         .font('Helvetica')
         .fontSize(8)
         .fillColor('#333333')
-        .text(`Reportante: ${incident.reportedBy}   Ubicacion: ${incident.location}`, textX, curY, { width: textW });
+        .text(`Reportante: ${inspection.reportedBy}   Ubicacion: ${inspection.location}`, textX, curY, { width: textW });
       curY = doc.y + 1;
 
-      // Descripción
-      doc.text(`Descripcion: ${incident.description}`, textX, curY, { width: textW });
+      // Descripci�n
+      doc.text(`Descripcion: ${inspection.description}`, textX, curY, { width: textW });
       curY = doc.y + 1;
 
       // Medidas
-      const medidas = incident.correctiveMeasures ?? incident.comment ?? '-';
+      const medidas = inspection.correctiveMeasures ?? inspection.comment ?? '-';
       doc.text(`Medidas: ${medidas}`, textX, curY, { width: textW });
       curY = doc.y + 1;
 

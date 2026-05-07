@@ -1,12 +1,12 @@
-﻿import { IncidentStatus } from '../enum/incident-status.enum';
+﻿import { InspectionStatus } from '../enum/inspection-status.enum';
 import { SeedAreaInfo, SeedDemoUserInfo, SeedLeaderInfo, SeedRoleInfo } from './seed.types';
 
 export const DEMO_PASSWORD = 'demo1234';
 
 export const SEED_ROLES: SeedRoleInfo[] = [
   { code: 'admin', name: 'Administrador', paraQueSirve: 'Ve todo el sistema, configura catalogos, usuarios, reportes y puede corregir datos.' },
-  { code: 'leader', name: 'Lider de area', paraQueSirve: 'Gestiona incidencias de su area/equipo, da seguimiento y valida cierres.' },
-  { code: 'operator', name: 'Operador', paraQueSirve: 'Registra incidencias y consulta el avance de sus reportes.' },
+  { code: 'leader', name: 'Lider de area', paraQueSirve: 'Gestiona inspecciones de su area/equipo, da seguimiento y valida cierres.' },
+  { code: 'operator', name: 'Operador', paraQueSirve: 'Registra inspecciones y consulta el avance de sus reportes.' },
   { code: 'viewer', name: 'Consulta', paraQueSirve: 'Perfil de solo lectura para auditoria o gerencia.' },
 ];
 
@@ -50,8 +50,8 @@ export const SEED_DEMO_USERS: SeedDemoUserInfo[] = [
   { email: 'auditor@demo.local', fullName: 'Auditor Demo', roleCode: 'viewer', areaCode: 'HSE', leaderCode: 'CARLOS', nota: `Password: ${DEMO_PASSWORD}. Consulta.` },
 ];
 
-export interface SeedIncidentBase {
-  incidentCode: string;
+export interface SeedInspectionBase {
+  inspectionCode: string;
   reportedBy: string;
   reportYear?: number;
   reportMonth?: string;
@@ -66,34 +66,34 @@ export interface SeedIncidentBase {
   assignedTo: string;
   location: string;
   workArea?: string;
-  incidentType: 'act' | 'condition';
+  inspectionType: 'act' | 'condition';
   riskLevel: 'low' | 'medium' | 'high';
   description: string;
   comment?: string;
   reportSource?: string;
   correctiveMeasures?: string;
-  status: IncidentStatus;
+  status: InspectionStatus;
 }
 
-const baseRows: Array<Omit<SeedIncidentBase, 'incidentCode'>> = [
-  { reportedBy: 'Miguel Coronado', areaCode: 'LOG', leaderCode: 'MANUEL', assignedTo: 'Supervisor de patio', location: 'Parqueo de montacargas', workArea: 'Patio logistico', incidentType: 'condition', riskLevel: 'high', description: 'Caja de carton abierta y plasticos depositados en area de maniobra de montacargas.', correctiveMeasures: 'Retirar materiales y mantener despejada la zona de transito.', status: IncidentStatus.OPEN },
-  { reportedBy: 'Miguel Coronado', areaCode: 'LOG', leaderCode: 'MANUEL', assignedTo: 'Mantenimiento', location: 'Parqueo de montacargas', workArea: 'Patio logistico', incidentType: 'condition', riskLevel: 'medium', description: 'Piso contaminado con liquidos en zona de circulacion.', correctiveMeasures: 'Limpiar derrame y verificar fuga en equipo cercano.', status: IncidentStatus.IN_PROGRESS },
-  { reportedBy: 'Wilfredo Fernandez', areaCode: 'PLANT', leaderCode: 'ROSA', assignedTo: 'Taller mantenimiento', location: 'Nave de palta', workArea: 'Linea de proceso', incidentType: 'condition', riskLevel: 'high', description: 'Canaleta electrica con cables expuestos.', correctiveMeasures: 'Restringir acceso, senalizar y reponer canaleta.', status: IncidentStatus.OPEN },
-  { reportedBy: 'Ana Rojas', areaCode: 'PACK', leaderCode: 'LUCIA', assignedTo: 'Jefe de linea 2', location: 'Linea 2 - empaque', workArea: 'Empaque', incidentType: 'act', riskLevel: 'medium', description: 'Operador manipula jabas sin guantes de seguridad.', correctiveMeasures: 'Reforzar uso de EPP y validar entrega de guantes.', status: IncidentStatus.CLOSED },
-  { reportedBy: 'Operador Demo', areaCode: 'FIELD', leaderCode: 'MARIO', assignedTo: 'Cuadrilla campo norte', location: 'Campo Norte', workArea: 'Cosecha', incidentType: 'act', riskLevel: 'high', description: 'Ingreso a zona de trabajo sin EPP completo.', correctiveMeasures: 'Charla de cinco minutos y control de ingreso.', status: IncidentStatus.IN_PROGRESS },
-  { reportedBy: 'Diana Diaz', areaCode: 'QA', leaderCode: 'DIANA', assignedTo: 'Laboratorio QA', location: 'Laboratorio fisicoquimico', workArea: 'Calidad', incidentType: 'condition', riskLevel: 'low', description: 'Etiqueta de producto quimico parcialmente ilegible.', correctiveMeasures: 'Reetiquetar envase y revisar almacenamiento.', status: IncidentStatus.CLOSED },
-  { reportedBy: 'Carlos Melendez', areaCode: 'HSE', leaderCode: 'CARLOS', assignedTo: 'Brigada emergencia', location: 'Gabinete contra incendio 3', workArea: 'Seguridad', incidentType: 'condition', riskLevel: 'high', description: 'Acceso a gabinete obstruido por pallets.', correctiveMeasures: 'Retirar pallets y demarcar area libre permanente.', status: IncidentStatus.OPEN },
-  { reportedBy: 'Miguel Coronado', areaCode: 'LOG', leaderCode: 'MANUEL', assignedTo: 'Operador montacargas', location: 'Zona de carga', workArea: 'Despacho', incidentType: 'act', riskLevel: 'medium', description: 'Montacargas circula con alarma sonora intermitente.', correctiveMeasures: 'Retirar equipo de servicio y reportar a mantenimiento.', status: IncidentStatus.CLOSED },
+const baseRows: Array<Omit<SeedInspectionBase, 'inspectionCode'>> = [
+  { reportedBy: 'Miguel Coronado', areaCode: 'LOG', leaderCode: 'MANUEL', assignedTo: 'Supervisor de patio', location: 'Parqueo de montacargas', workArea: 'Patio logistico', inspectionType: 'condition', riskLevel: 'high', description: 'Caja de carton abierta y plasticos depositados en area de maniobra de montacargas.', correctiveMeasures: 'Retirar materiales y mantener despejada la zona de transito.', status: InspectionStatus.OPEN },
+  { reportedBy: 'Miguel Coronado', areaCode: 'LOG', leaderCode: 'MANUEL', assignedTo: 'Mantenimiento', location: 'Parqueo de montacargas', workArea: 'Patio logistico', inspectionType: 'condition', riskLevel: 'medium', description: 'Piso contaminado con liquidos en zona de circulacion.', correctiveMeasures: 'Limpiar derrame y verificar fuga en equipo cercano.', status: InspectionStatus.IN_PROGRESS },
+  { reportedBy: 'Wilfredo Fernandez', areaCode: 'PLANT', leaderCode: 'ROSA', assignedTo: 'Taller mantenimiento', location: 'Nave de palta', workArea: 'Linea de proceso', inspectionType: 'condition', riskLevel: 'high', description: 'Canaleta electrica con cables expuestos.', correctiveMeasures: 'Restringir acceso, senalizar y reponer canaleta.', status: InspectionStatus.OPEN },
+  { reportedBy: 'Ana Rojas', areaCode: 'PACK', leaderCode: 'LUCIA', assignedTo: 'Jefe de linea 2', location: 'Linea 2 - empaque', workArea: 'Empaque', inspectionType: 'act', riskLevel: 'medium', description: 'Operador manipula jabas sin guantes de seguridad.', correctiveMeasures: 'Reforzar uso de EPP y validar entrega de guantes.', status: InspectionStatus.CLOSED },
+  { reportedBy: 'Operador Demo', areaCode: 'FIELD', leaderCode: 'MARIO', assignedTo: 'Cuadrilla campo norte', location: 'Campo Norte', workArea: 'Cosecha', inspectionType: 'act', riskLevel: 'high', description: 'Ingreso a zona de trabajo sin EPP completo.', correctiveMeasures: 'Charla de cinco minutos y control de ingreso.', status: InspectionStatus.IN_PROGRESS },
+  { reportedBy: 'Diana Diaz', areaCode: 'QA', leaderCode: 'DIANA', assignedTo: 'Laboratorio QA', location: 'Laboratorio fisicoquimico', workArea: 'Calidad', inspectionType: 'condition', riskLevel: 'low', description: 'Etiqueta de producto quimico parcialmente ilegible.', correctiveMeasures: 'Reetiquetar envase y revisar almacenamiento.', status: InspectionStatus.CLOSED },
+  { reportedBy: 'Carlos Melendez', areaCode: 'HSE', leaderCode: 'CARLOS', assignedTo: 'Brigada emergencia', location: 'Gabinete contra incendio 3', workArea: 'Seguridad', inspectionType: 'condition', riskLevel: 'high', description: 'Acceso a gabinete obstruido por pallets.', correctiveMeasures: 'Retirar pallets y demarcar area libre permanente.', status: InspectionStatus.OPEN },
+  { reportedBy: 'Miguel Coronado', areaCode: 'LOG', leaderCode: 'MANUEL', assignedTo: 'Operador montacargas', location: 'Zona de carga', workArea: 'Despacho', inspectionType: 'act', riskLevel: 'medium', description: 'Montacargas circula con alarma sonora intermitente.', correctiveMeasures: 'Retirar equipo de servicio y reportar a mantenimiento.', status: InspectionStatus.CLOSED },
 ];
 
 const months = ['ENERO', 'FEBRERO', 'MARZO', 'ABRIL', 'MAYO', 'JUNIO'];
 
-export const SEED_INCIDENTS: SeedIncidentBase[] = Array.from({ length: 32 }, (_, idx) => {
+export const SEED_INSPECTIONS: SeedInspectionBase[] = Array.from({ length: 32 }, (_, idx) => {
   const row = baseRows[idx % baseRows.length];
   const n = idx + 1;
   return {
     ...row,
-    incidentCode: `INC-2026-${String(n).padStart(3, '0')}`,
+    inspectionCode: `INS-2026-${String(n).padStart(3, '0')}`,
     reportYear: 2026,
     reportMonth: months[idx % months.length],
     reportDay: (idx % 24) + 1,

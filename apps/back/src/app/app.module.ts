@@ -7,8 +7,8 @@ import { AuditLogModule } from './module/audit-log.module';
 import { AuthModule } from './module/auth.module';
 import { CatalogItemModule } from './module/catalog-item.module';
 import { HealthModule } from './module/health.module';
-import { IncidentImageModule } from './module/incident-image.module';
-import { IncidentModule } from './module/incident.module';
+import { InspectionImageModule } from './module/inspection-image.module';
+import { InspectionModule } from './module/inspection.module';
 import { LeaderModule } from './module/leader.module';
 import { ReportsModule } from './module/reports.module';
 import { RoleModule } from './module/role.module';
@@ -68,8 +68,8 @@ function getTypeOrmConnectionOptions(config: ConfigService) {
             useFactory: (config: ConfigService) =>
               getTypeOrmConnectionOptions(config),
           }),
-          IncidentModule,
-          IncidentImageModule,
+          InspectionModule,
+          InspectionImageModule,
           UserModule,
           RoleModule,
           AreaModule,

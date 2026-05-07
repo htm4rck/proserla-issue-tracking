@@ -12,13 +12,13 @@ export interface SeedRunPayload {
     leaderCode: string;
     nota: string;
   }[];
-  incidenciasDemo: string[];
+  inspeccionesDemo: string[];
   conteos: {
     roles: number;
     areas: number;
     lideres: number;
     usuarios: number;
     catalogos: number;
-    incidencias: number;
+    inspecciones: number;
   };
 }

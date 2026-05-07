@@ -24,8 +24,8 @@ async function bootstrap() {
   });
 
   const swaggerConfig = new DocumentBuilder()
-    .setTitle('API de seguimiento de incidencias')
-    .setDescription('Endpoints para incidencias, evidencias, catálogos y reportes')
+    .setTitle('API de seguimiento de inspecciones')
+    .setDescription('Endpoints para inspecciones, evidencias, catálogos y reportes')
     .setVersion('1.0.0')
     .build();
 

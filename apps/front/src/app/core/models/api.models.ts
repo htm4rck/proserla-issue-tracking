@@ -5,9 +5,9 @@
   errors?: string[];
 }
 
-export interface IncidentResponse {
+export interface InspectionResponse {
   id: string;
-  incidentCode: string;
+  inspectionCode: string;
   status: string;
   imageType: string;
   url: string;
@@ -19,11 +19,10 @@ export interface IncidentResponse {
   createdAt: string;
 }
 
-export interface Incident {
+export interface Inspection {
   id: string;
-  incidentCode: string;
+  inspectionCode: string;
   reportedBy: string;
-  /** UUID del usuario que registró (servidor). */
   reportedByUserId?: string;
   reportYear?: number;
   reportMonth?: string;
@@ -39,7 +38,7 @@ export interface Incident {
   assignedTo?: string;
   location: string;
   workArea?: string;
-  incidentType: 'act' | 'condition' | 'mixed';
+  inspectionType: 'act' | 'condition' | 'mixed';
   riskLevel: 'low' | 'medium' | 'high';
   description: string;
   comment?: string;
@@ -50,8 +49,8 @@ export interface Incident {
   updatedAt: string;
 }
 
-export interface PaginatedIncidents {
-  items: Incident[];
+export interface PaginatedInspections {
+  items: Inspection[];
   page: number;
   pageSize: number;
   total: number;

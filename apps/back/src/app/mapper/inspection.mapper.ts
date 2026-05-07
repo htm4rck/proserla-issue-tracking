@@ -1,4 +1,4 @@
-﻿import { Transform, Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsArray,
   IsIn,
@@ -11,8 +11,8 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { IncidentEntity } from '../entity/incident.entity';
-import { IncidentStatus } from '../enum/incident-status.enum';
+import { InspectionEntity } from '../entity/inspection.entity';
+import { InspectionStatus } from '../enum/inspection-status.enum';
 
 function emptyQueryToUndefined(value: unknown): unknown {
   if (typeof value !== 'string') return value;
@@ -28,7 +28,7 @@ function queryNumberToUndefined(value: unknown): number | undefined {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export class IncidentEvidenceInput {
+export class InspectionEvidenceInput {
   @IsString()
   @IsIn(['report', 'closure'])
   imageType!: string;
@@ -62,13 +62,13 @@ export class IncidentEvidenceInput {
   uploadError?: string;
 }
 
-export class CreateIncidentRequest {
-  /** Si se omite o va vacío, el servidor asigna correlativo INC-AAAA-NNNNN. */
+export class CreateInspectionRequest {
+  /** Si se omite o va vacío, el servidor asigna correlativo INS-AAAA-NNNNN. */
   @IsOptional()
   @Transform(({ value }) => (typeof value === 'string' && value.trim() === '' ? undefined : value))
   @IsString()
   @MaxLength(100)
-  incidentCode?: string;
+  inspectionCode?: string;
 
   /** Ignorado en creación: el servidor toma reportante desde x-user-email. */
   @IsOptional()
@@ -146,7 +146,7 @@ export class CreateIncidentRequest {
 
   @IsString()
   @IsIn(['act', 'condition', 'mixed'])
-  incidentType!: string;
+  inspectionType!: string;
 
   @IsString()
   @IsIn(['low', 'medium', 'high'])
@@ -171,17 +171,17 @@ export class CreateIncidentRequest {
 
   @IsOptional()
   @IsString()
-  @IsIn(Object.values(IncidentStatus))
-  status?: IncidentStatus;
+  @IsIn(Object.values(InspectionStatus))
+  status?: InspectionStatus;
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => IncidentEvidenceInput)
-  evidence?: IncidentEvidenceInput[];
+  @Type(() => InspectionEvidenceInput)
+  evidence?: InspectionEvidenceInput[];
 }
 
-export class UpdateIncidentRequest {
+export class UpdateInspectionRequest {
   @IsOptional()
   @IsString()
   @MaxLength(160)
@@ -257,7 +257,7 @@ export class UpdateIncidentRequest {
   @IsOptional()
   @IsString()
   @IsIn(['act', 'condition', 'mixed'])
-  incidentType?: string;
+  inspectionType?: string;
 
   @IsOptional()
   @IsString()
@@ -283,21 +283,21 @@ export class UpdateIncidentRequest {
 
   @IsOptional()
   @IsString()
-  @IsIn(Object.values(IncidentStatus))
-  status?: IncidentStatus;
+  @IsIn(Object.values(InspectionStatus))
+  status?: InspectionStatus;
 
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => IncidentEvidenceInput)
-  evidence?: IncidentEvidenceInput[];
+  @Type(() => InspectionEvidenceInput)
+  evidence?: InspectionEvidenceInput[];
 }
 
-export class SearchIncidentsRequest {
+export class SearchInspectionsRequest {
   @IsOptional()
   @Transform(({ value }) => emptyQueryToUndefined(value))
-  @IsIn(Object.values(IncidentStatus))
-  status?: IncidentStatus;
+  @IsIn(Object.values(InspectionStatus))
+  status?: InspectionStatus;
 
   @IsOptional()
   @Transform(({ value }) => emptyQueryToUndefined(value))
@@ -317,7 +317,7 @@ export class SearchIncidentsRequest {
   @IsOptional()
   @Transform(({ value }) => emptyQueryToUndefined(value))
   @IsString()
-  incidentType?: string;
+  inspectionType?: string;
 
   @IsOptional()
   @Transform(({ value }) => emptyQueryToUndefined(value))
@@ -343,17 +343,17 @@ export class SearchIncidentsRequest {
   pageSize?: number;
 }
 
-export class PaginatedIncidentsResponse {
-  items!: IncidentResponse[];
+export class PaginatedInspectionsResponse {
+  items!: InspectionResponse[];
   page!: number;
   pageSize!: number;
   total!: number;
   totalPages!: number;
 }
 
-export class IncidentResponse {
+export class InspectionResponse {
   id!: string;
-  incidentCode!: string;
+  inspectionCode!: string;
   reportedBy!: string;
   reportedByUserId?: string;
   reportYear?: number;
@@ -369,22 +369,22 @@ export class IncidentResponse {
   assignedTo?: string;
   location!: string;
   workArea?: string;
-  incidentType!: string;
+  inspectionType!: string;
   riskLevel!: string;
   description!: string;
   comment?: string;
   reportSource?: string;
   correctiveMeasures?: string;
-  status!: IncidentStatus;
+  status!: InspectionStatus;
   createdAt!: Date;
   updatedAt!: Date;
 }
 
-export class IncidentMapper {
-  static toResponse(entity: IncidentEntity): IncidentResponse {
+export class InspectionMapper {
+  static toResponse(entity: InspectionEntity): InspectionResponse {
     return {
       id: entity.id,
-      incidentCode: entity.incidentCode,
+      inspectionCode: entity.inspectionCode,
       reportedBy: entity.reportedBy,
       reportedByUserId: entity.reportedByUserId,
       reportYear: entity.reportYear,
@@ -400,7 +400,7 @@ export class IncidentMapper {
       assignedTo: entity.assignedTo,
       location: entity.location,
       workArea: entity.workArea,
-      incidentType: entity.incidentType,
+      inspectionType: entity.inspectionType,
       riskLevel: entity.riskLevel,
       description: entity.description,
       comment: entity.comment,
@@ -412,4 +412,3 @@ export class IncidentMapper {
     };
   }
 }
-
