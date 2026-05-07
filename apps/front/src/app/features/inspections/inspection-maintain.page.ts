@@ -128,9 +128,16 @@ export class InspectionMaintainPageComponent implements OnInit {
       return;
     }
 
-    const matches = this.leaders.filter(
-      l => l.isActive && l.areas.some(a => a.areaCode === areaCode),
-    );
+    // Buscar en leader_areas[] primero, luego en areaCode primario como fallback
+    const matches = this.leaders.filter(l => {
+      if (!l.isActive) return false;
+      // Tiene la área en su lista multi-área
+      if (l.areas && l.areas.length > 0) {
+        return l.areas.some(a => a.areaCode === areaCode);
+      }
+      // Fallback: área primaria del líder (líderes sin leader_areas registradas)
+      return l.areaCode === areaCode;
+    });
 
     if (matches.length === 0) {
       this.form.patchValue({ leaderCode: '' }, { emitEvent: false });
@@ -138,8 +145,9 @@ export class InspectionMaintainPageComponent implements OnInit {
       return;
     }
 
+    // Preferir el que tiene isPrimary=true para esa área
     const primary = matches.find(l =>
-      l.areas.some(a => a.areaCode === areaCode && a.isPrimary),
+      l.areas?.some(a => a.areaCode === areaCode && a.isPrimary),
     ) ?? matches[0];
 
     this.form.patchValue({ leaderCode: primary.code }, { emitEvent: false });
@@ -150,14 +158,9 @@ export class InspectionMaintainPageComponent implements OnInit {
     return this.areas.find(a => a.code === areaCode)?.name ?? areaCode;
   }
 
-  /** Áreas que tienen al menos un líder activo asignado */
+  /** Todas las áreas — sin filtrar para no ocultar áreas disponibles */
   get areasWithLeader(): Area[] {
-    const coveredCodes = new Set(
-      this.leaders
-        .filter(l => l.isActive)
-        .flatMap(l => l.areas.map(a => a.areaCode)),
-    );
-    return this.areas.filter(a => coveredCodes.has(a.code));
+    return this.areas;
   }
 
   // ── Setup ─────────────────────────────────────────────────────────────────
@@ -214,10 +217,9 @@ export class InspectionMaintainPageComponent implements OnInit {
   private preselectAreaFromSession(): void {
     const u = this.session.user;
     if (!u?.areaCode) return;
-    const hasLeader = this.leaders.some(
-      l => l.isActive && l.areas.some(a => a.areaCode === u.areaCode),
-    );
-    if (hasLeader) this.form.controls.areaCode.setValue(u.areaCode);
+    // Pre-seleccionar si el área existe en la lista
+    const areaExists = this.areas.some(a => a.code === u.areaCode && a.isActive);
+    if (areaExists) this.form.controls.areaCode.setValue(u.areaCode);
   }
 
   private loadExisting(code: string): void {

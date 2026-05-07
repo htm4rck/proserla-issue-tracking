@@ -200,14 +200,14 @@ export class InspectionConsolidatedReportService {
 
     // Embeber logo desde buffer base64 — siempre disponible en produccion
     try {
-      const logoId = wb.addImage({ buffer: LOGO_BUFFER as Buffer, extension: 'png' });
+      const logoId = wb.addImage({ buffer: LOGO_BUFFER as any, extension: 'png' });
       ws.addImage(logoId, 'A1:B3');
       ws.addImage(logoId, 'K1:L3');
     } catch (err) {
       this.logger.warn(`No se pudo embeber el logo: ${String(err)}`);
       const fallbackVal = 'proserla\npromotora y servicios lambayeque s.a.c.';
       const fallbackFont = { name: FONT, bold: true, size: 11, color: { argb: '1e8449' } };
-      const fallbackAlign: ExcelJS.Alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      const fallbackAlign: Partial<ExcelJS.Alignment> = { vertical: 'middle', horizontal: 'center', wrapText: true };
       logoCell.value  = fallbackVal; logoCell.font  = fallbackFont; logoCell.alignment  = fallbackAlign;
       logo2Cell.value = fallbackVal; logo2Cell.font = fallbackFont; logo2Cell.alignment = fallbackAlign;
     }
@@ -350,7 +350,7 @@ export class InspectionConsolidatedReportService {
       // ── Embeber imagen en columnas B y L ────────────────────────────────────
       if (imgData) {
         try {
-          const imgId = wb.addImage({ buffer: imgData.buffer as Buffer, extension: imgData.ext });
+          const imgId = wb.addImage({ buffer: imgData.buffer as any, extension: imgData.ext });
 
           // Columna B — usando rango de celdas como string
           const colB = String.fromCharCode(66); // 'B'
