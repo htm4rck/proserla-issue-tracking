@@ -215,21 +215,13 @@ export class InspectionConsolidatedReportService {
     if (logoPath) {
       try {
         const logoBuffer = fs.readFileSync(logoPath);
-        const logoId = wb.addImage({ buffer: logoBuffer, extension: 'png' });
+        const logoId = wb.addImage({ buffer: logoBuffer as Buffer, extension: 'png' });
 
-        // Logo izquierdo (cols A-B = 0-1, filas 1-3 = 0-2)
-        ws.addImage(logoId, {
-          tl: { col: 0, row: 0 },
-          br: { col: 2, row: 3 },
-          editAs: 'oneCell',
-        });
+        // Logo izquierdo (cols A-B, filas 1-3) — usando rango de celdas como string
+        ws.addImage(logoId, 'A1:B3');
 
-        // Logo derecho (cols K-L = 10-11, filas 1-3 = 0-2)
-        ws.addImage(logoId, {
-          tl: { col: 10, row: 0 },
-          br: { col: 12, row: 3 },
-          editAs: 'oneCell',
-        });
+        // Logo derecho (cols K-L, filas 1-3)
+        ws.addImage(logoId, 'K1:L3');
       } catch (err) {
         this.logger.warn(`No se pudo cargar el logo: ${String(err)}`);
         // Fallback texto
@@ -388,21 +380,15 @@ export class InspectionConsolidatedReportService {
       // ── Embeber imagen en columnas B y L ────────────────────────────────────
       if (imgData) {
         try {
-          const imgId = wb.addImage({ buffer: imgData.buffer, extension: imgData.ext });
+          const imgId = wb.addImage({ buffer: imgData.buffer as Buffer, extension: imgData.ext });
 
-          // Columna B (índice 1, 0-based)
-          ws.addImage(imgId, {
-            tl: { col: 1, row: rowIdx - 1 },       // top-left (0-based)
-            br: { col: 2, row: rowIdx },             // bottom-right
-            editAs: 'oneCell',
-          });
-
-          // Columna L (índice 11, 0-based)
-          ws.addImage(imgId, {
-            tl: { col: 11, row: rowIdx - 1 },
-            br: { col: 12, row: rowIdx },
-            editAs: 'oneCell',
-          });
+          // Columna B — usando rango de celdas como string
+          const colB = String.fromCharCode(66); // 'B'
+          const colC = String.fromCharCode(67); // 'C'
+          const colL = String.fromCharCode(76); // 'L'
+          const colM = String.fromCharCode(77); // 'M'
+          ws.addImage(imgId, `${colB}${rowIdx}:${colC}${rowIdx}`);
+          ws.addImage(imgId, `${colL}${rowIdx}:${colM}${rowIdx}`);
         } catch (err) {
           this.logger.warn(`Error embebiendo imagen para ${insp.inspectionCode}: ${String(err)}`);
         }
