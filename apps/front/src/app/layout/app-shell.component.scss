@@ -6,6 +6,7 @@ $sidebar-w: 260px;
 /* ── Layout raíz ─────────────────────────────────────────────────────────── */
 .layout {
   min-height: 100vh;
+  height: 100vh;
   display: grid;
   grid-template-columns: $sidebar-w 1fr;
   gap: 1rem;
@@ -125,7 +126,9 @@ $sidebar-w: 260px;
   display: grid;
   grid-template-rows: auto 1fr;
   gap: 1rem;
-  min-width: 0; /* evita overflow en grid */
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* ── Topbar ──────────────────────────────────────────────────────────────── */
@@ -203,6 +206,9 @@ $sidebar-w: 260px;
 .content {
   min-height: 0;
   min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: 0.5rem;
 }
 
 /* ── Overlay (mobile) ────────────────────────────────────────────────────── */

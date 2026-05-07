@@ -1,388 +1,276 @@
-﻿<div class="page-wrapper">
+﻿<div class="ip-shell">
 
-  <!-- ── Cabecera ──────────────────────────────────────────────────────── -->
-  <header class="page-header">
-    <div class="page-header__left">
-      <a routerLink="/inspections" class="back-btn">
-        <span class="back-btn__icon">←</span>
-        Volver al listado
-      </a>
-      <div class="page-header__title">
+  <!-- ══ TOPBAR ══════════════════════════════════════════════════════════ -->
+  <header class="ip-topbar">
+    <div class="ip-topbar__left">
+      <a routerLink="/inspections" class="ip-back">← Volver</a>
+      <div class="ip-topbar__title">
         <h1>{{ isCreate ? 'Nueva inspección' : 'Ficha de inspección' }}</h1>
         @if (!isCreate) {
-          <span class="code-badge">{{ form.getRawValue().inspectionCode }}</span>
+          <span class="ip-code">{{ form.getRawValue().inspectionCode }}</span>
         }
       </div>
     </div>
-    <div class="page-header__actions">
-      <button type="button" class="btn-save" (click)="submit()">
-        <span class="btn-save__icon">✓</span>
-        Guardar todo
-      </button>
+    <div class="ip-topbar__right">
+      @if (feedback) { <span class="ip-msg ip-msg--ok">✓ {{ feedback }}</span> }
+      @if (errorMsg)  { <span class="ip-msg ip-msg--err">⚠ {{ errorMsg }}</span> }
+      <button type="button" class="ip-btn-save" (click)="submit()">✓ Guardar todo</button>
     </div>
   </header>
 
-  <!-- ── Mensajes ──────────────────────────────────────────────────────── -->
-  @if (feedback) {
-    <div class="alert alert--ok">
-      <span class="alert__icon">✓</span>
-      {{ feedback }}
-    </div>
-  }
-  @if (errorMsg) {
-    <div class="alert alert--err">
-      <span class="alert__icon">!</span>
-      {{ errorMsg }}
-    </div>
-  }
+  <!-- ══ BODY ════════════════════════════════════════════════════════════ -->
+  <div [formGroup]="form" class="ip-body">
 
-  <div [formGroup]="form" class="form-body">
+    <!-- ── Columna izquierda ─────────────────────────────────────────── -->
+    <div class="ip-col ip-col--left">
 
-    <!-- ══ SECCIÓN 1: Identificación ══════════════════════════════════════ -->
-    <section class="form-section">
-      <div class="form-section__header">
-        <span class="form-section__icon">📋</span>
-        <div>
-          <h2 class="form-section__title">Identificación</h2>
-          <p class="form-section__desc">Datos del registro y del reportante</p>
+      <!-- Bloque: Identificación -->
+      <div class="ip-block">
+        <p class="ip-block__label">📋 Identificación</p>
+        <div class="ip-row ip-row--2">
+          <div class="ip-field">
+            <label class="ip-lbl">Código</label>
+            <input class="ip-input ip-input--ro" formControlName="inspectionCode"
+              [attr.placeholder]="isCreate ? 'Auto INS-AAAA-NNNNN' : ''" />
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Reportante</label>
+            <input class="ip-input ip-input--ro" formControlName="reportedBy" />
+          </div>
+        </div>
+        <div class="ip-row ip-row--4">
+          <div class="ip-field">
+            <label class="ip-lbl">Año</label>
+            <select class="ip-input" formControlName="reportYear">
+              <option value="">—</option>
+              @for (y of yearOptions; track y) { <option [value]="y">{{ y }}</option> }
+            </select>
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Mes</label>
+            <select class="ip-input" formControlName="reportMonth">
+              <option value="">—</option>
+              @for (m of monthOptions; track m.value) { <option [value]="m.value">{{ m.label }}</option> }
+            </select>
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Día</label>
+            <input class="ip-input" type="number" min="1" max="31" formControlName="reportDay" />
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Hora</label>
+            <input class="ip-input" formControlName="reportTime" placeholder="08:30" />
+          </div>
+        </div>
+        <div class="ip-row ip-row--2">
+          <div class="ip-field">
+            <label class="ip-lbl">Fundo / planta</label>
+            <select class="ip-input" formControlName="site">
+              <option value="">— Seleccionar —</option>
+              @for (ws of workSites; track ws.id) { <option [value]="ws.name">{{ ws.name }}</option> }
+            </select>
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Origen del reporte</label>
+            <select class="ip-input" formControlName="reportSource">
+              <option value="">— Seleccionar —</option>
+              <option value="whatsapp">WhatsApp</option>
+              <option value="checklist">Checklist</option>
+              <option value="verbal">Verbal</option>
+              <option value="correo">Correo electrónico</option>
+              <option value="sistema">Sistema</option>
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="fields-grid">
-        <div class="field-group">
-          <label class="field-label" for="inspectionCode">Código</label>
-          <input id="inspectionCode" class="field-input field-input--disabled"
-            formControlName="inspectionCode"
-            [attr.placeholder]="isCreate ? 'Se asigna al guardar' : ''" />
-          @if (isCreate) {
-            <span class="field-hint">Correlativo automático INS-AAAA-NNNNN</span>
-          }
+      <!-- Bloque: Persona reportada -->
+      <div class="ip-block">
+        <p class="ip-block__label">👤 Persona reportada</p>
+        <div class="ip-row ip-row--3">
+          <div class="ip-field ip-field--span2">
+            <label class="ip-lbl">Nombre / datos del reportado</label>
+            <input class="ip-input" formControlName="reportedPerson" placeholder="Nombre o N/A" />
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Edad</label>
+            <input class="ip-input" formControlName="reportedPersonAge" placeholder="—" />
+          </div>
         </div>
-
-        <div class="field-group">
-          <label class="field-label" for="reportedBy">Reportante</label>
-          <input id="reportedBy" class="field-input field-input--disabled" formControlName="reportedBy" />
-          <span class="field-hint">Tomado del usuario en sesión · no editable</span>
-        </div>
-
-        <div class="field-group field-group--sm">
-          <label class="field-label" for="reportYear">Año</label>
-          <select id="reportYear" class="field-input" formControlName="reportYear">
-            <option value="">— Año —</option>
-            @for (year of yearOptions; track year) {
-              <option [value]="year">{{ year }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="field-group field-group--sm">
-          <label class="field-label" for="reportMonth">Mes</label>
-          <select id="reportMonth" class="field-input" formControlName="reportMonth">
-            <option value="">— Mes —</option>
-            @for (m of monthOptions; track m.value) {
-              <option [value]="m.value">{{ m.label }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="field-group field-group--xs">
-          <label class="field-label" for="reportDay">Día</label>
-          <input id="reportDay" class="field-input" type="number" min="1" max="31" formControlName="reportDay" />
-        </div>
-
-        <div class="field-group field-group--xs">
-          <label class="field-label" for="reportTime">Hora</label>
-          <input id="reportTime" class="field-input" formControlName="reportTime" placeholder="08:30" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="site">Fundo / planta</label>
-          <select id="site" class="field-input" formControlName="site">
-            <option value="">— Seleccionar —</option>
-            @for (ws of workSites; track ws.id) {
-              <option [value]="ws.name">{{ ws.name }}</option>
-            }
-          </select>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="reportSource">Origen del reporte</label>
-          <select id="reportSource" class="field-input" formControlName="reportSource">
-            <option value="">— Seleccionar —</option>
-            <option value="whatsapp">WhatsApp</option>
-            <option value="checklist">Checklist</option>
-            <option value="verbal">Verbal</option>
-            <option value="correo">Correo electrónico</option>
-            <option value="sistema">Sistema</option>
-          </select>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ SECCIÓN 2: Persona reportada ══════════════════════════════════ -->
-    <section class="form-section">
-      <div class="form-section__header">
-        <span class="form-section__icon">👤</span>
-        <div>
-          <h2 class="form-section__title">Persona reportada</h2>
-          <p class="form-section__desc">Datos del trabajador o persona involucrada</p>
+        <div class="ip-row ip-row--1">
+          <div class="ip-field">
+            <label class="ip-lbl">Procedencia</label>
+            <select class="ip-input" formControlName="employerType">
+              <option value="">— Seleccionar —</option>
+              @for (et of employerTypes; track et.code) { <option [value]="et.code">{{ et.label }}</option> }
+            </select>
+          </div>
         </div>
       </div>
 
-      <div class="fields-grid">
-        <div class="field-group field-group--lg">
-          <label class="field-label" for="reportedPerson">Nombre / datos del reportado</label>
-          <input id="reportedPerson" class="field-input" formControlName="reportedPerson" placeholder="Nombre completo o N/A" />
+      <!-- Bloque: Ubicación y responsables -->
+      <div class="ip-block">
+        <p class="ip-block__label">📍 Ubicación y responsables</p>
+        <div class="ip-row ip-row--2">
+          <div class="ip-field">
+            <label class="ip-lbl">Ubicación <span class="ip-req">*</span></label>
+            <input class="ip-input" formControlName="location" placeholder="Ej: Línea 2 - Empaque" />
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Área de trabajo</label>
+            <input class="ip-input" formControlName="workArea" placeholder="Ej: Producción Planta" />
+          </div>
         </div>
-
-        <div class="field-group field-group--xs">
-          <label class="field-label" for="reportedPersonAge">Edad</label>
-          <input id="reportedPersonAge" class="field-input" formControlName="reportedPersonAge" placeholder="—" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="employerType">Procedencia</label>
-          <select id="employerType" class="field-input" formControlName="employerType">
-            <option value="">— Seleccionar —</option>
-            @for (et of employerTypes; track et.code) {
-              <option [value]="et.code">{{ et.label }}</option>
-            }
-          </select>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ SECCIÓN 3: Ubicación y responsables ════════════════════════════ -->
-    <section class="form-section">
-      <div class="form-section__header">
-        <span class="form-section__icon">📍</span>
-        <div>
-          <h2 class="form-section__title">Ubicación y responsables</h2>
-          <p class="form-section__desc">Dónde ocurrió y quién está a cargo</p>
-        </div>
-      </div>
-
-      <div class="fields-grid">
-        <div class="field-group field-group--lg">
-          <label class="field-label required" for="location">Ubicación <span class="req-mark">*</span></label>
-          <input id="location" class="field-input" formControlName="location" placeholder="Ej: Línea 2 - Empaque" />
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="workArea">Área de trabajo</label>
-          <input id="workArea" class="field-input" formControlName="workArea" placeholder="Ej: Producción Planta" />
-        </div>
-
-        <div class="field-group field-group--lg">
-          <label class="field-label" for="areaLeaderKey">Líder de área</label>
-          <select id="areaLeaderKey" class="field-input" formControlName="areaLeaderKey">
-            <option value="">— Seleccionar área y líder —</option>
-            @if (orphanAreaLeaderOption) {
-              <option [value]="orphanAreaLeaderOption.key">{{ orphanAreaLeaderOption.label }}</option>
-            }
-            @for (l of leadersForSelect; track l.id) {
-              <option [value]="areaLeaderOptionValue(l)">
-                {{ areaName(l.areaCode) }} · {{ l.fullName }}
-              </option>
-            }
-          </select>
-          <span class="field-hint">Se guardan el código de área y el código del líder</span>
-        </div>
-
-        <div class="field-group">
-          <label class="field-label" for="assignedTo">Responsable asignado</label>
-          <input id="assignedTo" class="field-input" formControlName="assignedTo" placeholder="Nombre del responsable" />
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ SECCIÓN 4: Clasificación y estado ══════════════════════════════ -->
-    <section class="form-section">
-      <div class="form-section__header">
-        <span class="form-section__icon">🏷️</span>
-        <div>
-          <h2 class="form-section__title">Clasificación y estado</h2>
-          <p class="form-section__desc">Tipo, nivel de riesgo y flujo de seguimiento</p>
+        <div class="ip-row ip-row--2">
+          <div class="ip-field">
+            <label class="ip-lbl">Líder de área</label>
+            <select class="ip-input" formControlName="areaLeaderKey">
+              <option value="">— Seleccionar —</option>
+              @if (orphanAreaLeaderOption) {
+                <option [value]="orphanAreaLeaderOption.key">{{ orphanAreaLeaderOption.label }}</option>
+              }
+              @for (l of leadersForSelect; track l.id) {
+                <option [value]="areaLeaderOptionValue(l)">{{ areaName(l.areaCode) }} · {{ l.fullName }}</option>
+              }
+            </select>
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Responsable asignado</label>
+            <input class="ip-input" formControlName="assignedTo" placeholder="Nombre del responsable" />
+          </div>
         </div>
       </div>
 
-      <div class="fields-grid">
-        <div class="field-group">
-          <label class="field-label required" for="inspectionType">Tipo de inspección <span class="req-mark">*</span></label>
-          <select id="inspectionType" class="field-input" formControlName="inspectionType">
-            <option value="condition">Condición insegura</option>
-            <option value="act">Acto inseguro</option>
-            <option value="mixed">Mixto</option>
-          </select>
-        </div>
+    </div><!-- /col-left -->
 
-        <div class="field-group">
-          <label class="field-label required" for="riskLevel">Nivel de riesgo <span class="req-mark">*</span></label>
-          <select id="riskLevel" class="field-input" formControlName="riskLevel">
-            <option value="low">🟢 Bajo</option>
-            <option value="medium">🟡 Medio</option>
-            <option value="high">🔴 Alto</option>
-          </select>
-        </div>
+    <!-- ── Columna derecha ───────────────────────────────────────────── -->
+    <div class="ip-col ip-col--right">
 
-        <!-- Estado — toggle visual -->
-        <div class="field-group field-group--full">
-          <span class="field-label">Estado del seguimiento</span>
-          <div class="status-toggle">
-            <button type="button"
-              class="status-btn status-btn--open"
+      <!-- Bloque: Clasificación y estado -->
+      <div class="ip-block">
+        <p class="ip-block__label">🏷️ Clasificación y estado</p>
+        <div class="ip-row ip-row--2">
+          <div class="ip-field">
+            <label class="ip-lbl">Tipo de inspección <span class="ip-req">*</span></label>
+            <select class="ip-input" formControlName="inspectionType">
+              <option value="condition">Condición insegura</option>
+              <option value="act">Acto inseguro</option>
+              <option value="mixed">Mixto</option>
+            </select>
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Nivel de riesgo <span class="ip-req">*</span></label>
+            <select class="ip-input" formControlName="riskLevel">
+              <option value="low">🟢 Bajo</option>
+              <option value="medium">🟡 Medio</option>
+              <option value="high">🔴 Alto</option>
+            </select>
+          </div>
+        </div>
+        <!-- Estado toggle -->
+        <div class="ip-field">
+          <label class="ip-lbl">Estado del seguimiento</label>
+          <div class="ip-status-row">
+            <button type="button" class="ip-status ip-status--open"
               [class.active]="form.value.status === 'open'"
               (click)="setStatus('open')">
-              <span class="status-btn__dot"></span>
-              Pendiente
+              <span class="ip-status__dot"></span> Pendiente
             </button>
-            <span class="status-arrow">→</span>
-            <button type="button"
-              class="status-btn status-btn--progress"
+            <span class="ip-status__arrow">→</span>
+            <button type="button" class="ip-status ip-status--prog"
               [class.active]="form.value.status === 'in_progress'"
               (click)="setStatus('in_progress')">
-              <span class="status-btn__dot"></span>
-              En proceso
+              <span class="ip-status__dot"></span> En proceso
             </button>
-            <span class="status-arrow">→</span>
-            <button type="button"
-              class="status-btn status-btn--closed"
+            <span class="ip-status__arrow">→</span>
+            <button type="button" class="ip-status ip-status--closed"
               [class.active]="form.value.status === 'closed'"
               (click)="setStatus('closed')">
-              <span class="status-btn__dot"></span>
-              Cerrada
+              <span class="ip-status__dot"></span> Cerrada
             </button>
           </div>
           @if (form.value.status === 'closed' && !hasClosureEvidence) {
-            <div class="status-warning">
-              <span>⚠</span>
-              Para cerrar la inspección debes adjuntar evidencia de tipo "Cierre"
-            </div>
+            <p class="ip-warn">⚠ Para cerrar debes adjuntar evidencia de tipo "Cierre"</p>
           }
         </div>
       </div>
-    </section>
 
-    <!-- ══ SECCIÓN 5: Descripción y seguimiento ═══════════════════════════ -->
-    <section class="form-section">
-      <div class="form-section__header">
-        <span class="form-section__icon">📝</span>
-        <div>
-          <h2 class="form-section__title">Descripción y seguimiento</h2>
-          <p class="form-section__desc">Detalle del hallazgo, observaciones y acciones correctivas</p>
+      <!-- Bloque: Descripción -->
+      <div class="ip-block ip-block--grow">
+        <p class="ip-block__label">📝 Descripción y seguimiento</p>
+        <div class="ip-field">
+          <label class="ip-lbl">Descripción del hallazgo <span class="ip-req">*</span></label>
+          <textarea class="ip-input ip-textarea" rows="3" formControlName="description"
+            placeholder="Describe la condición o acto inseguro observado…"></textarea>
+        </div>
+        <div class="ip-field">
+          <label class="ip-lbl">Comentario de seguimiento</label>
+          <textarea class="ip-input ip-textarea" rows="2" formControlName="comment"
+            placeholder="Observaciones, avances o notas…"></textarea>
+        </div>
+        <div class="ip-field">
+          <label class="ip-lbl">Medidas correctivas</label>
+          <textarea class="ip-input ip-textarea" rows="2" formControlName="correctiveMeasures"
+            placeholder="Acciones tomadas o recomendadas…"></textarea>
         </div>
       </div>
 
-      <div class="fields-grid">
-        <div class="field-group field-group--full">
-          <label class="field-label required" for="description">Descripción del hallazgo <span class="req-mark">*</span></label>
-          <textarea id="description" class="field-input field-textarea" rows="4"
-            formControlName="description"
-            placeholder="Describe detalladamente la condición o acto inseguro observado…"></textarea>
-        </div>
+      <!-- Bloque: Evidencias -->
+      <div class="ip-block">
+        <p class="ip-block__label">📎 Evidencias</p>
 
-        <div class="field-group field-group--full">
-          <label class="field-label" for="comment">Comentario de seguimiento</label>
-          <textarea id="comment" class="field-input field-textarea" rows="3"
-            formControlName="comment"
-            placeholder="Observaciones adicionales, avances o notas de seguimiento…"></textarea>
-        </div>
-
-        <div class="field-group field-group--full">
-          <label class="field-label" for="correctiveMeasures">Medidas correctivas</label>
-          <textarea id="correctiveMeasures" class="field-input field-textarea" rows="3"
-            formControlName="correctiveMeasures"
-            placeholder="Acciones tomadas o recomendadas para corregir el hallazgo…"></textarea>
-        </div>
-      </div>
-    </section>
-
-    <!-- ══ SECCIÓN 6: Evidencias ══════════════════════════════════════════ -->
-    <section class="form-section">
-      <div class="form-section__header">
-        <span class="form-section__icon">📎</span>
-        <div>
-          <h2 class="form-section__title">Evidencias</h2>
-          <p class="form-section__desc">Imágenes de informe y cierre. Al guardar se suben automáticamente.</p>
-        </div>
-      </div>
-
-      <!-- Evidencias existentes -->
-      @if (!isCreate && existingImages.length) {
-        <div class="evidence-grid">
-          @for (img of existingImages; track img.id) {
-            <div class="evidence-card" [class.evidence-card--closure]="img.imageType === 'closure'">
-              <div class="evidence-card__badge">
-                {{ img.imageType === 'closure' ? '✅ Cierre' : '📷 Informe' }}
+        @if (!isCreate && existingImages.length) {
+          <div class="ip-evidence-list">
+            @for (img of existingImages; track img.id) {
+              <div class="ip-ev-chip" [class.ip-ev-chip--closure]="img.imageType === 'closure'">
+                <span>{{ img.imageType === 'closure' ? '✅' : '📷' }}</span>
+                <button type="button" class="ip-ev-chip__btn" (click)="openImagePreview(img)">Ver</button>
+                @if (img.uploadedBy) { <span class="ip-ev-chip__by">{{ img.uploadedBy }}</span> }
+                @if (img.uploadOk === false) { <span class="ip-ev-chip__err">⚠</span> }
               </div>
-              <button type="button" class="evidence-card__preview" (click)="openImagePreview(img)">
-                Ver imagen
-              </button>
-              @if (img.uploadedBy) {
-                <span class="evidence-card__by">{{ img.uploadedBy }}</span>
-              }
-              @if (img.uploadOk === false) {
-                <span class="evidence-card__error">⚠ Upload fallido</span>
-              }
-            </div>
-          }
-        </div>
-      }
+            }
+          </div>
+        }
 
-      <!-- Filas pendientes -->
-      @for (row of pendingEvidence; track $index; let i = $index) {
-        <div class="ev-pending">
-          <select class="field-input ev-pending__type" [(ngModel)]="row.imageType" [ngModelOptions]="{ standalone: true }">
-            <option value="report">📷 Informe</option>
-            <option value="closure">✅ Cierre</option>
-          </select>
-          <label class="ev-pending__file">
-            <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
-              (change)="onFileSelected(i, $event)" />
-            <span class="ev-pending__filename">{{ pendingFileName(row) }}</span>
-          </label>
-          <input class="field-input ev-pending__by"
-            [(ngModel)]="row.uploadedBy"
-            placeholder="Subido por (opcional)"
-            [ngModelOptions]="{ standalone: true }" />
-          <button type="button" class="btn-remove" (click)="removePendingEvidence(i)" title="Quitar">✕</button>
-        </div>
-      }
+        @for (row of pendingEvidence; track $index; let i = $index) {
+          <div class="ip-ev-row">
+            <select class="ip-input ip-ev-row__type" [(ngModel)]="row.imageType" [ngModelOptions]="{standalone:true}">
+              <option value="report">📷 Informe</option>
+              <option value="closure">✅ Cierre</option>
+            </select>
+            <label class="ip-ev-row__file">
+              <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                (change)="onFileSelected(i, $event)" />
+              <span class="ip-ev-row__fname">{{ pendingFileName(row) }}</span>
+            </label>
+            <input class="ip-input ip-ev-row__by" [(ngModel)]="row.uploadedBy"
+              placeholder="Subido por" [ngModelOptions]="{standalone:true}" />
+            <button type="button" class="ip-ev-row__rm" (click)="removePendingEvidence(i)" title="Quitar">✕</button>
+          </div>
+        }
 
-      <button type="button" class="btn-add-evidence" (click)="addEvidenceRow()">
-        <span>+</span> Añadir evidencia
-      </button>
-    </section>
+        <button type="button" class="ip-btn-add-ev" (click)="addEvidenceRow()">+ Añadir evidencia</button>
+      </div>
 
-  </div><!-- /form-body -->
+    </div><!-- /col-right -->
 
-  <!-- ── Footer de acciones ─────────────────────────────────────────────── -->
-  <footer class="form-footer">
-    <a routerLink="/inspections" class="btn-cancel">Cancelar</a>
-    <button type="button" class="btn-save btn-save--lg" (click)="submit()">
-      <span class="btn-save__icon">✓</span>
-      Guardar todo
-    </button>
-  </footer>
+  </div><!-- /ip-body -->
 
-</div><!-- /page-wrapper -->
+</div><!-- /ip-shell -->
 
-<!-- ── Modal de previsualización ─────────────────────────────────────────── -->
+<!-- ── Modal preview ──────────────────────────────────────────────────────── -->
 @if (previewImage) {
-  <div class="preview-overlay" (click)="closeImagePreview()">
-    <article class="preview-modal" (click)="$event.stopPropagation()">
-      <header class="preview-modal__header">
+  <div class="ip-overlay" (click)="closeImagePreview()">
+    <article class="ip-modal" (click)="$event.stopPropagation()">
+      <header class="ip-modal__hd">
         <div>
-          <h5 class="preview-modal__title">Vista de evidencia</h5>
-          <p class="preview-modal__meta">
-            {{ previewImage.imageType === 'closure' ? '✅ Cierre' : '📷 Informe' }}
-            @if (previewImage.uploadedBy) { · {{ previewImage.uploadedBy }} }
-          </p>
+          <strong>{{ previewImage.imageType === 'closure' ? '✅ Cierre' : '📷 Informe' }}</strong>
+          @if (previewImage.uploadedBy) { <span class="ip-modal__by">· {{ previewImage.uploadedBy }}</span> }
         </div>
-        <button type="button" class="preview-modal__close" (click)="closeImagePreview()">✕</button>
+        <button type="button" class="ip-modal__close" (click)="closeImagePreview()">✕</button>
       </header>
-      <img [src]="previewImage.url" alt="Evidencia de inspección" />
-      <a [href]="previewImage.url" target="_blank" rel="noopener noreferrer" class="preview-modal__link">
+      <img [src]="previewImage.url" alt="Evidencia" />
+      <a [href]="previewImage.url" target="_blank" rel="noopener noreferrer" class="ip-modal__link">
         Abrir en pestaña nueva ↗
       </a>
     </article>
