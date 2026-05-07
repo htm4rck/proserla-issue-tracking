@@ -268,7 +268,7 @@ export class InspectionReportService {
       cell(L,          y, c1, infoH, areaName,                      { size: 8 });
       cell(L + c1,     y, c2, infoH, reportDate(insp),              { size: 8, align: 'center' });
       cell(L + c1+c2,  y, c3, infoH, esc(insp.leaderCode),          { size: 8 });
-      cell(L + c1+c2+c3, y, c4, infoH, esc(insp.assignedTo),        { size: 8 });
+      cell(L + c1+c2+c3, y, c4, infoH, esc(insp.reportedBy),        { size: 8 });
       y += infoH;
 
       // ── Hora + Tipo de inspección ─────────────────────────────────────────
@@ -426,7 +426,7 @@ export class InspectionReportService {
       // FIRMAS
       // ══════════════════════════════════════════════════════════════════════
       const signRows: Array<{ title: string; name: string }> = [
-        { title: 'RESPONSABLE DE LA INSPECCIÓN', name: esc(insp.assignedTo) },
+        { title: 'RESPONSABLE DE LA INSPECCIÓN', name: esc(insp.reportedBy) },
         { title: 'RESPONSABLE DE ÁREA',           name: esc(insp.leaderCode) },
         { title: 'REPRESENTANTE DEL COMITÉ DE SEGURIDAD', name: '' },
         { title: 'RESPONSABLE DEL REGISTRO',      name: esc(insp.reportedBy) },
