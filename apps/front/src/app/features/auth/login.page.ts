@@ -23,6 +23,7 @@ export class LoginPageComponent {
 
   message = '';
   isSubmitting = false;
+  showAbout = false;
 
   submit(): void {
     if (this.isSubmitting) return;

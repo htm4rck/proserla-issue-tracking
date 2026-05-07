@@ -2,6 +2,7 @@
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
+import { RootController } from './controller/root.controller';
 import { AreaModule } from './module/area.module';
 import { AuditLogModule } from './module/audit-log.module';
 import { AuthModule } from './module/auth.module';
@@ -84,5 +85,6 @@ function getTypeOrmConnectionOptions(config: ConfigService) {
       : []),
     HealthModule,
   ],
+  controllers: [RootController],
 })
 export class AppModule {}

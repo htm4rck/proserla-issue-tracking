@@ -13,6 +13,7 @@ export class AppShellComponent {
   private readonly router = inject(Router);
 
   navOpen = false;
+  showAbout = false;
 
   private readonly fullMenu = [
     { label: 'Tablero', route: '/dashboard', icon: 'TB' },

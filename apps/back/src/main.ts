@@ -7,6 +7,12 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
 
+  // Header corporativo
+  app.use((_req: any, res: any, next: any) => {
+    res.setHeader('X-Powered-By', 'Tordo — tordo.io');
+    next();
+  });
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

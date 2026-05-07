@@ -37,6 +37,7 @@
           <strong class="session-name">{{ user.fullName }}</strong>
           <a class="login-link" routerLink="/account/password">Clave</a>
           <button type="button" class="login-link" (click)="logout()">Salir</button>
+          <button type="button" class="about-btn" (click)="showAbout = true" title="Acerca de">?</button>
         </div>
       } @else {
         <a class="login-link" routerLink="/login">Iniciar sesión</a>
@@ -53,3 +54,18 @@
     </footer>
   </div>
 </div>
+
+@if (showAbout) {
+  <div class="about-overlay" (click)="showAbout = false">
+    <div class="about-modal" (click)="$event.stopPropagation()">
+      <button type="button" class="about-close" (click)="showAbout = false">✕</button>
+      <img src="/images/logo-tordo.png" alt="Tordo" class="about-logo" />
+      <h3>RACI v1.0</h3>
+      <p class="about-desc">Sistema de Inspecciones de Seguridad y Salud en el Trabajo</p>
+      <hr class="about-hr" />
+      <p class="about-powered">Desarrollado por</p>
+      <a href="https://tordo.io" target="_blank" rel="noopener noreferrer" class="about-link">tordo.io</a>
+      <p class="about-tagline">Soluciones de integración empresarial</p>
+    </div>
+  </div>
+}
