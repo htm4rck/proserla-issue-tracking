@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, ForbiddenException, Get, Headers, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, ForbiddenException, Get, Header, Headers, Param, Patch, Post, Query, StreamableFile } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import {
   CreateInspectionRequest,
@@ -10,11 +10,15 @@ import {
 } from '../mapper/inspection.mapper';
 import { ApiResponse } from '../mapper/api.mapper';
 import { InspectionService } from '../service/inspection.service';
+import { InspectionReportService } from '../service/inspection-report.service';
 
 @ApiTags('inspections')
 @Controller('inspections')
 export class InspectionController {
-  constructor(private readonly inspectionService: InspectionService) {}
+  constructor(
+    private readonly inspectionService: InspectionService,
+    private readonly reportService: InspectionReportService,
+  ) {}
 
   @Post()
   async create(
@@ -93,5 +97,19 @@ export class InspectionController {
     }
     await this.inspectionService.remove(inspectionCode, userEmail);
     return new ApiResponse(true, 'Inspección eliminada correctamente', { inspectionCode });
+  }
+
+  /** Genera el PDF oficial SSM-RE-005-02 para una inspección individual */
+  @Get(':inspectionCode/report.pdf')
+  @Header('Content-Type', 'application/pdf')
+  async exportSinglePdf(
+    @Param('inspectionCode') inspectionCode: string,
+  ): Promise<StreamableFile> {
+    const buffer = await this.reportService.generatePdf(inspectionCode);
+    const filename = `inspeccion-${inspectionCode}.pdf`;
+    return new StreamableFile(buffer, {
+      type: 'application/pdf',
+      disposition: `attachment; filename="${filename}"`,
+    });
   }
 }

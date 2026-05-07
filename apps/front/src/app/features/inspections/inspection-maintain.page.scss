@@ -97,6 +97,25 @@ $muted:     var(--muted);
   &--err { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 }
 
+.ip-btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1.5px solid #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+  border-radius: $r-sm;
+  padding: 0.5rem 0.85rem;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s;
+  &:hover:not(:disabled) { background: #fee2e2; border-color: #f87171; }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
+
 .ip-btn-save {
   display: inline-flex;
   align-items: center;

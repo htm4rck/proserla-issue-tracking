@@ -14,6 +14,11 @@
     <div class="ip-topbar__right">
       @if (feedback) { <span class="ip-msg ip-msg--ok">✓ {{ feedback }}</span> }
       @if (errorMsg)  { <span class="ip-msg ip-msg--err">⚠ {{ errorMsg }}</span> }
+      @if (!isCreate) {
+        <button type="button" class="ip-btn-pdf" (click)="downloadPdf()" [disabled]="pdfBusy" title="Descargar reporte oficial PDF">
+          {{ pdfBusy ? '⏳' : '📄' }} PDF
+        </button>
+      }
       <button type="button" class="ip-btn-save" (click)="submit()">✓ Guardar todo</button>
     </div>
   </header>

@@ -25,6 +25,7 @@ export class InspectionMaintainPageComponent implements OnInit {
   isCreate = false;
   feedback = '';
   errorMsg = '';
+  pdfBusy = false;
   areas: Area[] = [];
   leaders: Leader[] = [];
   workSites: WorkSite[] = [];
@@ -287,6 +288,27 @@ export class InspectionMaintainPageComponent implements OnInit {
   }
 
   closeImagePreview(): void { this.previewImage = null; }
+
+  downloadPdf(): void {
+    const code = this.form.getRawValue().inspectionCode;
+    if (!code) return;
+    this.pdfBusy = true;
+    this.api.downloadInspectionPdf(code).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `inspeccion-${code}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        this.pdfBusy = false;
+      },
+      error: () => {
+        this.errorMsg = 'No se pudo generar el PDF.';
+        this.pdfBusy = false;
+      },
+    });
+  }
 
   uploadPendingFiles(inspectionCode: string, status: string): Promise<void> {
     const uploads = this.pendingEvidence.map((row, idx) => ({ row, idx })).filter(({ row }) => row.file);

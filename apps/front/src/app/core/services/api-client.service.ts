@@ -285,7 +285,7 @@ export class ApiClientService {
     return this.http.get<ApiResponse<AuditLogDetail | null>>(`${this.base}/audit-logs/${id}`);
   }
 
-  // -- Upload PHP bridge --------------------------------------------------
+  // ── Upload PHP bridge ──────────────────────────────────────────────────
 
   uploadInspectionFile(
     file: File,
@@ -300,6 +300,14 @@ export class ApiClientService {
     if (options?.uploadedBy) form.append('uploadedBy', options.uploadedBy);
     if (options?.comment) form.append('comment', options.comment);
     if (options?.status) form.append('status', options.status);
-    return this.http.post<ApiResponse<any>>(`${this.base}/Inspection-images/upload`, form);
+    return this.http.post<ApiResponse<any>>(`${this.base}/inspection-images/upload`, form);
+  }
+
+  /** Descarga el PDF oficial SSM-RE-005-02 de una inspección individual */
+  downloadInspectionPdf(inspectionCode: string): Observable<Blob> {
+    return this.http.get(
+      `${this.base}/inspections/${encodeURIComponent(inspectionCode)}/report.pdf`,
+      { responseType: 'blob' },
+    );
   }
 }
