@@ -227,7 +227,8 @@
             <div class="month-col" [class.has-data]="ms.total > 0">
               <!-- Barras apiladas verticales -->
               <div class="month-bars">
-                <div class="vbar-wrap" [title]="ms.month + ': ' + ms.total + ' total'">
+                <div class="vbar-wrap" [title]="ms.month + ': ' + ms.total + ' total'"
+                  [style.height.%]="barPct(ms.total, annualFocusMaxTotal())">
                   @if (ms.total > 0) {
                     <div class="vbar-seg close"
                       [style.height.%]="stackedPct(ms.closed, ms.total)"

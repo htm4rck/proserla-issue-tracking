@@ -264,24 +264,46 @@ $sidebar-w: 260px;
 ══════════════════════════════════════════════════════════════════════════ */
 @media (max-width: $bp-mobile) {
   .layout {
-    padding: 0.5rem;
-    gap: 0.5rem;
+    padding: 0.4rem;
+    gap: 0.4rem;
+    height: auto;          // en mobile no forzamos 100vh — scroll natural
+    min-height: 100vh;
+  }
+
+  .content-wrap {
+    overflow: visible;     // scroll natural en mobile
+  }
+
+  .content {
+    overflow: visible;
   }
 
   .topbar {
-    padding: 0.6rem 0.85rem;
+    padding: 0.55rem 0.75rem;
+    border-radius: 12px;
   }
 
   .topbar h2 {
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+  }
+
+  .topbar-left {
+    gap: 0.5rem;
+    min-width: 0;
+    flex: 1;
   }
 
   .session-name {
-    display: none; /* en mobile muy pequeño solo se ven los botones */
+    display: none;
+  }
+
+  .session-box {
+    gap: 0.4rem;
   }
 
   .login-link {
-    padding: 0.35rem 0.55rem;
-    font-size: 0.78rem;
+    padding: 0.3rem 0.5rem;
+    font-size: 0.75rem;
+    border-radius: 8px;
   }
 }

@@ -332,24 +332,27 @@
 
   &:hover .month-area-breakdown { display: block; }
 }
-
 .month-bars {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   gap: 2px;
+  height: 140px;          // altura fija del contenedor
+  justify-content: flex-end; // las barras crecen desde abajo
 }
 
 .vbar-wrap {
   width: 100%;
-  height: 140px;
+  // height viene del [style.height.%] — proporcional al máximo
+  min-height: 4px;        // mínimo visible para meses con 1 registro
   display: flex;
-  flex-direction: column-reverse; // open abajo, closed arriba
+  flex-direction: column-reverse;
   border-radius: 6px 6px 0 0;
   overflow: hidden;
-  background: #f1f5f9;
+  background: #e2e8f0;    // fondo gris solo cuando hay datos
   cursor: default;
+  transition: height 0.3s ease;
 }
 
 .vbar-seg {
@@ -467,19 +470,102 @@
 }
 
 @media (max-width: 600px) {
+  // ── Layout general ──────────────────────────────────────────────────────
+  .dash-wrap { gap: 0.6rem; }
+
+  .filters { padding: 0.85rem; }
+
+  // ── Filtros: 2 columnas en mobile, botón full-width ─────────────────────
   .filters-grid {
     grid-template-columns: 1fr 1fr;
+
+    // El botón Aplicar siempre ocupa toda la fila
+    button {
+      grid-column: 1 / -1;
+      width: 100%;
+      padding: 0.65rem;
+      font-size: 0.9rem;
+    }
   }
 
-  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  // ── KPIs: 2 columnas compactas ──────────────────────────────────────────
+  .kpi-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+  }
 
-  .bar-row { grid-template-columns: 72px 1fr 30px; font-size: 0.8rem; }
+  .kpi-card {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .kpi-value { font-size: 1.6rem; }
+  .kpi-hint  { font-size: 0.7rem; }
+
+  // ── Barras horizontales ─────────────────────────────────────────────────
+  .bar-row {
+    grid-template-columns: 72px 1fr 30px;
+    font-size: 0.8rem;
+  }
   .bar-label, .bar-value { font-size: 0.78rem; }
   .area-breakdown { margin-left: 72px; }
 
+  // ── Gráficos ────────────────────────────────────────────────────────────
   .charts { padding: 0.85rem; }
   .annual-chart { padding: 0.85rem; }
 
-  .links-row { flex-direction: column; gap: 0.5rem; }
-  .links-row a { font-size: 0.85rem; }
+  // ── Gráfico anual: 6 columnas en mobile ─────────────────────────────────
+  .annual-grid {
+    grid-template-columns: repeat(6, 1fr) !important;
+    gap: 4px;
+  }
+
+  .month-bars { height: 100px; }
+
+  .month-label {
+    font-size: 0.6rem;
+    letter-spacing: 0;
+  }
+
+  .month-total { font-size: 0.62rem; }
+
+  // ── Pills de área ────────────────────────────────────────────────────────
+  .area-pills {
+    width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+  }
+
+  .pill {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  // ── Links ────────────────────────────────────────────────────────────────
+  .links-row {
+    flex-direction: column;
+    gap: 0.5rem;
+    a { font-size: 0.85rem; }
+  }
+
+  // ── Toolbar ──────────────────────────────────────────────────────────────
+  .dash-toolbar {
+    padding: 0.85rem;
+
+    h2 { font-size: 1rem; }
+    p  { font-size: 0.78rem; }
+  }
+
+  .dash-actions {
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .timestamp { font-size: 0.75rem; }
+
+  .primary {
+    padding: 0.45rem 0.75rem;
+    font-size: 0.82rem;
+  }
 }

@@ -577,14 +577,33 @@ $muted:     var(--muted);
 }
 
 @media (max-width: 600px) {
+  .ip-shell {
+    height: auto;
+    overflow: visible;
+  }
+
   .ip-topbar {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
 
-  .ip-topbar__right { width: 100%; justify-content: flex-end; }
-  .ip-btn-save { width: 100%; justify-content: center; }
+  .ip-topbar__right {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .ip-msg {
+    max-width: 100%;
+    flex: 1;
+  }
+
+  .ip-btn-save {
+    width: 100%;
+    justify-content: center;
+  }
 
   .ip-row--2,
   .ip-row--3,
@@ -601,4 +620,10 @@ $muted:     var(--muted);
 
   .ip-status-row { flex-direction: column; align-items: flex-start; }
   .ip-status__arrow { display: none; }
+
+  .ip-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
+
+  .ip-gallery__thumb img { height: 65px; }
 }
