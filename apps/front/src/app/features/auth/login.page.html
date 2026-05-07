@@ -4,12 +4,6 @@
       <div class="brand-badge">RACI</div>
       <h1>Registro de actos y condiciones inseguras</h1>
     </div>
-    <!--p>Controla registros, evidencias, estado y trazabilidad por area y responsable.</p>
-    <div class="stats">
-      <div><strong>24/7</strong><span>Monitoreo</span></div>
-      <div><strong>Roles</strong><span>Admin/Lider/Operador</span></div>
-      <div><strong>Audit</strong><span>Historial de cambios</span></div>
-    </div-->
   </aside>
 
   <section class="login-panel">
@@ -29,8 +23,10 @@
           {{ isSubmitting ? 'Ingresando...' : 'Ingresar' }}
         </button>
       </form>
-      <!--p class="hint">Demo: <code>admin&#64;demo.local</code> / <code>demo1234</code></p-->
       @if (message) { <p class="error">{{ message }}</p> }
     </div>
+    <footer class="login-footer">
+      © 2026 <a href="https://tordo.io" target="_blank" rel="noopener">Tordo</a> — Soluciones de integración empresarial
+    </footer>
   </section>
 </div>
