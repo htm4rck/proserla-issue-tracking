@@ -1,10 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as path from 'path';
+import * as fs from 'fs';
 import ExcelJS from 'exceljs';
 import { InspectionEntity } from '../entity/inspection.entity';
 import { InspectionResponseEntity } from '../entity/inspection-response.entity';
 import { AreaEntity } from '../entity/area.entity';
+
+// ── Ruta del logo ─────────────────────────────────────────────────────────────
+function resolveLogoPath(): string | null {
+  const candidates = [
+    path.join(__dirname, '..', 'assets', 'logo-proserla.png'),
+    path.join(__dirname, '..', '..', 'assets', 'logo-proserla.png'),
+    path.join(process.cwd(), 'src', 'assets', 'logo-proserla.png'),
+    path.join(process.cwd(), 'dist', 'assets', 'logo-proserla.png'),
+  ];
+  for (const p of candidates) {
+    if (fs.existsSync(p)) return p;
+  }
+  return null;
+}
 
 // ── Fuente corporativa ────────────────────────────────────────────────────────
 // ExcelJS usa el nombre exacto de la fuente instalada en el sistema del cliente.
@@ -181,19 +197,62 @@ export class InspectionConsolidatedReportService {
     ];
 
     // ── 7. Cabecera institucional (filas 1-3) ─────────────────────────────────
+    const logoPath = resolveLogoPath();
+
+    // Celda A1-B3: logo izquierdo
     ws.mergeCells('A1:B3');
-    this.styledCell(ws, 'A1', 'proserla\npromotora y servicios lambayeque s.a.c.', {
-      bold: true, size: 11, color: '1e8449', bg: 'e8f8f5', align: 'center', wrap: true,
-    });
+    const logoCell = ws.getCell('A1');
+    logoCell.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
+    logoCell.border = this.borders();
+
+    // Celda K1-L3: logo derecho
+    ws.mergeCells('K1:L3');
+    const logo2Cell = ws.getCell('K1');
+    logo2Cell.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
+    logo2Cell.border = this.borders();
+
+    // Embeber logo si existe
+    if (logoPath) {
+      try {
+        const logoBuffer = fs.readFileSync(logoPath);
+        const logoId = wb.addImage({ buffer: logoBuffer, extension: 'png' });
+
+        // Logo izquierdo (cols A-B = 0-1, filas 1-3 = 0-2)
+        ws.addImage(logoId, {
+          tl: { col: 0, row: 0 },
+          br: { col: 2, row: 3 },
+          editAs: 'oneCell',
+        });
+
+        // Logo derecho (cols K-L = 10-11, filas 1-3 = 0-2)
+        ws.addImage(logoId, {
+          tl: { col: 10, row: 0 },
+          br: { col: 12, row: 3 },
+          editAs: 'oneCell',
+        });
+      } catch (err) {
+        this.logger.warn(`No se pudo cargar el logo: ${String(err)}`);
+        // Fallback texto
+        logoCell.value  = 'proserla\npromotora y servicios lambayeque s.a.c.';
+        logoCell.font   = { name: FONT, bold: true, size: 11, color: { argb: '1e8449' } };
+        logoCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        logo2Cell.value = logoCell.value;
+        logo2Cell.font  = logoCell.font;
+        logo2Cell.alignment = logoCell.alignment;
+      }
+    } else {
+      // Fallback texto si no hay logo
+      logoCell.value  = 'proserla\npromotora y servicios lambayeque s.a.c.';
+      logoCell.font   = { name: FONT, bold: true, size: 11, color: { argb: '1e8449' } };
+      logoCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      logo2Cell.value = logoCell.value;
+      logo2Cell.font  = logoCell.font;
+      logo2Cell.alignment = logoCell.alignment;
+    }
 
     ws.mergeCells('C1:J3');
     this.styledCell(ws, 'C1', 'FORMATO\n\nINFORME INSPECCIÓN DE SEGURIDAD Y SALUD EN EL TRABAJO', {
       bold: true, size: 13, color: WHITE, bg: HEADER_BG, align: 'center', wrap: true,
-    });
-
-    ws.mergeCells('K1:L3');
-    this.styledCell(ws, 'K1', 'proserla\npromotora y servicios lambayeque s.a.c.', {
-      bold: true, size: 11, color: '1e8449', bg: 'e8f8f5', align: 'center', wrap: true,
     });
 
     ws.getRow(1).height = 20;

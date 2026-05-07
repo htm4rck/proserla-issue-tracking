@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as path from 'path';
+import * as fs from 'fs';
 import PDFDocument from 'pdfkit';
 import { InspectionEntity } from '../entity/inspection.entity';
 import { InspectionResponseEntity } from '../entity/inspection-response.entity';
@@ -45,7 +47,27 @@ function reportDate(ins: InspectionEntity): string {
   return `${String(day).padStart(2, '0')} ${month} ${year}${time}`.trim();
 }
 
-// ── Colores corporativos ──────────────────────────────────────────────────────
+// ── Ruta del logo ─────────────────────────────────────────────────────────────
+function resolveLogoPath(): string | null {
+  const candidates = [
+    // Producción Railway: dist/app/service → dist/assets
+    path.join(__dirname, '..', '..', 'assets', 'logo-proserla.png'),
+    path.join(__dirname, '..', 'assets', 'logo-proserla.png'),
+    path.join(__dirname, 'assets', 'logo-proserla.png'),
+    // Relativo al proceso
+    path.join(process.cwd(), 'dist', 'assets', 'logo-proserla.png'),
+    path.join(process.cwd(), 'src', 'assets', 'logo-proserla.png'),
+    // Absoluto desde raíz del proyecto
+    path.resolve('apps/back/src/assets/logo-proserla.png'),
+    path.resolve('apps/back/dist/assets/logo-proserla.png'),
+  ];
+  for (const p of candidates) {
+    try {
+      if (fs.existsSync(p)) return p;
+    } catch { /* ignorar */ }
+  }
+  return null;
+}
 const C = {
   headerBg:   '#1a5276',   // azul oscuro cabecera
   sectionBg:  '#d6eaf8',   // azul claro sección
@@ -114,6 +136,8 @@ export class InspectionReportService {
       ) => {
         const bg = opts.bg ?? C.white;
         rect(x, cy, w, h, bg, C.border);
+        // Guardamos y restauramos la posición Y para que el texto no mueva el cursor
+        const savedY = doc.y;
         doc
           .font(opts.bold ? 'Helvetica-Bold' : 'Helvetica')
           .fontSize(opts.size ?? 8)
@@ -123,12 +147,16 @@ export class InspectionReportService {
             align: opts.align ?? 'left',
             lineBreak: true,
           });
+        // Restaurar cursor para que no interfiera con el layout manual
+        doc.y = savedY;
       };
 
       const sectionHeader = (title: string, sy: number, h = 16): number => {
         rect(L, sy, W, h, C.sectionBg, C.border);
+        const savedY = doc.y;
         doc.font('Helvetica-Bold').fontSize(8).fillColor(C.accent)
           .text(title, L + 4, sy + 4, { width: W - 8, align: 'center' });
+        doc.y = savedY;
         return sy + h;
       };
 
@@ -140,8 +168,10 @@ export class InspectionReportService {
           .heightOfString(text || ' ', { width: w - 6 });
         const h = Math.max(minH, measured + 8);
         rect(x, cy, w, h, bg, C.border);
+        const savedY = doc.y;
         doc.font('Helvetica').fontSize(8).fillColor(C.text)
           .text(text || '', x + 3, cy + 4, { width: w - 6, lineBreak: true });
+        doc.y = savedY;
         return h;
       };
 
@@ -149,18 +179,37 @@ export class InspectionReportService {
       // CABECERA INSTITUCIONAL
       // ══════════════════════════════════════════════════════════════════════
 
-      // Logo placeholder (rectángulo verde con texto)
-      rect(L, y, 110, 50, '#e8f8f5', C.border);
-      doc.font('Helvetica-Bold').fontSize(10).fillColor('#1e8449')
-        .text('proserla', L + 8, y + 8, { width: 94, align: 'center' });
-      doc.font('Helvetica').fontSize(6).fillColor(C.muted)
-        .text('promotora y servicios lambayeque s.a.c.', L + 4, y + 22, { width: 102, align: 'center' });
+      const logoPath = resolveLogoPath();
+      const logoW = 110;
+      const logoH = 50;
+
+      // Logo izquierdo
+      rect(L, y, logoW, logoH, '#ffffff', C.border);
+      if (logoPath) {
+        try {
+          doc.image(logoPath, L + 4, y + 4, { width: logoW - 8, height: logoH - 8, fit: [logoW - 8, logoH - 8] });
+        } catch {
+          doc.font('Helvetica-Bold').fontSize(10).fillColor('#1e8449')
+            .text('proserla', L + 8, y + 8, { width: logoW - 16, align: 'center' });
+          doc.y = y; // restaurar
+          doc.font('Helvetica').fontSize(6).fillColor(C.muted)
+            .text('promotora y servicios lambayeque s.a.c.', L + 4, y + 22, { width: logoW - 8, align: 'center' });
+          doc.y = y; // restaurar
+        }
+      } else {
+        doc.font('Helvetica-Bold').fontSize(10).fillColor('#1e8449')
+          .text('proserla', L + 8, y + 8, { width: logoW - 16, align: 'center' });
+        doc.y = y; // restaurar
+        doc.font('Helvetica').fontSize(6).fillColor(C.muted)
+          .text('promotora y servicios lambayeque s.a.c.', L + 4, y + 22, { width: logoW - 8, align: 'center' });
+        doc.y = y; // restaurar
+      }
 
       // Título central
-      rect(L + 110, y, W - 180, 50, C.white, C.border);
+      rect(L + logoW, y, W - logoW - 70, logoH, C.white, C.border);
       doc.font('Helvetica-Bold').fontSize(10).fillColor(C.accent)
         .text('REGISTRO DE INSPECCIONES INTERNAS DE SEGURIDAD Y\nSALUD EN EL TRABAJO',
-          L + 112, y + 10, { width: W - 184, align: 'center' });
+          L + logoW + 4, y + 10, { width: W - logoW - 70 - 8, align: 'center' });
 
       // Código y vigencia
       rect(L + W - 70, y, 70, 25, C.white, C.border);
@@ -170,7 +219,7 @@ export class InspectionReportService {
       doc.font('Helvetica').fontSize(7).fillColor(C.text)
         .text('Vigencia: 16.04.26', L + W - 68, y + 29, { width: 66 });
 
-      y += 58;
+      y += logoH + 8;
 
       // ══════════════════════════════════════════════════════════════════════
       // N° DE REGISTRO
@@ -179,8 +228,10 @@ export class InspectionReportService {
       rect(L, y, W, regH, C.white, C.border);
       doc.font('Helvetica-Bold').fontSize(8).fillColor(C.text)
         .text('N° DE REGISTRO:', L + 4, y + 5);
+      doc.y = y; // restaurar cursor
       doc.font('Helvetica').fontSize(9).fillColor(C.accent)
         .text(inspectionCode, L + 90, y + 4, { width: 160 });
+      doc.y = y; // restaurar cursor
       y += regH;
 
       // ══════════════════════════════════════════════════════════════════════
@@ -228,9 +279,9 @@ export class InspectionReportService {
       cell(L,          y, horaW, 14, esc(insp.reportTime),          { size: 8, align: 'center' });
       const isPlanned   = insp.reportSource === 'checklist';
       const isUnplanned = !isPlanned && insp.reportSource !== '';
-      cell(L + horaW,              y, tipoColW, 14, `PLANEADA${isPlanned ? '  ✓' : ''}`,     { size: 8, align: 'center', bold: isPlanned });
-      cell(L + horaW + tipoColW,   y, tipoColW, 14, `NO PLANEADA${isUnplanned ? '  ✓' : ''}`, { size: 8, align: 'center', bold: isUnplanned });
-      cell(L + horaW + tipoColW*2, y, tipoColW, 14, 'OTRO, DETALLAR',                         { size: 8, align: 'center' });
+      cell(L + horaW,              y, tipoColW, 14, isPlanned   ? 'PLANEADA  [X]'    : 'PLANEADA',    { size: 8, align: 'center', bold: isPlanned });
+      cell(L + horaW + tipoColW,   y, tipoColW, 14, isUnplanned ? 'NO PLANEADA  [X]' : 'NO PLANEADA', { size: 8, align: 'center', bold: isUnplanned });
+      cell(L + horaW + tipoColW*2, y, tipoColW, 14, 'OTRO, DETALLAR',                                 { size: 8, align: 'center' });
       y += 18;
 
       // ══════════════════════════════════════════════════════════════════════
