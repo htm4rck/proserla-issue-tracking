@@ -1,26 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as path from 'path';
-import * as fs from 'fs';
 import ExcelJS from 'exceljs';
 import { InspectionEntity } from '../entity/inspection.entity';
 import { InspectionResponseEntity } from '../entity/inspection-response.entity';
 import { AreaEntity } from '../entity/area.entity';
+import { LOGO_PROSERLA_B64 } from '../../assets/logo-proserla.b64';
 
-// ── Ruta del logo ─────────────────────────────────────────────────────────────
-function resolveLogoPath(): string | null {
-  const candidates = [
-    path.join(__dirname, '..', 'assets', 'logo-proserla.png'),
-    path.join(__dirname, '..', '..', 'assets', 'logo-proserla.png'),
-    path.join(process.cwd(), 'src', 'assets', 'logo-proserla.png'),
-    path.join(process.cwd(), 'dist', 'assets', 'logo-proserla.png'),
-  ];
-  for (const p of candidates) {
-    if (fs.existsSync(p)) return p;
-  }
-  return null;
-}
+// ── Buffer del logo (embebido en base64, siempre disponible en produccion) ────
+const LOGO_BUFFER: Buffer = Buffer.from(LOGO_PROSERLA_B64, 'base64');
 
 // ── Fuente corporativa ────────────────────────────────────────────────────────
 // ExcelJS usa el nombre exacto de la fuente instalada en el sistema del cliente.
@@ -197,7 +185,6 @@ export class InspectionConsolidatedReportService {
     ];
 
     // ── 7. Cabecera institucional (filas 1-3) ─────────────────────────────────
-    const logoPath = resolveLogoPath();
 
     // Celda A1-B3: logo izquierdo
     ws.mergeCells('A1:B3');
@@ -211,35 +198,18 @@ export class InspectionConsolidatedReportService {
     logo2Cell.fill   = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFFF' } };
     logo2Cell.border = this.borders();
 
-    // Embeber logo si existe
-    if (logoPath) {
-      try {
-        const logoBuffer = fs.readFileSync(logoPath);
-        const logoId = wb.addImage({ buffer: logoBuffer as Buffer, extension: 'png' });
-
-        // Logo izquierdo (cols A-B, filas 1-3) — usando rango de celdas como string
-        ws.addImage(logoId, 'A1:B3');
-
-        // Logo derecho (cols K-L, filas 1-3)
-        ws.addImage(logoId, 'K1:L3');
-      } catch (err) {
-        this.logger.warn(`No se pudo cargar el logo: ${String(err)}`);
-        // Fallback texto
-        logoCell.value  = 'proserla\npromotora y servicios lambayeque s.a.c.';
-        logoCell.font   = { name: FONT, bold: true, size: 11, color: { argb: '1e8449' } };
-        logoCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-        logo2Cell.value = logoCell.value;
-        logo2Cell.font  = logoCell.font;
-        logo2Cell.alignment = logoCell.alignment;
-      }
-    } else {
-      // Fallback texto si no hay logo
-      logoCell.value  = 'proserla\npromotora y servicios lambayeque s.a.c.';
-      logoCell.font   = { name: FONT, bold: true, size: 11, color: { argb: '1e8449' } };
-      logoCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-      logo2Cell.value = logoCell.value;
-      logo2Cell.font  = logoCell.font;
-      logo2Cell.alignment = logoCell.alignment;
+    // Embeber logo desde buffer base64 — siempre disponible en produccion
+    try {
+      const logoId = wb.addImage({ buffer: LOGO_BUFFER as Buffer, extension: 'png' });
+      ws.addImage(logoId, 'A1:B3');
+      ws.addImage(logoId, 'K1:L3');
+    } catch (err) {
+      this.logger.warn(`No se pudo embeber el logo: ${String(err)}`);
+      const fallbackVal = 'proserla\npromotora y servicios lambayeque s.a.c.';
+      const fallbackFont = { name: FONT, bold: true, size: 11, color: { argb: '1e8449' } };
+      const fallbackAlign: ExcelJS.Alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+      logoCell.value  = fallbackVal; logoCell.font  = fallbackFont; logoCell.alignment  = fallbackAlign;
+      logo2Cell.value = fallbackVal; logo2Cell.font = fallbackFont; logo2Cell.alignment = fallbackAlign;
     }
 
     ws.mergeCells('C1:J3');

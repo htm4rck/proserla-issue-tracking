@@ -1,12 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import * as path from 'path';
-import * as fs from 'fs';
 import PDFDocument from 'pdfkit';
 import { InspectionEntity } from '../entity/inspection.entity';
 import { InspectionResponseEntity } from '../entity/inspection-response.entity';
 import { AreaEntity } from '../entity/area.entity';
+import { LOGO_PROSERLA_B64 } from '../../assets/logo-proserla.b64';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -47,27 +46,9 @@ function reportDate(ins: InspectionEntity): string {
   return `${String(day).padStart(2, '0')} ${month} ${year}${time}`.trim();
 }
 
-// ── Ruta del logo ─────────────────────────────────────────────────────────────
-function resolveLogoPath(): string | null {
-  const candidates = [
-    // Producción Railway: dist/app/service → dist/assets
-    path.join(__dirname, '..', '..', 'assets', 'logo-proserla.png'),
-    path.join(__dirname, '..', 'assets', 'logo-proserla.png'),
-    path.join(__dirname, 'assets', 'logo-proserla.png'),
-    // Relativo al proceso
-    path.join(process.cwd(), 'dist', 'assets', 'logo-proserla.png'),
-    path.join(process.cwd(), 'src', 'assets', 'logo-proserla.png'),
-    // Absoluto desde raíz del proyecto
-    path.resolve('apps/back/src/assets/logo-proserla.png'),
-    path.resolve('apps/back/dist/assets/logo-proserla.png'),
-  ];
-  for (const p of candidates) {
-    try {
-      if (fs.existsSync(p)) return p;
-    } catch { /* ignorar */ }
-  }
-  return null;
-}
+// ── Buffer del logo (embebido en base64) ─────────────────────────────────────
+const LOGO_BUFFER: Buffer = Buffer.from(LOGO_PROSERLA_B64, 'base64');
+
 const C = {
   headerBg:   '#1a5276',   // azul oscuro cabecera
   sectionBg:  '#d6eaf8',   // azul claro sección
@@ -179,30 +160,17 @@ export class InspectionReportService {
       // CABECERA INSTITUCIONAL
       // ══════════════════════════════════════════════════════════════════════
 
-      const logoPath = resolveLogoPath();
       const logoW = 110;
       const logoH = 50;
 
-      // Logo izquierdo
+      // Logo izquierdo — buffer embebido, siempre disponible
       rect(L, y, logoW, logoH, '#ffffff', C.border);
-      if (logoPath) {
-        try {
-          doc.image(logoPath, L + 4, y + 4, { width: logoW - 8, height: logoH - 8, fit: [logoW - 8, logoH - 8] });
-        } catch {
-          doc.font('Helvetica-Bold').fontSize(10).fillColor('#1e8449')
-            .text('proserla', L + 8, y + 8, { width: logoW - 16, align: 'center' });
-          doc.y = y; // restaurar
-          doc.font('Helvetica').fontSize(6).fillColor(C.muted)
-            .text('promotora y servicios lambayeque s.a.c.', L + 4, y + 22, { width: logoW - 8, align: 'center' });
-          doc.y = y; // restaurar
-        }
-      } else {
+      try {
+        doc.image(LOGO_BUFFER, L + 2, y + 2, { fit: [logoW - 4, logoH - 4] });
+      } catch {
         doc.font('Helvetica-Bold').fontSize(10).fillColor('#1e8449')
-          .text('proserla', L + 8, y + 8, { width: logoW - 16, align: 'center' });
-        doc.y = y; // restaurar
-        doc.font('Helvetica').fontSize(6).fillColor(C.muted)
-          .text('promotora y servicios lambayeque s.a.c.', L + 4, y + 22, { width: logoW - 8, align: 'center' });
-        doc.y = y; // restaurar
+          .text('proserla', L + 8, y + 12, { width: logoW - 16, align: 'center' });
+        doc.y = y;
       }
 
       // Título central
