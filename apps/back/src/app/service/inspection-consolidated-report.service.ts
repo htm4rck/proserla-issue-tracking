@@ -293,12 +293,8 @@ export class InspectionConsolidatedReportService {
     ws.getRow(9).height = 30;
 
     // ── 12. Filas de datos ────────────────────────────────────────────────────
-    // Altura de fila en puntos EMU para imágenes: 80pt ≈ 107px
-    const ROW_H_PT = 80;
-    // Ancho de columna B y L en caracteres → convertir a EMU para imagen
-    // ExcelJS: 1 char ≈ 7px a 96dpi. Col B = 20 chars ≈ 140px
-    const IMG_W_PX = 130;
-    const IMG_H_PX = 95;
+    // Altura de fila fija para que las imágenes quepan dentro
+    const ROW_H_PT = 120;
 
     let rowIdx = 10;
     let counter = 1;
@@ -355,13 +351,14 @@ export class InspectionConsolidatedReportService {
       // L: Imagen de cierre
       this.dataCell(ws, rowIdx, 12, '', { bg: 'f8f9fa' });
 
-      // ── Embeber imagen INFORME en columna B (dentro de la celda) ──────────
+      // ── Embeber imagen INFORME en columna B (anclada dentro de la celda) ──
       if (reportImg) {
         try {
           const imgId = wb.addImage({ buffer: reportImg.buffer as any, extension: reportImg.ext });
+          // col/row son 0-based; nativeColOff/nativeRowOff en EMU (1px = 9525 EMU)
           ws.addImage(imgId, {
-            tl: { col: 1.05, row: rowIdx - 1 + 0.05 } as any,
-            br: { col: 1.95, row: rowIdx - 1 + 0.95 } as any,
+            tl: { col: 1, row: rowIdx - 1, nativeColOff: 3 * 9525, nativeRowOff: 3 * 9525 } as any,
+            br: { col: 2, row: rowIdx, nativeColOff: -3 * 9525, nativeRowOff: -3 * 9525 } as any,
             editAs: 'oneCell',
           });
         } catch (err) {
@@ -369,13 +366,13 @@ export class InspectionConsolidatedReportService {
         }
       }
 
-      // ── Embeber imagen CIERRE en columna L (dentro de la celda) ───────────
+      // ── Embeber imagen CIERRE en columna L (anclada dentro de la celda) ────
       if (closureImg) {
         try {
           const imgId = wb.addImage({ buffer: closureImg.buffer as any, extension: closureImg.ext });
           ws.addImage(imgId, {
-            tl: { col: 11.05, row: rowIdx - 1 + 0.05 } as any,
-            br: { col: 11.95, row: rowIdx - 1 + 0.95 } as any,
+            tl: { col: 11, row: rowIdx - 1, nativeColOff: 3 * 9525, nativeRowOff: 3 * 9525 } as any,
+            br: { col: 12, row: rowIdx, nativeColOff: -3 * 9525, nativeRowOff: -3 * 9525 } as any,
             editAs: 'oneCell',
           });
         } catch (err) {

@@ -303,17 +303,19 @@ export class InspectionReportService {
 
       for (const sec of sections) {
         y = sectionHeader(sec.title, y);
-        const h = multilineCell(L, y, W, 32, sec.content);
+        const h = multilineCell(L, y, W, 20, sec.content);
         y += h;
       }
 
       // ══════════════════════════════════════════════════════════════════════
       // ADJUNTAR
       // ══════════════════════════════════════════════════════════════════════
-      rect(L, y, W, 22, C.white, C.border);
-      doc.font('Helvetica-Bold').fontSize(8).fillColor(C.text).text('ADJUNTAR:', L + 4, y + 4);
-      doc.font('Helvetica').fontSize(8).fillColor(C.text).text('– Informe de Inspección', L + 4, y + 13);
-      y += 22;
+      rect(L, y, W, 14, C.white, C.border);
+      const adjY = doc.y;
+      doc.font('Helvetica-Bold').fontSize(8).fillColor(C.text).text('ADJUNTAR: ', L + 4, y + 3, { continued: true });
+      doc.font('Helvetica').fontSize(8).fillColor(C.text).text('Informe de Inspeccion');
+      doc.y = adjY;
+      y += 14;
 
       // ══════════════════════════════════════════════════════════════════════
       // EVIDENCIAS FOTOGRÁFICAS (imágenes embebidas)
