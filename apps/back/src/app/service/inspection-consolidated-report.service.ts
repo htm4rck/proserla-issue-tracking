@@ -355,21 +355,29 @@ export class InspectionConsolidatedReportService {
       // L: Imagen de cierre
       this.dataCell(ws, rowIdx, 12, '', { bg: 'f8f9fa' });
 
-      // ── Embeber imagen INFORME en columna B ─────────────────────────────────
+      // ── Embeber imagen INFORME en columna B (dentro de la celda) ──────────
       if (reportImg) {
         try {
           const imgId = wb.addImage({ buffer: reportImg.buffer as any, extension: reportImg.ext });
-          ws.addImage(imgId, `B${rowIdx}:C${rowIdx}`);
+          ws.addImage(imgId, {
+            tl: { col: 1.05, row: rowIdx - 1 + 0.05 } as any,
+            br: { col: 1.95, row: rowIdx - 1 + 0.95 } as any,
+            editAs: 'oneCell',
+          });
         } catch (err) {
           this.logger.warn(`Error embebiendo imagen report para ${insp.inspectionCode}: ${String(err)}`);
         }
       }
 
-      // ── Embeber imagen CIERRE en columna L ──────────────────────────────────
+      // ── Embeber imagen CIERRE en columna L (dentro de la celda) ───────────
       if (closureImg) {
         try {
           const imgId = wb.addImage({ buffer: closureImg.buffer as any, extension: closureImg.ext });
-          ws.addImage(imgId, `L${rowIdx}:M${rowIdx}`);
+          ws.addImage(imgId, {
+            tl: { col: 11.05, row: rowIdx - 1 + 0.05 } as any,
+            br: { col: 11.95, row: rowIdx - 1 + 0.95 } as any,
+            editAs: 'oneCell',
+          });
         } catch (err) {
           this.logger.warn(`Error embebiendo imagen closure para ${insp.inspectionCode}: ${String(err)}`);
         }

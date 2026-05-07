@@ -319,20 +319,26 @@ export class InspectionReportService {
       // EVIDENCIAS FOTOGRÁFICAS (imágenes embebidas)
       // ══════════════════════════════════════════════════════════════════════
       if (evidences.length > 0) {
-        const IMG_H = 140; // altura fija por imagen
-        const IMG_W = W / 2 - 10; // 2 imágenes por fila si caben
+        const IMG_H = 110; // altura fija por imagen (reducida)
+        const IMG_W = W / 2 - 10; // 2 imágenes por fila
 
         ensureSpace(20);
         rect(L, y, W, 16, C.sectionBg, C.border);
         const savedY2 = doc.y;
         doc.font('Helvetica-Bold').fontSize(8).fillColor(C.accent)
-          .text('EVIDENCIAS FOTOGRÁFICAS', L + 4, y + 4, { width: W - 8, align: 'center' });
+          .text('EVIDENCIAS FOTOGRAFICAS', L + 4, y + 4, { width: W - 8, align: 'center' });
         doc.y = savedY2;
         y += 16;
 
-        // Renderizar imágenes en grilla de 2 columnas
-        const evWithImages = evidences.filter(ev => imageBuffers.has(ev.id));
-        const evWithoutImages = evidences.filter(ev => !imageBuffers.has(ev.id));
+        // Ordenar: primero report, luego closure
+        const sorted = [...evidences].sort((a, b) => {
+          if (a.imageType === 'report' && b.imageType !== 'report') return -1;
+          if (a.imageType !== 'report' && b.imageType === 'report') return 1;
+          return 0;
+        });
+
+        const evWithImages = sorted.filter(ev => imageBuffers.has(ev.id));
+        const evWithoutImages = sorted.filter(ev => !imageBuffers.has(ev.id));
 
         for (let i = 0; i < evWithImages.length; i += 2) {
           const labelH = 14;
@@ -345,8 +351,8 @@ export class InspectionReportService {
           const x1 = L;
           const imgW = evWithImages.length === 1 ? W : IMG_W;
 
-          // Etiqueta
-          const label1 = `${ev1.imageType === 'closure' ? '✅ Cierre' : '📷 Informe'}${ev1.uploadedBy ? ' — ' + ev1.uploadedBy : ''}`;
+          // Etiqueta (sin emojis — Helvetica no los soporta)
+          const label1 = `${ev1.imageType === 'closure' ? 'CIERRE' : 'INFORME'}${ev1.uploadedBy ? ' - ' + ev1.uploadedBy : ''}`;
           rect(x1, y, imgW, labelH, C.rowBg, C.border);
           const sy1 = doc.y;
           doc.font('Helvetica-Bold').fontSize(7).fillColor(C.text)
@@ -360,7 +366,7 @@ export class InspectionReportService {
               align: 'center',
               valign: 'center',
             });
-          } catch { /* imagen corrupta, se deja celda vacía */ }
+          } catch { /* imagen corrupta, se deja celda vacia */ }
 
           // Columna derecha (si hay)
           if (i + 1 < evWithImages.length) {
@@ -368,7 +374,7 @@ export class InspectionReportService {
             const buf2 = imageBuffers.get(ev2.id)!;
             const x2 = L + IMG_W + 20;
 
-            const label2 = `${ev2.imageType === 'closure' ? '✅ Cierre' : '📷 Informe'}${ev2.uploadedBy ? ' — ' + ev2.uploadedBy : ''}`;
+            const label2 = `${ev2.imageType === 'closure' ? 'CIERRE' : 'INFORME'}${ev2.uploadedBy ? ' - ' + ev2.uploadedBy : ''}`;
             rect(x2, y, IMG_W, labelH, C.rowBg, C.border);
             const sy2 = doc.y;
             doc.font('Helvetica-Bold').fontSize(7).fillColor(C.text)
