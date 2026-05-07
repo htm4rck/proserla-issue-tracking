@@ -119,6 +119,35 @@
       <!-- Bloque: Ubicación y responsables -->
       <div class="ip-block">
         <p class="ip-block__label">📍 Ubicación y responsables</p>
+
+        <!-- Área → auto-rellena líder -->
+        <div class="ip-row ip-row--2">
+          <div class="ip-field">
+            <label class="ip-lbl">Área <span class="ip-req">*</span></label>
+            <select class="ip-input" formControlName="areaCode">
+              <option value="">— Seleccionar área —</option>
+              @for (a of areasWithLeader; track a.code) {
+                <option [value]="a.code">{{ a.name }}</option>
+              }
+            </select>
+          </div>
+          <div class="ip-field">
+            <label class="ip-lbl">Líder de área</label>
+            <span class="ip-value"
+              [class.ip-value--code]="!!resolvedLeaderName"
+              [class.ip-value--placeholder]="!resolvedLeaderName">
+              @if (resolvedLeaderName) {
+                {{ resolvedLeaderName }}
+                @if (orphanLeaderLabel) {
+                  <span class="ip-leader-orphan"> · histórico</span>
+                }
+              } @else {
+                Selecciona un área primero
+              }
+            </span>
+          </div>
+        </div>
+
         <div class="ip-row ip-row--2">
           <div class="ip-field">
             <label class="ip-lbl">Ubicación <span class="ip-req">*</span></label>
@@ -129,27 +158,14 @@
             <input class="ip-input" formControlName="workArea" placeholder="Ej: Producción Planta" />
           </div>
         </div>
+
         <div class="ip-row ip-row--2">
-          <div class="ip-field">
-            <label class="ip-lbl">Líder de área</label>
-            <select class="ip-input" formControlName="areaLeaderKey">
-              <option value="">— Seleccionar —</option>
-              @if (orphanAreaLeaderOption) {
-                <option [value]="orphanAreaLeaderOption.key">{{ orphanAreaLeaderOption.label }}</option>
-              }
-              @for (l of leadersForSelect; track l.id) {
-                <option [value]="areaLeaderOptionValue(l)">{{ areaName(l.areaCode) }} · {{ l.fullName }}</option>
-              }
-            </select>
-          </div>
           <div class="ip-field">
             <label class="ip-lbl">Responsable asignado</label>
             <input class="ip-input" formControlName="assignedTo" placeholder="Nombre del responsable" />
           </div>
         </div>
       </div>
-
-      <!-- Bloque: Evidencias — ocupa el espacio restante de la columna izquierda -->
       <div class="ip-block ip-block--evidence ip-block--grow">
         <p class="ip-block__label">📎 Evidencias</p>
 

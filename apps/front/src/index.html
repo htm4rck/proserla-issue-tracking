@@ -2,10 +2,32 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>.::RACI - Condiciones o actos inseguros::.</title>
+  <title>.::RACI - Inspecciones de Seguridad::.</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <!--
+    Gill Sans no está disponible en Google Fonts.
+    Cargamos Nunito como sustituto web muy similar en proporciones y legibilidad,
+    y la declaramos como fallback en la cadena de fuentes.
+    Si el sistema del usuario tiene Gill Sans instalada, se usará esa primero.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    /*
+      Orden de resolución de fuente:
+      1. Gill Sans MT  — Windows (Office, sistema)
+      2. Gill Sans     — macOS nativo
+      3. GillSans      — alias alternativo
+      4. Nunito        — web fallback (cargada arriba, muy similar)
+      5. Calibri / Trebuchet MS — fallbacks de sistema
+    */
+    :root {
+      --font-body: 'Gill Sans MT', 'Gill Sans', 'GillSans', 'Nunito', Calibri, 'Trebuchet MS', sans-serif;
+    }
+  </style>
 </head>
 <body>
   <app-root></app-root>

@@ -213,6 +213,12 @@ $muted:     var(--muted);
 
 .ip-req { color: #e53e3e; margin-left: 1px; }
 
+.ip-leader-orphan {
+  font-size: 0.7rem;
+  color: #92400e;
+  font-style: italic;
+}
+
 .ip-value {
   display: block;
   padding: 0.42rem 0.6rem;

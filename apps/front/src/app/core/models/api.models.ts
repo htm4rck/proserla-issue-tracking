@@ -84,7 +84,10 @@ export interface Leader {
   code: string;
   fullName: string;
   email?: string;
+  /** Área primaria (fallback) */
   areaCode: string;
+  /** Todas las áreas asignadas al líder */
+  areas: Array<{ id: string; areaCode: string; isPrimary: boolean }>;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
