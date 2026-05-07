@@ -8,8 +8,14 @@ COPY . .
 RUN npm run build -- --configuration production
 
 FROM nginx:alpine
-# Railway inyecta PORT; nginx:alpine procesa templates con envsubst
-ENV PORT=80
-COPY nginx.railway.conf /etc/nginx/templates/default.conf.template
+# Eliminar config default de nginx
+RUN rm -f /etc/nginx/conf.d/default.conf
+# Copiar template y entrypoint
+COPY nginx.railway.conf /etc/nginx/nginx.conf.template
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+# Copiar build de Angular
 COPY --from=build /app/dist/front/browser /usr/share/nginx/html
+ENV PORT=80
 EXPOSE 80
+CMD ["/docker-entrypoint.sh"]
