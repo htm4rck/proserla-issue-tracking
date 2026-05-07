@@ -525,16 +525,16 @@ export class ReportsService {
         return '<p class="muted">Sin registros.</p>';
       }
       const thRowClass = `th-${variant}`;
-      const head = `<tr class="${thRowClass}"><th>N�</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>EVIDENCIAS</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
+      const head = `<tr class="${thRowClass}"><th>N&deg;</th><th>REPORTANTE</th><th>FECHA</th><th>AREA</th><th>UBICACION</th><th>EVIDENCIAS</th><th>DESCRIPCION</th><th>MEDIDAS</th></tr>`;
       const body = rows
         .map((i, idx) => {
           const imgs = imagesByCode.get(i.inspectionCode) ?? {};
           const links: string[] = [];
           if (imgs.report) {
-            links.push(`<a class="ver-report" href="${escapeHtml(imgs.report)}" target="_blank" rel="noopener noreferrer">?? Ver informe</a>`);
+            links.push(`<a class="ver-report" href="${escapeHtml(imgs.report)}" target="_blank" rel="noopener noreferrer">&#128247; Ver informe</a>`);
           }
           if (imgs.closure) {
-            links.push(`<a class="ver-closure" href="${escapeHtml(imgs.closure)}" target="_blank" rel="noopener noreferrer">? Ver cierre</a>`);
+            links.push(`<a class="ver-closure" href="${escapeHtml(imgs.closure)}" target="_blank" rel="noopener noreferrer">&#9989; Ver cierre</a>`);
           }
           const imgCell = links.length > 0 ? links.join('') : '-';
           return `<tr>
