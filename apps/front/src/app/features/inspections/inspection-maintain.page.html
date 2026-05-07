@@ -30,12 +30,15 @@
         <div class="ip-row ip-row--2">
           <div class="ip-field">
             <label class="ip-lbl">Código</label>
-            <input class="ip-input ip-input--ro" formControlName="inspectionCode"
-              [attr.placeholder]="isCreate ? 'Auto INS-AAAA-NNNNN' : ''" />
+            <span class="ip-value"
+              [class.ip-value--code]="!isCreate"
+              [class.ip-value--placeholder]="isCreate">
+              {{ isCreate ? 'Se asigna al guardar (INS-AAAA-NNNNN)' : form.getRawValue().inspectionCode }}
+            </span>
           </div>
           <div class="ip-field">
             <label class="ip-lbl">Reportante</label>
-            <input class="ip-input ip-input--ro" formControlName="reportedBy" />
+            <span class="ip-value">{{ form.getRawValue().reportedBy || '—' }}</span>
           </div>
         </div>
         <div class="ip-row ip-row--4">

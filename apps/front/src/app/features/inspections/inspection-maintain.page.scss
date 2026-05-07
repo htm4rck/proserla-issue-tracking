@@ -194,9 +194,39 @@ $muted:     var(--muted);
 
 .ip-req { color: #e53e3e; margin-left: 1px; }
 
-.ip-input {
+.ip-value {
+  display: block;
+  padding: 0.42rem 0.6rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: $text;
+  background: #f8fafc;
   border: 1.5px solid $border;
   border-radius: $r-sm;
+  min-height: 34px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  // Código: estilo monospace destacado
+  &--code {
+    font-family: monospace;
+    color: $accent;
+    letter-spacing: 0.04em;
+  }
+
+  // Placeholder cuando está vacío (crear)
+  &--placeholder {
+    color: $muted;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 0.78rem;
+  }
+}
+
+.ip-input {
+  border: 1.5px solid $border;  border-radius: $r-sm;
   padding: 0.42rem 0.6rem;
   font: inherit;
   font-size: 0.85rem;
