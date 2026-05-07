@@ -337,7 +337,7 @@
                           </select>
                           <select [(ngModel)]="userAreaDraft[u.id + '_leader']" class="add-area-select">
                             <option value="">Sin líder</option>
-                            @for (l of leadersForArea(userAreaDraft[u.id + '_area'] ?? ''); track l.id) {
+                            @for (l of leadersForArea(userAreaDraft[u.id + '_area'] || ''); track l.id) {
                               <option [value]="l.code">{{ l.fullName }}</option>
                             }
                           </select>

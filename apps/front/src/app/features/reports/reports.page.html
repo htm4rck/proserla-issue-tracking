@@ -50,7 +50,7 @@
       </label>
 
       <label>Tipo
-        <select formControlName="incidentType">
+        <select formControlName="inspectionType">
           <option value="">Todos</option>
           <option value="act">Acto inseguro</option>
           <option value="condition">Condición insegura</option>
@@ -138,14 +138,14 @@
       <div class="stacked-total">
         <span class="st-label">Total: {{ summary.total }}</span>
         <div class="st-bar">
-          <div class="st-seg open"  [style.width.%]="barWidth(statusBars[0]?.pct ?? 0)" [title]="'Abiertas: ' + summary.open"></div>
-          <div class="st-seg prog"  [style.width.%]="barWidth(statusBars[1]?.pct ?? 0)" [title]="'En proceso: ' + summary.inProgress"></div>
-          <div class="st-seg close" [style.width.%]="barWidth(statusBars[2]?.pct ?? 0)" [title]="'Cerradas: ' + summary.closed"></div>
+          <div class="st-seg open"  [style.width.%]="barWidth(statusBars[0] ? statusBars[0].pct : 0)" [title]="'Abiertas: ' + summary.open"></div>
+          <div class="st-seg prog"  [style.width.%]="barWidth(statusBars[1] ? statusBars[1].pct : 0)" [title]="'En proceso: ' + summary.inProgress"></div>
+          <div class="st-seg close" [style.width.%]="barWidth(statusBars[2] ? statusBars[2].pct : 0)" [title]="'Cerradas: ' + summary.closed"></div>
         </div>
         <div class="st-legend">
-          <span><span class="dot open"></span> Abiertas {{ statusBars[0]?.pct ?? 0 }}%</span>
-          <span><span class="dot prog"></span> En proceso {{ statusBars[1]?.pct ?? 0 }}%</span>
-          <span><span class="dot close"></span> Cerradas {{ statusBars[2]?.pct ?? 0 }}%</span>
+          <span><span class="dot open"></span> Abiertas {{ statusBars[0] ? statusBars[0].pct : 0 }}%</span>
+          <span><span class="dot prog"></span> En proceso {{ statusBars[1] ? statusBars[1].pct : 0 }}%</span>
+          <span><span class="dot close"></span> Cerradas {{ statusBars[2] ? statusBars[2].pct : 0 }}%</span>
         </div>
       </div>
     </section>

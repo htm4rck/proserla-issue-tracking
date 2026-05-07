@@ -62,7 +62,7 @@
       </label>
 
       <label>Tipo
-        <select formControlName="incidentType">
+        <select formControlName="inspectionType">
           <option value="">Todos</option>
           <option value="act">Acto inseguro</option>
           <option value="condition">Condición insegura</option>
@@ -210,7 +210,7 @@
                 class="pill"
                 [class.active]="annualFocusArea === ac"
                 (click)="setAnnualFocusArea(ac)">
-                {{ annualData.areaNames[ac] ?? ac }}
+                {{ annualData.areaNames[ac] || ac }}
               </button>
             }
           </div>
@@ -255,7 +255,7 @@
                   @for (pt of ms.byArea; track pt.areaCode) {
                     @if (pt.total > 0) {
                       <div class="mab-row">
-                        <span class="mab-area">{{ annualData.areaNames[pt.areaCode] ?? pt.areaCode }}</span>
+                        <span class="mab-area">{{ annualData.areaNames[pt.areaCode] || pt.areaCode }}</span>
                         <span class="mab-counts">
                           <span class="tag open">{{ pt.open }}</span>
                           <span class="tag prog">{{ pt.inProgress }}</span>
@@ -280,8 +280,8 @@
     </section>
 
     <nav class="links-row panel" style="padding: 1rem">
-      <a routerLink="/incidents">Ver inspecciones</a>
-      <a routerLink="/incidents/nuevo">Nueva inspección</a>
+      <a routerLink="/inspections">Ver inspecciones</a>
+      <a routerLink="/inspections/nuevo">Nueva inspección</a>
       <a routerLink="/reports">Centro de reportes</a>
     </nav>
 

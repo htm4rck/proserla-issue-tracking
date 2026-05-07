@@ -1,4 +1,4 @@
-import { DatePipe, JsonPipe, KeyValuePipe } from '@angular/common';
+import { DatePipe, JsonPipe } from '@angular/common';
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ApiClientService } from '../../core/services/api-client.service';
@@ -6,7 +6,7 @@ import { AuditLogDetail, AuditLogItem } from '../../core/models/api.models';
 
 @Component({
   selector: 'app-audit-log-page',
-  imports: [DatePipe, JsonPipe, KeyValuePipe, ReactiveFormsModule],
+  imports: [DatePipe, JsonPipe, ReactiveFormsModule],
   templateUrl: './audit-log.page.html',
   styleUrl: './audit-log.page.scss',
 })
