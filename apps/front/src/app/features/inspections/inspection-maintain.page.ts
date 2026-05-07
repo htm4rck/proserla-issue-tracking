@@ -294,8 +294,33 @@ export class InspectionMaintainPageComponent implements OnInit {
 
   // ── Evidencias ────────────────────────────────────────────────────────────
 
-  addEvidenceRow(): void {
-    this.pendingEvidence.push({ imageType: 'report', uploadedBy: '', comment: '' });
+  /** Ya existe imagen de informe (existente o pendiente) */
+  get hasReportImage(): boolean {
+    return this.existingImages.some(i => i.imageType === 'report')
+        || this.pendingEvidence.some(r => r.imageType === 'report' && !!r.file);
+  }
+
+  /** Ya existe imagen de cierre (existente o pendiente) */
+  get hasClosureImage(): boolean {
+    return this.existingImages.some(i => i.imageType === 'closure')
+        || this.pendingEvidence.some(r => r.imageType === 'closure' && !!r.file);
+  }
+
+  addEvidenceRow(type: 'report' | 'closure'): void {
+    // Verificar si ya existe una imagen de ese tipo
+    const existsInServer = this.existingImages.some(i => i.imageType === type);
+    const existsInPending = this.pendingEvidence.some(r => r.imageType === type && !!r.file);
+
+    if (existsInServer || existsInPending) {
+      const label = type === 'report' ? 'Informe' : 'Cierre';
+      if (!confirm(`Ya existe una imagen de "${label}". Si subes otra, reemplazará la anterior. ¿Continuar?`)) {
+        return;
+      }
+      // Quitar la pendiente anterior del mismo tipo
+      this.pendingEvidence = this.pendingEvidence.filter(r => r.imageType !== type);
+    }
+
+    this.pendingEvidence.push({ imageType: type, uploadedBy: '', comment: '' });
   }
 
   removePendingEvidence(index: number): void { this.pendingEvidence.splice(index, 1); }

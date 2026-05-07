@@ -202,10 +202,9 @@
         <!-- Filas pendientes -->
         @for (row of pendingEvidence; track $index; let i = $index) {
           <div class="ip-ev-row">
-            <select class="ip-input ip-ev-row__type" [(ngModel)]="row.imageType" [ngModelOptions]="{standalone:true}">
-              <option value="report">📷 Informe</option>
-              <option value="closure">✅ Cierre</option>
-            </select>
+            <span class="ip-ev-row__type-label">
+              {{ row.imageType === 'closure' ? '✅ Cierre' : '📷 Informe' }}
+            </span>
             <label class="ip-ev-row__file">
               <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
                 (change)="onFileSelected(i, $event)" />
@@ -217,7 +216,14 @@
           </div>
         }
 
-        <button type="button" class="ip-btn-add-ev" (click)="addEvidenceRow()">+ Añadir evidencia</button>
+        <div class="ip-ev-actions">
+          <button type="button" class="ip-btn-add-ev" (click)="addEvidenceRow('report')">
+            📷 {{ hasReportImage ? 'Reemplazar informe' : 'Añadir imagen informe' }}
+          </button>
+          <button type="button" class="ip-btn-add-ev ip-btn-add-ev--closure" (click)="addEvidenceRow('closure')">
+            ✅ {{ hasClosureImage ? 'Reemplazar cierre' : 'Añadir imagen cierre' }}
+          </button>
+        </div>
       </div>
 
     </div><!-- /col-left -->

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import PDFDocument from 'pdfkit';
@@ -46,14 +46,29 @@ function reportDate(ins: InspectionEntity): string {
   return `${String(day).padStart(2, '0')} ${month} ${year}${time}`.trim();
 }
 
+// ── Descarga de imagen con timeout ───────────────────────────────────────────
+async function fetchImageBuffer(url: string): Promise<Buffer | null> {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10_000);
+    const res = await fetch(url, { signal: controller.signal });
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    const ab = await res.arrayBuffer();
+    return Buffer.from(ab);
+  } catch {
+    return null;
+  }
+}
+
 // ── Buffer del logo (embebido en base64) ─────────────────────────────────────
 const LOGO_BUFFER: Buffer = Buffer.from(LOGO_PROSERLA_B64, 'base64');
 
 const C = {
-  headerBg:   '#1a5276',   // azul oscuro cabecera
-  sectionBg:  '#d6eaf8',   // azul claro sección
-  rowBg:      '#eaf4fb',   // fila alternada
-  border:     '#2980b9',   // borde tabla
+  headerBg:   '#1a5276',
+  sectionBg:  '#d6eaf8',
+  rowBg:      '#eaf4fb',
+  border:     '#2980b9',
   text:       '#1a1a1a',
   muted:      '#555555',
   white:      '#ffffff',
@@ -64,6 +79,8 @@ const C = {
 
 @Injectable()
 export class InspectionReportService {
+  private readonly logger = new Logger(InspectionReportService.name);
+
   constructor(
     @InjectRepository(InspectionEntity)
     private readonly inspRepo: Repository<InspectionEntity>,
@@ -85,6 +102,17 @@ export class InspectionReportService {
     const area = await this.areaRepo.findOne({ where: { code: insp.areaCode } });
     const areaName = area?.name ?? insp.areaCode;
 
+    // ── Descargar imágenes de evidencia en paralelo ──────────────────────────
+    const imageBuffers = new Map<string, Buffer>();
+    const downloadTasks = evidences
+      .filter(ev => ev.url?.trim())
+      .map(async (ev) => {
+        const buf = await fetchImageBuffer(ev.url);
+        if (buf) imageBuffers.set(ev.id, buf);
+        else this.logger.warn(`No se pudo descargar imagen ${ev.url}`);
+      });
+    await Promise.all(downloadTasks);
+
     return new Promise<Buffer>((resolve, reject) => {
       const doc = new PDFDocument({
         size: 'A4',
@@ -100,8 +128,9 @@ export class InspectionReportService {
       doc.on('end', () => resolve(Buffer.concat(chunks)));
       doc.on('error', reject);
 
-      const W = doc.page.width - 72;   // ancho útil (márgenes 36 c/lado)
-      const L = 36;                     // margen izquierdo
+      const W = doc.page.width - 72;
+      const L = 36;
+      const PAGE_BOTTOM = doc.page.height - 36;
       let y = 36;
 
       // ── Utilidades de dibujo ──────────────────────────────────────────────
@@ -117,7 +146,6 @@ export class InspectionReportService {
       ) => {
         const bg = opts.bg ?? C.white;
         rect(x, cy, w, h, bg, C.border);
-        // Guardamos y restauramos la posición Y para que el texto no mueva el cursor
         const savedY = doc.y;
         doc
           .font(opts.bold ? 'Helvetica-Bold' : 'Helvetica')
@@ -128,7 +156,6 @@ export class InspectionReportService {
             align: opts.align ?? 'left',
             lineBreak: true,
           });
-        // Restaurar cursor para que no interfiera con el layout manual
         doc.y = savedY;
       };
 
@@ -156,6 +183,13 @@ export class InspectionReportService {
         return h;
       };
 
+      const ensureSpace = (needed: number): void => {
+        if (y + needed > PAGE_BOTTOM) {
+          doc.addPage();
+          y = 36;
+        }
+      };
+
       // ══════════════════════════════════════════════════════════════════════
       // CABECERA INSTITUCIONAL
       // ══════════════════════════════════════════════════════════════════════
@@ -163,7 +197,6 @@ export class InspectionReportService {
       const logoW = 110;
       const logoH = 50;
 
-      // Logo izquierdo — buffer embebido, siempre disponible
       rect(L, y, logoW, logoH, '#ffffff', C.border);
       try {
         doc.image(LOGO_BUFFER, L + 2, y + 2, { fit: [logoW - 4, logoH - 4] });
@@ -173,13 +206,11 @@ export class InspectionReportService {
         doc.y = y;
       }
 
-      // Título central
       rect(L + logoW, y, W - logoW - 70, logoH, C.white, C.border);
       doc.font('Helvetica-Bold').fontSize(10).fillColor(C.accent)
         .text('REGISTRO DE INSPECCIONES INTERNAS DE SEGURIDAD Y\nSALUD EN EL TRABAJO',
           L + logoW + 4, y + 10, { width: W - logoW - 70 - 8, align: 'center' });
 
-      // Código y vigencia
       rect(L + W - 70, y, 70, 25, C.white, C.border);
       doc.font('Helvetica-Bold').fontSize(7).fillColor(C.text)
         .text('Código: SSM-RE-005-02', L + W - 68, y + 4, { width: 66 });
@@ -196,10 +227,10 @@ export class InspectionReportService {
       rect(L, y, W, regH, C.white, C.border);
       doc.font('Helvetica-Bold').fontSize(8).fillColor(C.text)
         .text('N° DE REGISTRO:', L + 4, y + 5);
-      doc.y = y; // restaurar cursor
+      doc.y = y;
       doc.font('Helvetica').fontSize(9).fillColor(C.accent)
         .text(inspectionCode, L + 90, y + 4, { width: 160 });
-      doc.y = y; // restaurar cursor
+      doc.y = y;
       y += regH;
 
       // ══════════════════════════════════════════════════════════════════════
@@ -207,15 +238,16 @@ export class InspectionReportService {
       // ══════════════════════════════════════════════════════════════════════
       y = sectionHeader('DATOS DEL EMPLEADOR', y);
 
+      const empHeaderH = 24; // ← Aumentado de 14 a 24 para que quepa 2 líneas
       const empH = 28;
       const col1 = W * 0.22, col2 = W * 0.14, col3 = W * 0.28, col4 = W * 0.20, col5 = W * 0.16;
       // Cabeceras
-      cell(L,                    y, col1, 14, 'RAZÓN SOCIAL O DENOMINACIÓN SOCIAL', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + col1,             y, col2, 14, 'RUC',                                { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + col1 + col2,      y, col3, 14, 'DOMICILIO\n(Dirección, distrito, departamento, provincia)', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + col1+col2+col3,   y, col4, 14, 'ACTIVIDAD ECONÓMICA',                { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + col1+col2+col3+col4, y, col5, 14, 'N° DE TRABAJADORES EN EL CENTRO DE LABORES', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      y += 14;
+      cell(L,                    y, col1, empHeaderH, 'RAZÓN SOCIAL O\nDENOMINACIÓN SOCIAL', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      cell(L + col1,             y, col2, empHeaderH, 'RUC',                                { bg: C.rowBg, bold: true, size: 7, align: 'center', valign: 'center' });
+      cell(L + col1 + col2,      y, col3, empHeaderH, 'DOMICILIO\n(Dirección, distrito,\ndepartamento, provincia)', { bg: C.rowBg, bold: true, size: 6, align: 'center' });
+      cell(L + col1+col2+col3,   y, col4, empHeaderH, 'ACTIVIDAD\nECONÓMICA',                { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      cell(L + col1+col2+col3+col4, y, col5, empHeaderH, 'N° DE TRABAJADORES\nEN EL CENTRO\nDE LABORES', { bg: C.rowBg, bold: true, size: 6, align: 'center' });
+      y += empHeaderH;
       // Valores
       cell(L,                    y, col1, empH, 'Promotora y Servicios Lambayeque S.A.C.', { size: 7 });
       cell(L + col1,             y, col2, empH, '20479813877',                              { size: 7, align: 'center' });
@@ -225,13 +257,14 @@ export class InspectionReportService {
       y += empH;
 
       // ── Área, fecha, responsables ─────────────────────────────────────────
+      const infoHeaderH = 22; // ← Aumentado para 2 líneas
       const infoH = 18;
       const c1 = W * 0.25, c2 = W * 0.25, c3 = W * 0.25, c4 = W * 0.25;
-      cell(L,          y, c1, infoH, 'ÁREA INSPECCIONADA',          { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + c1,     y, c2, infoH, 'FECHA DE LA INSPECCIÓN',      { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + c1+c2,  y, c3, infoH, 'RESPONSABLE DEL ÁREA INSPECCIONADA', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + c1+c2+c3, y, c4, infoH, 'RESPONSABLE DE LA INSPECCIÓN', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      y += infoH;
+      cell(L,          y, c1, infoHeaderH, 'ÁREA\nINSPECCIONADA',          { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      cell(L + c1,     y, c2, infoHeaderH, 'FECHA DE LA\nINSPECCIÓN',      { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      cell(L + c1+c2,  y, c3, infoHeaderH, 'RESPONSABLE DEL ÁREA\nINSPECCIONADA', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      cell(L + c1+c2+c3, y, c4, infoHeaderH, 'RESPONSABLE DE\nLA INSPECCIÓN', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      y += infoHeaderH;
       cell(L,          y, c1, infoH, areaName,                      { size: 8 });
       cell(L + c1,     y, c2, infoH, reportDate(insp),              { size: 8, align: 'center' });
       cell(L + c1+c2,  y, c3, infoH, esc(insp.leaderCode),          { size: 8 });
@@ -239,11 +272,12 @@ export class InspectionReportService {
       y += infoH;
 
       // ── Hora + Tipo de inspección ─────────────────────────────────────────
+      const horaHeaderH = 22; // ← Aumentado para 2 líneas
       const horaW = W * 0.18, tipoW = W * 0.82;
       const tipoColW = tipoW / 3;
-      cell(L,          y, horaW, 14, 'HORA DE LA INSPECCIÓN',       { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      cell(L + horaW,  y, tipoW, 14, 'TIPO DE LA INSPECCIÓN (MARCA CON X)', { bg: C.rowBg, bold: true, size: 7, align: 'center' });
-      y += 14;
+      cell(L,          y, horaW, horaHeaderH, 'HORA DE LA\nINSPECCIÓN',       { bg: C.rowBg, bold: true, size: 7, align: 'center' });
+      cell(L + horaW,  y, tipoW, horaHeaderH, 'TIPO DE LA INSPECCIÓN (MARCA CON X)', { bg: C.rowBg, bold: true, size: 7, align: 'center', valign: 'center' });
+      y += horaHeaderH;
       cell(L,          y, horaW, 14, esc(insp.reportTime),          { size: 8, align: 'center' });
       const isPlanned   = insp.reportSource === 'checklist';
       const isUnplanned = !isPlanned && insp.reportSource !== '';
@@ -281,31 +315,107 @@ export class InspectionReportService {
       doc.font('Helvetica').fontSize(8).fillColor(C.text).text('– Informe de Inspección', L + 4, y + 13);
       y += 22;
 
-      // Evidencias adjuntas
+      // ══════════════════════════════════════════════════════════════════════
+      // EVIDENCIAS FOTOGRÁFICAS (imágenes embebidas)
+      // ══════════════════════════════════════════════════════════════════════
       if (evidences.length > 0) {
-        rect(L, y, W, 14, C.rowBg, C.border);
-        doc.font('Helvetica-Bold').fontSize(7).fillColor(C.accent)
-          .text('EVIDENCIAS REGISTRADAS EN EL SISTEMA', L + 4, y + 4, { width: W - 8, align: 'center' });
-        y += 14;
-        for (const ev of evidences) {
-          const evH = 14;
-          rect(L, y, W * 0.2, evH, C.white, C.border);
+        const IMG_H = 140; // altura fija por imagen
+        const IMG_W = W / 2 - 10; // 2 imágenes por fila si caben
+
+        ensureSpace(20);
+        rect(L, y, W, 16, C.sectionBg, C.border);
+        const savedY2 = doc.y;
+        doc.font('Helvetica-Bold').fontSize(8).fillColor(C.accent)
+          .text('EVIDENCIAS FOTOGRÁFICAS', L + 4, y + 4, { width: W - 8, align: 'center' });
+        doc.y = savedY2;
+        y += 16;
+
+        // Renderizar imágenes en grilla de 2 columnas
+        const evWithImages = evidences.filter(ev => imageBuffers.has(ev.id));
+        const evWithoutImages = evidences.filter(ev => !imageBuffers.has(ev.id));
+
+        for (let i = 0; i < evWithImages.length; i += 2) {
+          const labelH = 14;
+          const blockH = labelH + IMG_H + 4;
+          ensureSpace(blockH);
+
+          // Columna izquierda
+          const ev1 = evWithImages[i];
+          const buf1 = imageBuffers.get(ev1.id)!;
+          const x1 = L;
+          const imgW = evWithImages.length === 1 ? W : IMG_W;
+
+          // Etiqueta
+          const label1 = `${ev1.imageType === 'closure' ? '✅ Cierre' : '📷 Informe'}${ev1.uploadedBy ? ' — ' + ev1.uploadedBy : ''}`;
+          rect(x1, y, imgW, labelH, C.rowBg, C.border);
+          const sy1 = doc.y;
           doc.font('Helvetica-Bold').fontSize(7).fillColor(C.text)
-            .text(ev.imageType === 'closure' ? 'Cierre' : 'Informe', L + 3, y + 4, { width: W * 0.2 - 6 });
-          rect(L + W * 0.2, y, W * 0.6, evH, C.white, C.border);
-          doc.font('Helvetica').fontSize(7).fillColor('#1a5276')
-            .text(esc(ev.url), L + W * 0.2 + 3, y + 4, { width: W * 0.6 - 6 });
-          rect(L + W * 0.8, y, W * 0.2, evH, C.white, C.border);
-          doc.font('Helvetica').fontSize(7).fillColor(C.muted)
-            .text(esc(ev.uploadedBy), L + W * 0.8 + 3, y + 4, { width: W * 0.2 - 6 });
-          y += evH;
+            .text(label1, x1 + 3, y + 3, { width: imgW - 6 });
+          doc.y = sy1;
+          // Imagen
+          rect(x1, y + labelH, imgW, IMG_H, C.white, C.border);
+          try {
+            doc.image(buf1, x1 + 4, y + labelH + 4, {
+              fit: [imgW - 8, IMG_H - 8],
+              align: 'center',
+              valign: 'center',
+            });
+          } catch { /* imagen corrupta, se deja celda vacía */ }
+
+          // Columna derecha (si hay)
+          if (i + 1 < evWithImages.length) {
+            const ev2 = evWithImages[i + 1];
+            const buf2 = imageBuffers.get(ev2.id)!;
+            const x2 = L + IMG_W + 20;
+
+            const label2 = `${ev2.imageType === 'closure' ? '✅ Cierre' : '📷 Informe'}${ev2.uploadedBy ? ' — ' + ev2.uploadedBy : ''}`;
+            rect(x2, y, IMG_W, labelH, C.rowBg, C.border);
+            const sy2 = doc.y;
+            doc.font('Helvetica-Bold').fontSize(7).fillColor(C.text)
+              .text(label2, x2 + 3, y + 3, { width: IMG_W - 6 });
+            doc.y = sy2;
+            rect(x2, y + labelH, IMG_W, IMG_H, C.white, C.border);
+            try {
+              doc.image(buf2, x2 + 4, y + labelH + 4, {
+                fit: [IMG_W - 8, IMG_H - 8],
+                align: 'center',
+                valign: 'center',
+              });
+            } catch { /* imagen corrupta */ }
+          }
+
+          y += blockH;
+        }
+
+        // Evidencias sin imagen descargada (fallback: mostrar URL)
+        if (evWithoutImages.length > 0) {
+          ensureSpace(14 + evWithoutImages.length * 14);
+          rect(L, y, W, 14, C.rowBg, C.border);
+          const sy3 = doc.y;
+          doc.font('Helvetica-Bold').fontSize(7).fillColor(C.accent)
+            .text('EVIDENCIAS NO DISPONIBLES PARA DESCARGA', L + 4, y + 4, { width: W - 8, align: 'center' });
+          doc.y = sy3;
+          y += 14;
+          for (const ev of evWithoutImages) {
+            rect(L, y, W * 0.15, 14, C.white, C.border);
+            const sy4 = doc.y;
+            doc.font('Helvetica-Bold').fontSize(7).fillColor(C.text)
+              .text(ev.imageType === 'closure' ? 'Cierre' : 'Informe', L + 3, y + 4, { width: W * 0.15 - 6 });
+            doc.y = sy4;
+            rect(L + W * 0.15, y, W * 0.85, 14, C.white, C.border);
+            const sy5 = doc.y;
+            doc.font('Helvetica').fontSize(7).fillColor('#1a5276')
+              .text(esc(ev.url), L + W * 0.15 + 3, y + 4, { width: W * 0.85 - 6 });
+            doc.y = sy5;
+            y += 14;
+          }
         }
       }
 
       y += 6;
 
       // ══════════════════════════════════════════════════════════════════════
-      // FIRMAS — verificar espacio para las 4 filas + pie antes de empezar
+      // FIRMAS
       // ══════════════════════════════════════════════════════════════════════
       const signRows: Array<{ title: string; name: string }> = [
         { title: 'RESPONSABLE DE LA INSPECCIÓN', name: esc(insp.assignedTo) },
@@ -314,13 +424,8 @@ export class InspectionReportService {
         { title: 'RESPONSABLE DEL REGISTRO',      name: esc(insp.reportedBy) },
       ];
 
-      // Cada fila de firma ocupa: 13 (header) + 22 (datos) = 35px
-      // Pie de página: ~14px. Total bloque firmas: 4×35 + 14 = 154px
       const firmasBlockH = signRows.length * 35 + 20;
-      if (y + firmasBlockH > doc.page.height - 36) {
-        doc.addPage();
-        y = 36;
-      }
+      ensureSpace(firmasBlockH);
 
       for (const row of signRows) {
         y = sectionHeader(row.title, y, 13);
@@ -337,7 +442,7 @@ export class InspectionReportService {
         y += 22;
       }
 
-      // ── Pie de página — inline, justo después de las firmas ───────────────
+      // ── Pie de página ─────────────────────────────────────────────────────
       y += 6;
       doc.font('Helvetica').fontSize(6).fillColor(C.muted)
         .text(

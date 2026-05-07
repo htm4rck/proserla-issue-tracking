@@ -106,35 +106,43 @@ export class InspectionConsolidatedReportService {
     if (filters.leaderCode?.trim())  qb.andWhere('i.leaderCode = :leaderCode',             { leaderCode: filters.leaderCode.trim() });
     const inspections = await qb.orderBy('i.createdAt', 'ASC').getMany();
 
-    // ── 2. Evidencias (primera imagen de informe por inspección) ──────────────
+    // ── 2. Evidencias: imagen de informe (col B) y cierre (col L) por inspección
     const codes = inspections.map(i => i.inspectionCode);
-    const evidenceMap = new Map<string, string>(); // code → url
+    const reportImageMap = new Map<string, string>(); // code → url (report)
+    const closureImageMap = new Map<string, string>(); // code → url (closure)
     if (codes.length > 0) {
       const evs = await this.respRepo.createQueryBuilder('r')
         .where('r.inspectionCode IN (:...codes)', { codes })
-        .andWhere("r.imageType = 'report'")
-        .orderBy('r.createdAt', 'ASC')
+        .orderBy('r.createdAt', 'DESC')
         .getMany();
       for (const ev of evs) {
-        if (!evidenceMap.has(ev.inspectionCode)) evidenceMap.set(ev.inspectionCode, ev.url);
+        if (ev.imageType === 'report' && !reportImageMap.has(ev.inspectionCode)) {
+          reportImageMap.set(ev.inspectionCode, ev.url);
+        }
+        if (ev.imageType === 'closure' && !closureImageMap.has(ev.inspectionCode)) {
+          closureImageMap.set(ev.inspectionCode, ev.url);
+        }
       }
     }
 
     // ── 3. Descargar imágenes en paralelo (máx 10 concurrentes) ──────────────
+    // key = "report:CODE" o "closure:CODE"
     const imageBuffers = new Map<string, { buffer: Buffer; ext: 'jpeg'|'png'|'gif' }>();
-    const urlEntries = [...evidenceMap.entries()];
+    const urlEntries: Array<[string, string]> = [];
+    for (const [code, url] of reportImageMap) urlEntries.push([`report:${code}`, url]);
+    for (const [code, url] of closureImageMap) urlEntries.push([`closure:${code}`, url]);
     const BATCH = 10;
     for (let i = 0; i < urlEntries.length; i += BATCH) {
       const batch = urlEntries.slice(i, i + BATCH);
       const results = await Promise.all(
-        batch.map(async ([code, url]) => {
+        batch.map(async ([key, url]) => {
           const img = await fetchImageBuffer(url);
-          return { code, img };
+          return { key, img };
         }),
       );
-      for (const { code, img } of results) {
-        if (img) imageBuffers.set(code, img);
-        else this.logger.warn(`No se pudo descargar imagen para ${code}`);
+      for (const { key, img } of results) {
+        if (img) imageBuffers.set(key, img);
+        else this.logger.warn(`No se pudo descargar imagen para ${key}`);
       }
     }
 
@@ -238,7 +246,7 @@ export class InspectionConsolidatedReportService {
     this.styledCell(ws, 'H5', 'Actividad Agraria', { size: 9, align: 'center' });
     ws.mergeCells('J5:L5');
     this.styledCell(ws, 'J5', '>300 Trabajadores', { size: 9, align: 'center' });
-    ws.getRow(5).height = 30;
+    ws.getRow(5).height = 40;
 
     // ── 9. Fundo / tipo / ejecutor (fila 6) ───────────────────────────────────
     ws.mergeCells('A6:B6');
@@ -252,7 +260,7 @@ export class InspectionConsolidatedReportService {
     this.richLabelCell(ws, 'H6', 'EJECUTOR DE LA INSPECCIÓN:', executor, LIGHT_BLUE);
     ws.mergeCells('J6:L6');
     this.richLabelCell(ws, 'J6', 'CARGO:', 'AUXILIAR SST', LIGHT_BLUE);
-    ws.getRow(6).height = 18;
+    ws.getRow(6).height = 28;
 
     // ── 10. Objetivo (fila 7) ─────────────────────────────────────────────────
     ws.mergeCells('A7:L7');
@@ -260,7 +268,7 @@ export class InspectionConsolidatedReportService {
       'OBJETIVO DE LA INSPECCIÓN: Identificar, evaluar y controlar los riesgos presentes en el lugar de trabajo para prevenir accidentes, enfermedades laborales y proteger la integridad de los trabajadores.',
       { size: 9, italic: true, bg: LIGHT_BLUE, wrap: true },
     );
-    ws.getRow(7).height = 22;
+    ws.getRow(7).height = 34;
 
     // ── 11. Cabecera de columnas (filas 8-9) ──────────────────────────────────
     const colHeaders: [string, string][] = [
@@ -299,9 +307,9 @@ export class InspectionConsolidatedReportService {
       const risk       = riskLabel(insp.riskLevel);
       const status     = statusLabel(insp.status);
       const area       = areaNames.get(insp.areaCode) ?? insp.areaCode;
-      const imgData    = imageBuffers.get(insp.inspectionCode);
+      const reportImg  = imageBuffers.get(`report:${insp.inspectionCode}`);
+      const closureImg = imageBuffers.get(`closure:${insp.inspectionCode}`);
       const rowBg      = counter % 2 === 0 ? 'f0f7ff' : WHITE;
-
       const cumplDate = insp.reportDay
         ? `${String(insp.reportDay).padStart(2,'0')}/${insp.reportMonth ?? ''}/${insp.reportYear ?? ''}`
         : formatDatePE(new Date(insp.createdAt));
@@ -344,23 +352,26 @@ export class InspectionConsolidatedReportService {
       // K: Acción implementada (vacío)
       this.dataCell(ws, rowIdx, 11, '', { bg: rowBg });
 
-      // L: Imagen embebida (misma imagen que B)
+      // L: Imagen de cierre
       this.dataCell(ws, rowIdx, 12, '', { bg: 'f8f9fa' });
 
-      // ── Embeber imagen en columnas B y L ────────────────────────────────────
-      if (imgData) {
+      // ── Embeber imagen INFORME en columna B ─────────────────────────────────
+      if (reportImg) {
         try {
-          const imgId = wb.addImage({ buffer: imgData.buffer as any, extension: imgData.ext });
-
-          // Columna B — usando rango de celdas como string
-          const colB = String.fromCharCode(66); // 'B'
-          const colC = String.fromCharCode(67); // 'C'
-          const colL = String.fromCharCode(76); // 'L'
-          const colM = String.fromCharCode(77); // 'M'
-          ws.addImage(imgId, `${colB}${rowIdx}:${colC}${rowIdx}`);
-          ws.addImage(imgId, `${colL}${rowIdx}:${colM}${rowIdx}`);
+          const imgId = wb.addImage({ buffer: reportImg.buffer as any, extension: reportImg.ext });
+          ws.addImage(imgId, `B${rowIdx}:C${rowIdx}`);
         } catch (err) {
-          this.logger.warn(`Error embebiendo imagen para ${insp.inspectionCode}: ${String(err)}`);
+          this.logger.warn(`Error embebiendo imagen report para ${insp.inspectionCode}: ${String(err)}`);
+        }
+      }
+
+      // ── Embeber imagen CIERRE en columna L ──────────────────────────────────
+      if (closureImg) {
+        try {
+          const imgId = wb.addImage({ buffer: closureImg.buffer as any, extension: closureImg.ext });
+          ws.addImage(imgId, `L${rowIdx}:M${rowIdx}`);
+        } catch (err) {
+          this.logger.warn(`Error embebiendo imagen closure para ${insp.inspectionCode}: ${String(err)}`);
         }
       }
 

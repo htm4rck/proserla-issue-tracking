@@ -510,6 +510,20 @@ $muted:     var(--muted);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   &:hover { border-color: $accent; background: #eef2ff; }
+  &--closure { color: #166534; &:hover { border-color: #22c55e; background: #f0fdf4; } }
+}
+
+.ip-ev-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.ip-ev-row__type-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: $muted;
+  white-space: nowrap;
 }
 
 // ── Modal preview ─────────────────────────────────────────────────────────────
