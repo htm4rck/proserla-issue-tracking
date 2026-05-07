@@ -1,178 +1,390 @@
-﻿<section class="card">
-  <div class="head">
-    <h3>{{ isCreate ? 'Nueva inspección' : 'Mantenimiento de inspección' }}</h3>
-    <a routerLink="/incidents">Volver al listado</a>
-  </div>
+﻿<div class="page-wrapper">
 
-  <div [formGroup]="form" class="grid">
-    <label>
-      Codigo
-      <input formControlName="incidentCode" [attr.placeholder]="isCreate ? 'Se asigna al guardar' : ''" />
-      @if (isCreate) {
-        <small class="field-hint">Correlativo automatico INS-AAAA-NNNNN.</small>
-      }
-    </label>
-    <label>
-      Reportante
-      <input formControlName="reportedBy" />
-      <small class="field-hint">Se toma del usuario en sesion (no editable).</small>
-    </label>
-    <label>
-      Año
-      <select formControlName="reportYear">
-        <option value="">Seleccionar año</option>
-        @for (year of yearOptions; track year) {
-          <option [value]="year">{{ year }}</option>
+  <!-- ── Cabecera ──────────────────────────────────────────────────────── -->
+  <header class="page-header">
+    <div class="page-header__left">
+      <a routerLink="/inspections" class="back-btn">
+        <span class="back-btn__icon">←</span>
+        Volver al listado
+      </a>
+      <div class="page-header__title">
+        <h1>{{ isCreate ? 'Nueva inspección' : 'Ficha de inspección' }}</h1>
+        @if (!isCreate) {
+          <span class="code-badge">{{ form.getRawValue().inspectionCode }}</span>
         }
-      </select>
-    </label>
-    <label>
-      Mes
-      <select formControlName="reportMonth">
-        <option value="">Seleccionar mes</option>
-        @for (m of monthOptions; track m.value) {
-          <option [value]="m.value">{{ m.label }}</option>
-        }
-      </select>
-    </label>
-    <label>Dia <input type="number" formControlName="reportDay" /></label>
-    <label>Hora <input formControlName="reportTime" placeholder="16:28" /></label>
-    <label>
-      Fundo / planta
-      <select formControlName="site">
-        <option value="">Seleccionar fundo o planta</option>
-        @for (ws of workSites; track ws.id) {
-          <option [value]="ws.name">{{ ws.name }}</option>
-        }
-      </select>
-    </label>
-    <label>Datos del reportado <input formControlName="reportedPerson" /></label>
-    <label>Edad <input formControlName="reportedPersonAge" /></label>
-    <label>
-      Procedencia
-      <select formControlName="employerType">
-        <option value="">Seleccionar procedencia</option>
-        @for (et of employerTypes; track et.code) {
-          <option [value]="et.code">{{ et.label }}</option>
-        }
-      </select>
-    </label>
-    <label>
-      Lider de area
-      <select formControlName="areaLeaderKey">
-        <option value="">Seleccionar lider de area</option>
-        @if (orphanAreaLeaderOption) {
-          <option [value]="orphanAreaLeaderOption.key">{{ orphanAreaLeaderOption.label }}</option>
-        }
-        @for (l of leadersForSelect; track l.id) {
-          <option [value]="areaLeaderOptionValue(l)">
-            Area: {{ areaName(l.areaCode) }} - Lider: {{ l.fullName }}
-          </option>
-        }
-      </select>
-      <small class="field-hint">Se guardan el codigo de area y el codigo del lider segun el maestro de lideres.</small>
-    </label>
-    <label>Responsable <input formControlName="assignedTo" /></label>
-    <label>Ubicacion <input formControlName="location" /></label>
-    <label>Area de trabajo <input formControlName="workArea" /></label>
-    <label>
-      Tipo de inspección
-      <select formControlName="incidentType">
-        <option value="condition">Condición insegura</option>
-        <option value="act">Acto inseguro</option>
-        <option value="mixed">Mixto</option>
-      </select>
-    </label>
-    <label>Riesgo
-      <select formControlName="riskLevel">
-        <option value="low">Bajo</option>
-        <option value="medium">Medio</option>
-        <option value="high">Alto</option>
-      </select>
-    </label>
-    <div class="status-flow">
-      <span>Flujo de estado</span>
-      <label class="status-open"><input type="checkbox" [checked]="form.value.status === 'open'" (change)="setStatus('open')" /> Pendiente</label>
-      <label class="status-progress"><input type="checkbox" [checked]="form.value.status === 'in_progress'" (change)="setStatus('in_progress')" /> En proceso</label>
-      <label class="status-closed"><input type="checkbox" [checked]="form.value.status === 'closed'" (change)="setStatus('closed')" /> Cerrada</label>
-      @if (form.value.status === 'closed' && !hasClosureEvidence) {
-        <small class="err">Para cerrar, agrega evidencia tipo "Cierre".</small>
-      }
-    </div>
-    <label>
-      Tipo de reporte
-      <select formControlName="reportSource">
-        <option value="">Seleccionar tipo</option>
-        <option value="whatsapp">WhatsApp</option>
-        <option value="checklist">Checklist</option>
-        <option value="verbal">Verbal</option>
-        <option value="correo">Correo electrónico</option>
-        <option value="sistema">Sistema</option>
-      </select>
-    </label>
-    <label class="full">Descripcion <textarea rows="4" formControlName="description"></textarea></label>
-    <label class="full">Comentario de seguimiento <textarea rows="3" formControlName="comment"></textarea></label>
-    <label class="full">Medidas correctivas <textarea rows="3" formControlName="correctiveMeasures"></textarea></label>
-  </div>
-
-  <div class="section panel">
-    <h4>Evidencias (archivo)</h4>
-    <p class="muted">Adjunta la imagen directamente. Al guardar se sube y se registra su URL automaticamente.</p>
-    @if (!isCreate && existingImages.length) {
-      <table class="sub">
-        <thead><tr><th>Tipo</th><th>Archivo</th><th>Subido por</th></tr></thead>
-        <tbody>
-          @for (img of existingImages; track img.id) {
-            <tr>
-              <td>{{ img.imageType }}</td>
-              <td class="clip">
-                <button type="button" class="btn-link" (click)="openImagePreview(img)">Ver imagen</button>
-                <span class="muted small">{{ img.url }}</span>
-              </td>
-              <td>{{ img.uploadedBy || '-' }}</td>
-            </tr>
-          }
-        </tbody>
-      </table>
-    }
-    @for (row of pendingEvidence; track $index; let i = $index) {
-      <div class="ev-row grid">
-        <select [(ngModel)]="row.imageType" [ngModelOptions]="{ standalone: true }">
-          <option value="report">Informe</option>
-          <option value="closure">Cierre</option>
-        </select>
-        <label class="file-picker">
-          <span>Archivo</span>
-          <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" (change)="onFileSelected(i, $event)" />
-          <small>{{ pendingFileName(row) }}</small>
-        </label>
-        <input [(ngModel)]="row.uploadedBy" placeholder="Subido por (opcional)" [ngModelOptions]="{ standalone: true }" />
-        <button type="button" class="btn-secondary" (click)="removePendingEvidence(i)">Quitar</button>
       </div>
-    }
-    <button type="button" class="btn-secondary" (click)="addEvidenceRow()">+ Añadir evidencia</button>
-  </div>
+    </div>
+    <div class="page-header__actions">
+      <button type="button" class="btn-save" (click)="submit()">
+        <span class="btn-save__icon">✓</span>
+        Guardar todo
+      </button>
+    </div>
+  </header>
 
-  <div class="actions">
-    <button type="button" (click)="submit()">Guardar todo</button>
-  </div>
+  <!-- ── Mensajes ──────────────────────────────────────────────────────── -->
+  @if (feedback) {
+    <div class="alert alert--ok">
+      <span class="alert__icon">✓</span>
+      {{ feedback }}
+    </div>
+  }
+  @if (errorMsg) {
+    <div class="alert alert--err">
+      <span class="alert__icon">!</span>
+      {{ errorMsg }}
+    </div>
+  }
 
-  @if (feedback) { <p class="ok">{{ feedback }}</p> }
-  @if (errorMsg) { <p class="err">{{ errorMsg }}</p> }
-</section>
+  <div [formGroup]="form" class="form-body">
 
+    <!-- ══ SECCIÓN 1: Identificación ══════════════════════════════════════ -->
+    <section class="form-section">
+      <div class="form-section__header">
+        <span class="form-section__icon">📋</span>
+        <div>
+          <h2 class="form-section__title">Identificación</h2>
+          <p class="form-section__desc">Datos del registro y del reportante</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-group">
+          <label class="field-label" for="inspectionCode">Código</label>
+          <input id="inspectionCode" class="field-input field-input--disabled"
+            formControlName="inspectionCode"
+            [attr.placeholder]="isCreate ? 'Se asigna al guardar' : ''" />
+          @if (isCreate) {
+            <span class="field-hint">Correlativo automático INS-AAAA-NNNNN</span>
+          }
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="reportedBy">Reportante</label>
+          <input id="reportedBy" class="field-input field-input--disabled" formControlName="reportedBy" />
+          <span class="field-hint">Tomado del usuario en sesión · no editable</span>
+        </div>
+
+        <div class="field-group field-group--sm">
+          <label class="field-label" for="reportYear">Año</label>
+          <select id="reportYear" class="field-input" formControlName="reportYear">
+            <option value="">— Año —</option>
+            @for (year of yearOptions; track year) {
+              <option [value]="year">{{ year }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group field-group--sm">
+          <label class="field-label" for="reportMonth">Mes</label>
+          <select id="reportMonth" class="field-input" formControlName="reportMonth">
+            <option value="">— Mes —</option>
+            @for (m of monthOptions; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group field-group--xs">
+          <label class="field-label" for="reportDay">Día</label>
+          <input id="reportDay" class="field-input" type="number" min="1" max="31" formControlName="reportDay" />
+        </div>
+
+        <div class="field-group field-group--xs">
+          <label class="field-label" for="reportTime">Hora</label>
+          <input id="reportTime" class="field-input" formControlName="reportTime" placeholder="08:30" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="site">Fundo / planta</label>
+          <select id="site" class="field-input" formControlName="site">
+            <option value="">— Seleccionar —</option>
+            @for (ws of workSites; track ws.id) {
+              <option [value]="ws.name">{{ ws.name }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="reportSource">Origen del reporte</label>
+          <select id="reportSource" class="field-input" formControlName="reportSource">
+            <option value="">— Seleccionar —</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="checklist">Checklist</option>
+            <option value="verbal">Verbal</option>
+            <option value="correo">Correo electrónico</option>
+            <option value="sistema">Sistema</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 2: Persona reportada ══════════════════════════════════ -->
+    <section class="form-section">
+      <div class="form-section__header">
+        <span class="form-section__icon">👤</span>
+        <div>
+          <h2 class="form-section__title">Persona reportada</h2>
+          <p class="form-section__desc">Datos del trabajador o persona involucrada</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-group field-group--lg">
+          <label class="field-label" for="reportedPerson">Nombre / datos del reportado</label>
+          <input id="reportedPerson" class="field-input" formControlName="reportedPerson" placeholder="Nombre completo o N/A" />
+        </div>
+
+        <div class="field-group field-group--xs">
+          <label class="field-label" for="reportedPersonAge">Edad</label>
+          <input id="reportedPersonAge" class="field-input" formControlName="reportedPersonAge" placeholder="—" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="employerType">Procedencia</label>
+          <select id="employerType" class="field-input" formControlName="employerType">
+            <option value="">— Seleccionar —</option>
+            @for (et of employerTypes; track et.code) {
+              <option [value]="et.code">{{ et.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 3: Ubicación y responsables ════════════════════════════ -->
+    <section class="form-section">
+      <div class="form-section__header">
+        <span class="form-section__icon">📍</span>
+        <div>
+          <h2 class="form-section__title">Ubicación y responsables</h2>
+          <p class="form-section__desc">Dónde ocurrió y quién está a cargo</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-group field-group--lg">
+          <label class="field-label required" for="location">Ubicación <span class="req-mark">*</span></label>
+          <input id="location" class="field-input" formControlName="location" placeholder="Ej: Línea 2 - Empaque" />
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="workArea">Área de trabajo</label>
+          <input id="workArea" class="field-input" formControlName="workArea" placeholder="Ej: Producción Planta" />
+        </div>
+
+        <div class="field-group field-group--lg">
+          <label class="field-label" for="areaLeaderKey">Líder de área</label>
+          <select id="areaLeaderKey" class="field-input" formControlName="areaLeaderKey">
+            <option value="">— Seleccionar área y líder —</option>
+            @if (orphanAreaLeaderOption) {
+              <option [value]="orphanAreaLeaderOption.key">{{ orphanAreaLeaderOption.label }}</option>
+            }
+            @for (l of leadersForSelect; track l.id) {
+              <option [value]="areaLeaderOptionValue(l)">
+                {{ areaName(l.areaCode) }} · {{ l.fullName }}
+              </option>
+            }
+          </select>
+          <span class="field-hint">Se guardan el código de área y el código del líder</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="assignedTo">Responsable asignado</label>
+          <input id="assignedTo" class="field-input" formControlName="assignedTo" placeholder="Nombre del responsable" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 4: Clasificación y estado ══════════════════════════════ -->
+    <section class="form-section">
+      <div class="form-section__header">
+        <span class="form-section__icon">🏷️</span>
+        <div>
+          <h2 class="form-section__title">Clasificación y estado</h2>
+          <p class="form-section__desc">Tipo, nivel de riesgo y flujo de seguimiento</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-group">
+          <label class="field-label required" for="inspectionType">Tipo de inspección <span class="req-mark">*</span></label>
+          <select id="inspectionType" class="field-input" formControlName="inspectionType">
+            <option value="condition">Condición insegura</option>
+            <option value="act">Acto inseguro</option>
+            <option value="mixed">Mixto</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label required" for="riskLevel">Nivel de riesgo <span class="req-mark">*</span></label>
+          <select id="riskLevel" class="field-input" formControlName="riskLevel">
+            <option value="low">🟢 Bajo</option>
+            <option value="medium">🟡 Medio</option>
+            <option value="high">🔴 Alto</option>
+          </select>
+        </div>
+
+        <!-- Estado — toggle visual -->
+        <div class="field-group field-group--full">
+          <span class="field-label">Estado del seguimiento</span>
+          <div class="status-toggle">
+            <button type="button"
+              class="status-btn status-btn--open"
+              [class.active]="form.value.status === 'open'"
+              (click)="setStatus('open')">
+              <span class="status-btn__dot"></span>
+              Pendiente
+            </button>
+            <span class="status-arrow">→</span>
+            <button type="button"
+              class="status-btn status-btn--progress"
+              [class.active]="form.value.status === 'in_progress'"
+              (click)="setStatus('in_progress')">
+              <span class="status-btn__dot"></span>
+              En proceso
+            </button>
+            <span class="status-arrow">→</span>
+            <button type="button"
+              class="status-btn status-btn--closed"
+              [class.active]="form.value.status === 'closed'"
+              (click)="setStatus('closed')">
+              <span class="status-btn__dot"></span>
+              Cerrada
+            </button>
+          </div>
+          @if (form.value.status === 'closed' && !hasClosureEvidence) {
+            <div class="status-warning">
+              <span>⚠</span>
+              Para cerrar la inspección debes adjuntar evidencia de tipo "Cierre"
+            </div>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 5: Descripción y seguimiento ═══════════════════════════ -->
+    <section class="form-section">
+      <div class="form-section__header">
+        <span class="form-section__icon">📝</span>
+        <div>
+          <h2 class="form-section__title">Descripción y seguimiento</h2>
+          <p class="form-section__desc">Detalle del hallazgo, observaciones y acciones correctivas</p>
+        </div>
+      </div>
+
+      <div class="fields-grid">
+        <div class="field-group field-group--full">
+          <label class="field-label required" for="description">Descripción del hallazgo <span class="req-mark">*</span></label>
+          <textarea id="description" class="field-input field-textarea" rows="4"
+            formControlName="description"
+            placeholder="Describe detalladamente la condición o acto inseguro observado…"></textarea>
+        </div>
+
+        <div class="field-group field-group--full">
+          <label class="field-label" for="comment">Comentario de seguimiento</label>
+          <textarea id="comment" class="field-input field-textarea" rows="3"
+            formControlName="comment"
+            placeholder="Observaciones adicionales, avances o notas de seguimiento…"></textarea>
+        </div>
+
+        <div class="field-group field-group--full">
+          <label class="field-label" for="correctiveMeasures">Medidas correctivas</label>
+          <textarea id="correctiveMeasures" class="field-input field-textarea" rows="3"
+            formControlName="correctiveMeasures"
+            placeholder="Acciones tomadas o recomendadas para corregir el hallazgo…"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECCIÓN 6: Evidencias ══════════════════════════════════════════ -->
+    <section class="form-section">
+      <div class="form-section__header">
+        <span class="form-section__icon">📎</span>
+        <div>
+          <h2 class="form-section__title">Evidencias</h2>
+          <p class="form-section__desc">Imágenes de informe y cierre. Al guardar se suben automáticamente.</p>
+        </div>
+      </div>
+
+      <!-- Evidencias existentes -->
+      @if (!isCreate && existingImages.length) {
+        <div class="evidence-grid">
+          @for (img of existingImages; track img.id) {
+            <div class="evidence-card" [class.evidence-card--closure]="img.imageType === 'closure'">
+              <div class="evidence-card__badge">
+                {{ img.imageType === 'closure' ? '✅ Cierre' : '📷 Informe' }}
+              </div>
+              <button type="button" class="evidence-card__preview" (click)="openImagePreview(img)">
+                Ver imagen
+              </button>
+              @if (img.uploadedBy) {
+                <span class="evidence-card__by">{{ img.uploadedBy }}</span>
+              }
+              @if (img.uploadOk === false) {
+                <span class="evidence-card__error">⚠ Upload fallido</span>
+              }
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Filas pendientes -->
+      @for (row of pendingEvidence; track $index; let i = $index) {
+        <div class="ev-pending">
+          <select class="field-input ev-pending__type" [(ngModel)]="row.imageType" [ngModelOptions]="{ standalone: true }">
+            <option value="report">📷 Informe</option>
+            <option value="closure">✅ Cierre</option>
+          </select>
+          <label class="ev-pending__file">
+            <input type="file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+              (change)="onFileSelected(i, $event)" />
+            <span class="ev-pending__filename">{{ pendingFileName(row) }}</span>
+          </label>
+          <input class="field-input ev-pending__by"
+            [(ngModel)]="row.uploadedBy"
+            placeholder="Subido por (opcional)"
+            [ngModelOptions]="{ standalone: true }" />
+          <button type="button" class="btn-remove" (click)="removePendingEvidence(i)" title="Quitar">✕</button>
+        </div>
+      }
+
+      <button type="button" class="btn-add-evidence" (click)="addEvidenceRow()">
+        <span>+</span> Añadir evidencia
+      </button>
+    </section>
+
+  </div><!-- /form-body -->
+
+  <!-- ── Footer de acciones ─────────────────────────────────────────────── -->
+  <footer class="form-footer">
+    <a routerLink="/inspections" class="btn-cancel">Cancelar</a>
+    <button type="button" class="btn-save btn-save--lg" (click)="submit()">
+      <span class="btn-save__icon">✓</span>
+      Guardar todo
+    </button>
+  </footer>
+
+</div><!-- /page-wrapper -->
+
+<!-- ── Modal de previsualización ─────────────────────────────────────────── -->
 @if (previewImage) {
   <div class="preview-overlay" (click)="closeImagePreview()">
     <article class="preview-modal" (click)="$event.stopPropagation()">
-      <header>
+      <header class="preview-modal__header">
         <div>
-          <h5>Vista de evidencia</h5>
-          <p>{{ previewImage.imageType }} · {{ previewImage.uploadedBy || 'sin usuario' }}</p>
+          <h5 class="preview-modal__title">Vista de evidencia</h5>
+          <p class="preview-modal__meta">
+            {{ previewImage.imageType === 'closure' ? '✅ Cierre' : '📷 Informe' }}
+            @if (previewImage.uploadedBy) { · {{ previewImage.uploadedBy }} }
+          </p>
         </div>
-        <button type="button" class="btn-secondary" (click)="closeImagePreview()">Cerrar</button>
+        <button type="button" class="preview-modal__close" (click)="closeImagePreview()">✕</button>
       </header>
       <img [src]="previewImage.url" alt="Evidencia de inspección" />
-      <a [href]="previewImage.url" target="_blank" rel="noopener noreferrer">Abrir imagen en pestaña nueva</a>
+      <a [href]="previewImage.url" target="_blank" rel="noopener noreferrer" class="preview-modal__link">
+        Abrir en pestaña nueva ↗
+      </a>
     </article>
   </div>
 }
