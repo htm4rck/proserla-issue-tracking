@@ -124,7 +124,7 @@ $sidebar-w: 260px;
 /* ── Content wrap ────────────────────────────────────────────────────────── */
 .content-wrap {
   display: grid;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
   gap: 1rem;
   min-width: 0;
   min-height: 0;
@@ -211,6 +211,34 @@ $sidebar-w: 260px;
   padding-bottom: 0.5rem;
 }
 
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+.app-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.72rem;
+  color: var(--muted);
+  flex-shrink: 0;
+
+  a {
+    color: var(--muted);
+    font-weight: 600;
+    text-decoration: none;
+    &:hover { color: var(--text); }
+  }
+
+  &__right {
+    white-space: nowrap;
+    letter-spacing: 0.02em;
+  }
+}
+
 /* ── Overlay (mobile) ────────────────────────────────────────────────────── */
 .nav-overlay {
   display: none;
@@ -276,6 +304,14 @@ $sidebar-w: 260px;
 
   .content {
     overflow: visible;
+  }
+
+  .app-footer {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.2rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
   }
 
   .topbar {
