@@ -17,5 +17,6 @@ RUN chmod +x /docker-entrypoint.sh
 # Copiar build de Angular
 COPY --from=build /app/dist/front/browser /usr/share/nginx/html
 ENV PORT=80
+ENV API_UPSTREAM=http://api:3000
 EXPOSE 80
 CMD ["/docker-entrypoint.sh"]
