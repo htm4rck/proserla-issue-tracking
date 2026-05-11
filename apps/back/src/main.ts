@@ -9,7 +9,7 @@ async function bootstrap() {
 
   // Header corporativo
   app.use((_req: any, res: any, next: any) => {
-    res.setHeader('X-Powered-By', 'Tordo — tordo.io');
+    res.setHeader('X-Powered-By', 'Tordo - tordo.io');
     next();
   });
 
