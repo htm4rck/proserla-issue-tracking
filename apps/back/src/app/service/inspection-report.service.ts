@@ -316,18 +316,19 @@ export class InspectionReportService {
       // ══════════════════════════════════════════════════════════════════════
       // ADJUNTAR
       // ══════════════════════════════════════════════════════════════════════
-      rect(L, y, W, 14, C.white, C.border);
-      const adjY = doc.y;
-      doc.font('Helvetica-Bold').fontSize(8).fillColor(C.text).text('ADJUNTAR: ', L + 4, y + 3, { continued: true });
-      doc.font('Helvetica').fontSize(8).fillColor(C.text).text('Informe de Inspeccion');
-      doc.y = adjY;
-      y += 14;
+      //rect(L, y, W, 14, C.white, C.border);
+      //const adjY = doc.y;
+      //doc.font('Helvetica-Bold').fontSize(8).fillColor(C.text).text('ADJUNTAR: ', L + 4, y + 3, { continued: true });
+      //doc.font('Helvetica').fontSize(8).fillColor(C.text).text('Informe de Inspeccion');
+      //doc.y = adjY;
+      //y += 14;
 
       // ══════════════════════════════════════════════════════════════════════
       // EVIDENCIAS FOTOGRÁFICAS (imágenes embebidas)
       // ══════════════════════════════════════════════════════════════════════
-      if (evidences.length > 0) {
-        const IMG_H = 110; // altura fija por imagen (reducida)
+      //if (evidences.length > 0) {
+      if (false){
+      const IMG_H = 110; // altura fija por imagen (reducida)
         const IMG_W = W / 2 - 10; // 2 imágenes por fila
 
         ensureSpace(20);
