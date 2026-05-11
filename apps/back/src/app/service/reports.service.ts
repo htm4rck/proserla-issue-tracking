@@ -679,7 +679,8 @@ export class ReportsService {
       }
     }
 
-    if (filters.period || referenceDate) {
+    // Solo aplicar filtro por rango de createdAt si NO hay filtros explícitos de reportMonth/reportYear
+    if (!reportMonth && !reportYearRaw && (filters.period || referenceDate)) {
       const period = this.normalizePeriod(filters.period);
       const { start, end } = this.resolveRange(period, referenceDate);
       qb.andWhere('inspection.createdAt BETWEEN :start AND :end', { start, end });
