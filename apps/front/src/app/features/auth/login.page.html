@@ -26,23 +26,16 @@
       @if (message) { <p class="error">{{ message }}</p> }
     </div>
     <footer class="login-footer">
-      © 2026 <a href="https://tordo.io" target="_blank" rel="noopener">Tordo</a> — Soluciones de integración empresarial
+      <tordo-branding />
       <button type="button" class="login-about-btn" (click)="showAbout = true">Acerca de</button>
     </footer>
   </section>
 </div>
 
-@if (showAbout) {
-  <div class="about-overlay" (click)="showAbout = false">
-    <div class="about-modal" (click)="$event.stopPropagation()">
-      <button type="button" class="about-close" (click)="showAbout = false">✕</button>
-      <img src="/images/logo-tordo.png" alt="Tordo" class="about-logo" />
-      <h3>RACI v1.0</h3>
-      <p class="about-desc">REGISTROS DE ACTOS Y CONDICIONES INSEGURAS</p>
-      <hr class="about-hr" />
-      <p class="about-powered">Desarrollado por</p>
-      <a href="https://tordo.io" target="_blank" rel="noopener noreferrer" class="about-link">tordo.io</a>
-      <p class="about-tagline">Soluciones de integración empresarial</p>
-    </div>
-  </div>
-}
+<tordo-about
+  [visible]="showAbout"
+  appName="RACI"
+  appVersion="1.0"
+  appDescription="REGISTROS DE ACTOS Y CONDICIONES INSEGURAS"
+  (close)="showAbout = false"
+/>

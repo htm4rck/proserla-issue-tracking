@@ -1,10 +1,11 @@
-﻿import { Component, inject } from '@angular/core';
+﻿import { Component, inject, ViewChild } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { AuthSessionService } from '../core/services/auth-session.service';
+import { TordoShellComponent } from '@tordo/frontend';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TordoShellComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss',
 })
@@ -12,8 +13,9 @@ export class AppShellComponent {
   readonly session = inject(AuthSessionService);
   private readonly router = inject(Router);
 
+  @ViewChild('tordoShell') tordoShell!: TordoShellComponent;
+
   navOpen = false;
-  showAbout = false;
 
   private readonly fullMenu = [
     { label: 'Tablero', route: '/dashboard', icon: 'TB' },

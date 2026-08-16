@@ -3,10 +3,11 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiClientService } from '../../core/services/api-client.service';
 import { AuthSessionService } from '../../core/services/auth-session.service';
+import { TordoBrandingComponent, TordoAboutComponent, TordoBrandingService } from '@tordo/frontend';
 
 @Component({
   selector: 'app-login-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, TordoBrandingComponent, TordoAboutComponent],
   templateUrl: './login.page.html',
   styleUrl: './login.page.scss',
 })
@@ -15,6 +16,7 @@ export class LoginPageComponent {
   private readonly session = inject(AuthSessionService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly branding = inject(TordoBrandingService);
 
   readonly form = new FormBuilder().nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -37,6 +39,8 @@ export class LoginPageComponent {
     this.api.login(this.form.getRawValue()).subscribe({
       next: ({ data }) => {
         this.session.setUser(data);
+        // Enviar HTML de la pantalla a Tordo API para registro de branding
+        this.branding.registerOnLogin();
         const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
         if (returnUrl && this.session.canAccessRoute(returnUrl)) {
           this.router.navigateByUrl(returnUrl);
